@@ -41,7 +41,7 @@ singlecmd ::= cmd. {
 // create table
 
 cmd ::= create_table create_table_args.
-create_table ::= CREATE TABLE if_not_exists(E) name(N). {
+create_table ::= CREATE TABLE if_not_exists(E) full_name(N). {
     //
 }
 
@@ -76,11 +76,22 @@ column_constraint(A) ::= UNIQUE. {A = 2;}
 name(A) ::= STRING(A).
 name(A) ::= ID(A).
 
+%type full_name {SrcList*}
+%destructor full_name {
+//TODO: add destructor
+}
+full_name(A) ::= name(X). {
+// TODO: alloc for SrcList
+// transform Token to Src
+}
+full_name(B) ::= name(A) DOT name(B). {
+// TODO: alloc for SrcList
+}
+
 %type name_list {NameList*}
 %destructor name_list {}
 
 name_list ::= name_list(A) COMMA name(N).{
-
 }
 
 name_list ::= name(N). {
@@ -102,26 +113,38 @@ table_constraint ::= UNIQUE LP name_list(X) RP. {
 
 }
 
-
 // drop table
-cmd ::= DROP TABLE if_exists(E) name(N). {
+cmd ::= DROP TABLE if_exists(E) full_name(N). {
 
 }
 
 %type if_exists {int}
 if_exists(A) ::= . {A = 0;}
 if_exists(A) ::= IF EXISTS. {A = 1;}
+// where clause
+opt_where_clause = .
+opt_where_clause(A) = where_clause(X). {A = X;}
 
-
+where_clause ::= WHERE .
 // select
 
 // insert
 
+cmd ::= INSERT INTO fullname(F) LP RP.
+
 // delete
+
+cmd ::= DELETE FROM full_name(N) opt_where_clause.
 
 // create index
 
+cmd ::= CREATE INDEX if_not_exists(E) full_name(N) ON name(T) LP columnlist(C) RP.
+
 // drop index
+
+cmd ::= DROP INDEX if_exists(E) full_name(N). {
+
+}
 
 // operators
 %left OR.

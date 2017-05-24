@@ -89,14 +89,15 @@
 #endif
 /************* Begin control #defines *****************************************/
 #define YYCODETYPE unsigned char
-#define YYNOCODE 50
+#define YYNOCODE 53
 #define YYACTIONTYPE unsigned char
 #define miniSqlParserTOKENTYPE Token
 typedef union {
   int yyinit;
   miniSqlParserTOKENTYPE yy0;
-  int yy32;
-  NameList* yy40;
+  int yy20;
+  SrcList* yy35;
+  NameList* yy92;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -105,16 +106,16 @@ typedef union {
 #define miniSqlParserARG_PDECL ,Parser *pParser
 #define miniSqlParserARG_FETCH Parser *pParser = yypParser->pParser
 #define miniSqlParserARG_STORE yypParser->pParser = pParser
-#define YYNSTATE             60
-#define YYNRULE              33
-#define YY_MAX_SHIFT         59
-#define YY_MIN_SHIFTREDUCE   60
-#define YY_MAX_SHIFTREDUCE   92
-#define YY_MIN_REDUCE        93
-#define YY_MAX_REDUCE        125
-#define YY_ERROR_ACTION      126
-#define YY_ACCEPT_ACTION     127
-#define YY_NO_ACTION         128
+#define YYNSTATE             66
+#define YYNRULE              36
+#define YY_MAX_SHIFT         65
+#define YY_MIN_SHIFTREDUCE   66
+#define YY_MAX_SHIFTREDUCE   101
+#define YY_MIN_REDUCE        102
+#define YY_MAX_REDUCE        137
+#define YY_ERROR_ACTION      138
+#define YY_ACCEPT_ACTION     139
+#define YY_NO_ACTION         140
 /************* End control #defines *******************************************/
 
 /* Define the yytestcase() macro to be a no-op if is not already defined
@@ -186,70 +187,74 @@ typedef union {
 **  yy_default[]       Default action for each state.
 **
 *********** Begin parsing tables **********************************************/
-#define YY_ACTTAB_COUNT (158)
+#define YY_ACTTAB_COUNT (170)
 static const YYACTIONTYPE yy_action[] = {
- /*     0 */   122,   18,   17,  122,  122,   22,    5,   15,  122,    6,
- /*    10 */   122,  122,  122,  122,  121,  122,  108,  121,  121,  114,
- /*    20 */     1,   46,  121,   28,  121,  121,  121,  121,   99,  121,
- /*    30 */    39,   10,   99,   11,   21,   53,   19,   99,   42,   99,
- /*    40 */   127,    2,   23,   59,   58,   16,   41,   50,  103,   47,
- /*    50 */    18,   17,  103,    5,  113,  113,    7,   54,   56,   37,
- /*    60 */    36,   29,   25,   59,   58,   16,  102,  101,   97,   97,
- /*    70 */   102,  101,   40,   45,   30,  102,  101,  102,  101,   32,
- /*    80 */    33,  100,   98,  112,  112,  100,   98,  116,   44,  116,
- /*    90 */   100,   98,  100,   98,  117,  115,  117,  115,   46,   96,
- /*   100 */    96,   35,   50,  120,   47,  125,  116,  120,  107,  125,
- /*   110 */    48,    3,  107,  117,  115,   42,   57,   26,  110,  106,
- /*   120 */    31,  109,  110,  106,   12,  109,  124,  123,  105,  104,
- /*   130 */   124,   14,  105,  104,  119,  111,    8,   43,  119,   27,
- /*   140 */    94,    9,   34,    4,   13,   51,   20,   49,   52,   95,
- /*   150 */    55,  118,   93,   24,   95,   95,   95,   38,
+ /*     0 */   134,   21,   20,  134,  134,  112,  124,  124,  134,  112,
+ /*    10 */   134,  134,  134,  134,   60,  134,   43,  133,  134,  119,
+ /*    20 */   133,  133,   18,    1,    9,  133,    8,  133,  133,  133,
+ /*    30 */   133,   46,  133,  108,   25,  133,   27,  108,   48,   24,
+ /*    40 */    59,   22,  108,   27,  108,  139,    2,   26,   65,   64,
+ /*    50 */    19,  126,   56,   52,   53,   21,   20,   10,  115,    8,
+ /*    60 */    34,  115,   42,   35,   29,   65,   64,   19,  111,  110,
+ /*    70 */    45,   31,  111,  110,   47,    4,   14,  111,  110,  111,
+ /*    80 */   110,    5,   52,  109,  107,  123,  123,  109,  107,  128,
+ /*    90 */    50,  128,  109,  107,  109,  107,  129,  127,  129,  127,
+ /*   100 */    31,  105,  105,   51,   36,   56,   39,   53,   27,  128,
+ /*   110 */    12,  106,  106,    6,   62,  132,  129,  127,  116,  132,
+ /*   120 */    33,  116,   38,  137,   63,  118,    3,  137,   11,  118,
+ /*   130 */    49,  121,   54,  117,   37,  121,  103,  117,   15,  120,
+ /*   140 */   136,  135,   41,  120,  136,   17,  114,  113,  125,  131,
+ /*   150 */   114,  113,  122,  131,   30,   13,   32,    7,   55,   40,
+ /*   160 */    16,  104,   23,   58,   44,   57,   61,  130,  102,   28,
 };
 static const YYCODETYPE yy_lookahead[] = {
- /*     0 */     1,   17,   18,    4,    5,   44,   39,   40,    9,   42,
- /*    10 */    11,   12,   13,   14,    1,   16,    5,    4,    5,    0,
- /*    20 */     9,    2,    9,   43,   11,   12,   13,   14,    5,   16,
- /*    30 */    43,   48,    9,   38,   11,   12,   13,   14,   19,   16,
- /*    40 */    31,   32,   33,   34,   35,   36,   39,   14,    5,   16,
- /*    50 */    17,   18,    9,   39,   17,   18,   42,   14,   41,   16,
- /*    60 */    46,   47,   33,   34,   35,   36,    5,    5,   17,   18,
- /*    70 */     9,    9,    6,   39,   39,   14,   14,   16,   16,   39,
- /*    80 */    45,    5,    5,   17,   18,    9,    9,    0,    6,    2,
- /*    90 */    14,   14,   16,   16,    0,    0,    2,    2,    2,   17,
- /*   100 */    18,   47,   14,    5,   16,    5,   19,    9,    5,    9,
- /*   110 */    39,    4,    9,   19,   19,   19,   37,    8,    5,    5,
- /*   120 */     5,    5,    9,    9,    9,    9,    5,    5,    5,    5,
- /*   130 */     9,    9,    9,    9,    5,    1,    3,    7,    9,    8,
- /*   140 */     4,    3,    5,    4,    4,   10,    5,   15,    4,    1,
- /*   150 */     5,    1,    1,    1,   49,   49,   49,   15,
+ /*     0 */     1,   17,   18,    4,    5,    5,   17,   18,    9,    9,
+ /*    10 */    11,   12,   13,   14,   14,   16,   16,    1,   19,    5,
+ /*    20 */     4,    5,   42,    9,   44,    9,   46,   11,   12,   13,
+ /*    30 */    14,   41,   16,    5,   47,   19,   46,    9,   41,   11,
+ /*    40 */    12,   13,   14,   46,   16,   33,   34,   35,   36,   37,
+ /*    50 */    38,    0,   14,    2,   16,   17,   18,   44,    1,   46,
+ /*    60 */    45,    4,   49,   50,   35,   36,   37,   38,    5,    5,
+ /*    70 */    45,   20,    9,    9,    6,   51,   19,   14,   14,   16,
+ /*    80 */    16,   51,    2,    5,    5,   17,   18,    9,    9,    0,
+ /*    90 */     6,    2,   14,   14,   16,   16,    0,    0,    2,    2,
+ /*   100 */    20,   17,   18,   41,   46,   14,   48,   16,   46,   20,
+ /*   110 */     3,   17,   18,   40,   43,    5,   20,   20,    1,    9,
+ /*   120 */    46,    4,   46,    5,   39,    5,    4,    9,   21,    9,
+ /*   130 */     7,    5,   46,    5,    5,    9,    4,    9,    9,    5,
+ /*   140 */     5,    5,   50,    9,    9,    9,    5,    5,    1,    5,
+ /*   150 */     9,    9,    1,    9,    8,    3,    8,    4,   15,    5,
+ /*   160 */     4,    1,    5,    4,   15,   10,    5,    1,    1,    1,
 };
-#define YY_SHIFT_USE_DFLT (158)
-#define YY_SHIFT_COUNT    (59)
+#define YY_SHIFT_USE_DFLT (170)
+#define YY_SHIFT_COUNT    (65)
 #define YY_SHIFT_MIN      (-16)
-#define YY_SHIFT_MAX      (152)
+#define YY_SHIFT_MAX      (168)
 static const short yy_shift_ofst[] = {
- /*     0 */    96,   33,   19,  -16,  -16,   23,   43,   43,   66,   82,
- /*    10 */   -16,  -16,  -16,  -16,   88,   11,  107,   -1,   13,   61,
- /*    20 */    62,   76,   77,   87,   94,   95,   37,   51,   98,  100,
- /*    30 */   103,  113,  114,  115,  116,  121,  122,  123,  124,  129,
- /*    40 */   109,  134,  133,  131,  130,  136,  138,  139,  137,  140,
- /*    50 */   132,  141,  135,  144,  142,  148,  145,  150,  151,  152,
+ /*     0 */    80,   38,   51,  -16,  -16,  -16,  -16,  -16,   28,    0,
+ /*    10 */     0,   68,   68,   84,  -16,  -16,  -16,   91,   14,  122,
+ /*    20 */    -1,   16,   63,   64,   78,   79,   89,   57,   96,   97,
+ /*    30 */   -11,  107,   94,  117,  110,  118,  120,  126,  128,  129,
+ /*    40 */   134,  135,  136,  141,  142,  144,  147,  146,  151,  148,
+ /*    50 */   123,  132,  152,  153,  154,  156,  143,  157,  155,  159,
+ /*    60 */   149,  160,  161,  166,  167,  168,
 };
-#define YY_REDUCE_USE_DFLT (-40)
-#define YY_REDUCE_COUNT (16)
-#define YY_REDUCE_MIN   (-39)
-#define YY_REDUCE_MAX   (79)
+#define YY_REDUCE_USE_DFLT (-21)
+#define YY_REDUCE_COUNT (19)
+#define YY_REDUCE_MIN   (-20)
+#define YY_REDUCE_MAX   (92)
 static const signed char yy_reduce_ofst[] = {
- /*     0 */     9,   14,   29,  -33,   35,  -39,  -20,  -13,  -17,   -5,
- /*    10 */     7,   34,   40,   71,   54,   17,   79,
+ /*     0 */    12,   13,   29,  -20,  -10,   -3,   62,   58,  -13,   15,
+ /*    10 */    25,   24,   30,   73,   74,   76,   86,   92,   71,   85,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
- /*    10 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
- /*    20 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
- /*    30 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
- /*    40 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
- /*    50 */   126,  126,  126,  126,  126,  126,  126,  126,  126,  126,
+ /*     0 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    10 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    20 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    30 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    40 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    50 */   138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+ /*    60 */   138,  138,  138,  138,  138,  138,
 };
 /********** End of lemon-generated parsing tables *****************************/
 
@@ -358,15 +363,15 @@ static const char *const yyTokenName[] = {
   "LP",            "RP",            "IF",            "NOT",         
   "EXISTS",        "COMMA",         "INTEGER",       "INT_TYPE",    
   "CHAR_TYPE",     "FLOAT_TYPE",    "PRIMARY",       "KEY",         
-  "UNIQUE",        "STRING",        "ID",            "DROP",        
-  "OR",            "AND",           "IS",            "NE",          
-  "EQ",            "BETWEEN",       "GT",            "LE",          
-  "LT",            "GE",            "error",         "input",       
-  "cmdlist",       "cmd_and_end",   "singlecmd",     "cmd",         
-  "create_table",  "create_table_args",  "if_not_exists",  "name",        
-  "columnlist",    "optional_constraint_list",  "column_name",   "column_constraint",
-  "type_token",    "name_list",     "constraint_list",  "table_constraint",
-  "if_exists",   
+  "UNIQUE",        "STRING",        "ID",            "DOT",         
+  "DROP",          "INDEX",         "OR",            "AND",         
+  "IS",            "NE",            "EQ",            "BETWEEN",     
+  "GT",            "LE",            "LT",            "GE",          
+  "error",         "input",         "cmdlist",       "cmd_and_end", 
+  "singlecmd",     "cmd",           "create_table",  "create_table_args",
+  "if_not_exists",  "full_name",     "columnlist",    "optional_constraint_list",
+  "column_name",   "column_constraint",  "name",          "type_token",  
+  "name_list",     "constraint_list",  "table_constraint",  "if_exists",   
 };
 #endif /* NDEBUG */
 
@@ -375,7 +380,7 @@ static const char *const yyTokenName[] = {
 */
 static const char *const yyRuleName[] = {
  /*   0 */ "singlecmd ::= cmd",
- /*   1 */ "create_table ::= CREATE TABLE if_not_exists name",
+ /*   1 */ "create_table ::= CREATE TABLE if_not_exists full_name",
  /*   2 */ "create_table_args ::= LP columnlist optional_constraint_list RP",
  /*   3 */ "if_not_exists ::=",
  /*   4 */ "if_not_exists ::= IF NOT EXISTS",
@@ -387,26 +392,29 @@ static const char *const yyRuleName[] = {
  /*  10 */ "column_constraint ::=",
  /*  11 */ "column_constraint ::= PRIMARY KEY",
  /*  12 */ "column_constraint ::= UNIQUE",
- /*  13 */ "name_list ::= name_list COMMA name",
- /*  14 */ "name_list ::= name",
- /*  15 */ "optional_constraint_list ::=",
- /*  16 */ "table_constraint ::= PRIMARY KEY LP name RP",
- /*  17 */ "table_constraint ::= UNIQUE LP name_list RP",
- /*  18 */ "cmd ::= DROP TABLE if_exists name",
- /*  19 */ "if_exists ::=",
- /*  20 */ "if_exists ::= IF EXISTS",
- /*  21 */ "input ::= cmdlist",
- /*  22 */ "cmdlist ::= cmdlist cmd_and_end",
- /*  23 */ "cmdlist ::= cmd_and_end",
- /*  24 */ "cmd_and_end ::= singlecmd SEMICOLON",
- /*  25 */ "cmd ::= create_table create_table_args",
- /*  26 */ "columnlist ::= columnlist COMMA column_name column_constraint",
- /*  27 */ "columnlist ::= column_name column_constraint",
- /*  28 */ "name ::= STRING",
- /*  29 */ "name ::= ID",
- /*  30 */ "optional_constraint_list ::= COMMA constraint_list",
- /*  31 */ "constraint_list ::= constraint_list COMMA table_constraint",
- /*  32 */ "constraint_list ::= table_constraint",
+ /*  13 */ "full_name ::= name",
+ /*  14 */ "full_name ::= name DOT name",
+ /*  15 */ "name_list ::= name_list COMMA name",
+ /*  16 */ "name_list ::= name",
+ /*  17 */ "optional_constraint_list ::=",
+ /*  18 */ "table_constraint ::= PRIMARY KEY LP name RP",
+ /*  19 */ "table_constraint ::= UNIQUE LP name_list RP",
+ /*  20 */ "cmd ::= DROP TABLE if_exists full_name",
+ /*  21 */ "if_exists ::=",
+ /*  22 */ "if_exists ::= IF EXISTS",
+ /*  23 */ "cmd ::= DROP INDEX if_exists full_name",
+ /*  24 */ "input ::= cmdlist",
+ /*  25 */ "cmdlist ::= cmdlist cmd_and_end",
+ /*  26 */ "cmdlist ::= cmd_and_end",
+ /*  27 */ "cmd_and_end ::= singlecmd SEMICOLON",
+ /*  28 */ "cmd ::= create_table create_table_args",
+ /*  29 */ "columnlist ::= columnlist COMMA column_name column_constraint",
+ /*  30 */ "columnlist ::= column_name column_constraint",
+ /*  31 */ "name ::= STRING",
+ /*  32 */ "name ::= ID",
+ /*  33 */ "optional_constraint_list ::= COMMA constraint_list",
+ /*  34 */ "constraint_list ::= constraint_list COMMA table_constraint",
+ /*  35 */ "constraint_list ::= table_constraint",
 };
 #endif /* NDEBUG */
 
@@ -524,11 +532,20 @@ static void yy_destructor(
     ** inside the C code.
     */
 /********* Begin destructor definitions ***************************************/
-    case 45: /* name_list */
+    case 41: /* full_name */
 {
-#line 79 "parse.y"
+#line 80 "parse.y"
 
-#line 532 "parse.c"
+//TODO: add destructor
+
+#line 542 "parse.c"
+}
+      break;
+    case 48: /* name_list */
+{
+#line 87 "parse.y"
+
+#line 549 "parse.c"
 }
       break;
 /********* End destructor definitions *****************************************/
@@ -710,7 +727,7 @@ static void yyStackOverflow(yyParser *yypParser){
 #line 15 "parse.y"
 
     miniSqlError(pParser, "parser stack overflow");
-#line 714 "parse.c"
+#line 731 "parse.c"
 /******** End %stack_overflow code ********************************************/
    miniSqlParserARG_STORE; /* Suppress warning about unused %extra_argument var */
 }
@@ -784,39 +801,42 @@ static const struct {
   YYCODETYPE lhs;         /* Symbol on the left-hand side of the rule */
   unsigned char nrhs;     /* Number of right-hand side symbols in the rule */
 } yyRuleInfo[] = {
-  { 34, 1 },
-  { 36, 4 },
-  { 37, 4 },
-  { 38, 0 },
-  { 38, 3 },
-  { 42, 2 },
-  { 44, 0 },
-  { 44, 1 },
-  { 44, 4 },
-  { 44, 1 },
-  { 43, 0 },
-  { 43, 2 },
-  { 43, 1 },
-  { 45, 3 },
-  { 45, 1 },
-  { 41, 0 },
-  { 47, 5 },
+  { 36, 1 },
+  { 38, 4 },
+  { 39, 4 },
+  { 40, 0 },
+  { 40, 3 },
+  { 44, 2 },
+  { 47, 0 },
+  { 47, 1 },
   { 47, 4 },
-  { 35, 4 },
-  { 48, 0 },
-  { 48, 2 },
-  { 31, 1 },
-  { 32, 2 },
-  { 32, 1 },
-  { 33, 2 },
+  { 47, 1 },
+  { 45, 0 },
+  { 45, 2 },
+  { 45, 1 },
+  { 41, 1 },
+  { 41, 3 },
+  { 48, 3 },
+  { 48, 1 },
+  { 43, 0 },
+  { 50, 5 },
+  { 50, 4 },
+  { 37, 4 },
+  { 51, 0 },
+  { 51, 2 },
+  { 37, 4 },
+  { 33, 1 },
+  { 34, 2 },
+  { 34, 1 },
   { 35, 2 },
-  { 40, 4 },
-  { 40, 2 },
-  { 39, 1 },
-  { 39, 1 },
-  { 41, 2 },
-  { 46, 3 },
+  { 37, 2 },
+  { 42, 4 },
+  { 42, 2 },
   { 46, 1 },
+  { 46, 1 },
+  { 43, 2 },
+  { 49, 3 },
+  { 49, 1 },
 };
 
 static void yy_accept(yyParser*);  /* Forward Declaration */
@@ -879,82 +899,97 @@ static void yy_reduce(
   **     break;
   */
 /********** Begin reduce actions **********************************************/
+        YYMINORTYPE yylhsminor;
       case 0: /* singlecmd ::= cmd */
 #line 36 "parse.y"
 {
+    // reach here doesn't mean there is no mistake in the statement
     miniSqlLog(pParser, "finish a command");
 }
-#line 888 "parse.c"
+#line 910 "parse.c"
         break;
-      case 1: /* create_table ::= CREATE TABLE if_not_exists name */
-#line 43 "parse.y"
+      case 1: /* create_table ::= CREATE TABLE if_not_exists full_name */
+#line 44 "parse.y"
 {
     //
 }
-#line 895 "parse.c"
+#line 917 "parse.c"
         break;
       case 2: /* create_table_args ::= LP columnlist optional_constraint_list RP */
       case 5: /* column_name ::= name type_token */ yytestcase(yyruleno==5);
-      case 13: /* name_list ::= name_list COMMA name */ yytestcase(yyruleno==13);
-      case 14: /* name_list ::= name */ yytestcase(yyruleno==14);
-      case 16: /* table_constraint ::= PRIMARY KEY LP name RP */ yytestcase(yyruleno==16);
-      case 17: /* table_constraint ::= UNIQUE LP name_list RP */ yytestcase(yyruleno==17);
-      case 18: /* cmd ::= DROP TABLE if_exists name */ yytestcase(yyruleno==18);
-#line 47 "parse.y"
+      case 15: /* name_list ::= name_list COMMA name */ yytestcase(yyruleno==15);
+      case 16: /* name_list ::= name */ yytestcase(yyruleno==16);
+      case 18: /* table_constraint ::= PRIMARY KEY LP name RP */ yytestcase(yyruleno==18);
+      case 19: /* table_constraint ::= UNIQUE LP name_list RP */ yytestcase(yyruleno==19);
+      case 20: /* cmd ::= DROP TABLE if_exists full_name */ yytestcase(yyruleno==20);
+      case 23: /* cmd ::= DROP INDEX if_exists full_name */ yytestcase(yyruleno==23);
+#line 48 "parse.y"
 {
 
 }
-#line 908 "parse.c"
+#line 931 "parse.c"
         break;
       case 3: /* if_not_exists ::= */
       case 10: /* column_constraint ::= */ yytestcase(yyruleno==10);
-      case 19: /* if_exists ::= */ yytestcase(yyruleno==19);
-#line 52 "parse.y"
-{yymsp[1].minor.yy32 = 0;}
-#line 915 "parse.c"
+      case 21: /* if_exists ::= */ yytestcase(yyruleno==21);
+#line 53 "parse.y"
+{yymsp[1].minor.yy20 = 0;}
+#line 938 "parse.c"
         break;
       case 4: /* if_not_exists ::= IF NOT EXISTS */
-#line 53 "parse.y"
-{yymsp[-2].minor.yy32 = 1;}
-#line 920 "parse.c"
+#line 54 "parse.y"
+{yymsp[-2].minor.yy20 = 1;}
+#line 943 "parse.c"
         break;
       case 6: /* type_token ::= */
       case 7: /* type_token ::= INT_TYPE */ yytestcase(yyruleno==7);
       case 8: /* type_token ::= CHAR_TYPE LP INTEGER RP */ yytestcase(yyruleno==8);
       case 9: /* type_token ::= FLOAT_TYPE */ yytestcase(yyruleno==9);
-#line 64 "parse.y"
+#line 65 "parse.y"
 {}
-#line 928 "parse.c"
+#line 951 "parse.c"
         break;
       case 11: /* column_constraint ::= PRIMARY KEY */
-      case 20: /* if_exists ::= IF EXISTS */ yytestcase(yyruleno==20);
-#line 71 "parse.y"
-{yymsp[-1].minor.yy32 = 1;}
-#line 934 "parse.c"
+      case 22: /* if_exists ::= IF EXISTS */ yytestcase(yyruleno==22);
+#line 72 "parse.y"
+{yymsp[-1].minor.yy20 = 1;}
+#line 957 "parse.c"
         break;
       case 12: /* column_constraint ::= UNIQUE */
-#line 72 "parse.y"
-{yymsp[0].minor.yy32 = 2;}
-#line 939 "parse.c"
+#line 73 "parse.y"
+{yymsp[0].minor.yy20 = 2;}
+#line 962 "parse.c"
         break;
-      case 15: /* optional_constraint_list ::= */
-#line 90 "parse.y"
+      case 13: /* full_name ::= name */
+#line 83 "parse.y"
+{yylhsminor.yy35 = yymsp[0].minor.yy0;}
+#line 967 "parse.c"
+  yymsp[0].minor.yy35 = yylhsminor.yy35;
+        break;
+      case 14: /* full_name ::= name DOT name */
+#line 84 "parse.y"
+{}
+#line 973 "parse.c"
+  yymsp[-2].minor.yy35 = yylhsminor.yy35;
+        break;
+      case 17: /* optional_constraint_list ::= */
+#line 98 "parse.y"
 {yymsp[1].minor.yy0.n = 0; yymsp[1].minor.yy0.text = 0;}
-#line 944 "parse.c"
+#line 979 "parse.c"
         break;
       default:
-      /* (21) input ::= cmdlist */ yytestcase(yyruleno==21);
-      /* (22) cmdlist ::= cmdlist cmd_and_end */ yytestcase(yyruleno==22);
-      /* (23) cmdlist ::= cmd_and_end */ yytestcase(yyruleno==23);
-      /* (24) cmd_and_end ::= singlecmd SEMICOLON */ yytestcase(yyruleno==24);
-      /* (25) cmd ::= create_table create_table_args */ yytestcase(yyruleno==25);
-      /* (26) columnlist ::= columnlist COMMA column_name column_constraint */ yytestcase(yyruleno==26);
-      /* (27) columnlist ::= column_name column_constraint */ yytestcase(yyruleno==27);
-      /* (28) name ::= STRING */ yytestcase(yyruleno==28);
-      /* (29) name ::= ID */ yytestcase(yyruleno==29);
-      /* (30) optional_constraint_list ::= COMMA constraint_list */ yytestcase(yyruleno==30);
-      /* (31) constraint_list ::= constraint_list COMMA table_constraint */ yytestcase(yyruleno==31);
-      /* (32) constraint_list ::= table_constraint */ yytestcase(yyruleno==32);
+      /* (24) input ::= cmdlist */ yytestcase(yyruleno==24);
+      /* (25) cmdlist ::= cmdlist cmd_and_end */ yytestcase(yyruleno==25);
+      /* (26) cmdlist ::= cmd_and_end */ yytestcase(yyruleno==26);
+      /* (27) cmd_and_end ::= singlecmd SEMICOLON */ yytestcase(yyruleno==27);
+      /* (28) cmd ::= create_table create_table_args */ yytestcase(yyruleno==28);
+      /* (29) columnlist ::= columnlist COMMA column_name column_constraint */ yytestcase(yyruleno==29);
+      /* (30) columnlist ::= column_name column_constraint */ yytestcase(yyruleno==30);
+      /* (31) name ::= STRING */ yytestcase(yyruleno==31);
+      /* (32) name ::= ID */ yytestcase(yyruleno==32);
+      /* (33) optional_constraint_list ::= COMMA constraint_list */ yytestcase(yyruleno==33);
+      /* (34) constraint_list ::= constraint_list COMMA table_constraint */ yytestcase(yyruleno==34);
+      /* (35) constraint_list ::= table_constraint */ yytestcase(yyruleno==35);
         break;
 /********** End reduce actions ************************************************/
   };
@@ -1015,7 +1050,7 @@ static void yy_syntax_error(
 
     // TODO: add location of error
     miniSqlError(pParser, "syntax error");
-#line 1019 "parse.c"
+#line 1054 "parse.c"
 /************ End %syntax_error code ******************************************/
   miniSqlParserARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }

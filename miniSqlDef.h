@@ -11,11 +11,17 @@
 typedef struct Token Token;
 typedef struct Parser Parser;
 typedef struct NameList NameList;
+typedef struct SrcList SrcList;
+
 struct Token {
     const char *text;
     uint32_t n;
 };
 struct NameList {
+    uint32_t size;
+    Token *list;
+};
+struct SrcList {
     uint32_t size;
     Token *list;
 };
