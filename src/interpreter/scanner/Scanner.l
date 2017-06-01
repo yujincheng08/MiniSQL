@@ -36,4 +36,5 @@ and			return AND;
 or			return OR;
 '			return QUOTATION;
 [^[:space:],;\(\)\<\>\*\=\!]+ return NAME;
+<<EOF>>			return QUIT;
 %%

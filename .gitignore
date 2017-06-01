@@ -84,4 +84,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Vim swap file
+.swp
+
 # End of https://www.gitignore.io/api/clion

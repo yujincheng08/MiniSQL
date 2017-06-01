@@ -1,5 +1,5 @@
 enum Token{
-    END,
+    QUIT,
     CREATE,
     INSERT,
     TABLE,
@@ -21,7 +21,6 @@ enum Token{
     KEY,
     DROP,
     DELTE,
-    QUIT,
     EXEC,
     LOWER,
     GREATER,
