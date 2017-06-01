@@ -12,7 +12,8 @@ SOURCES += \
     src/api/API.cpp \
     src/recordManager/RecordManager.cpp \
     src/catalogManager/CatalogManager.cpp \
-    src/indexManager/IndexManager.cpp
+    src/indexManager/IndexManager.cpp \
+    src/bufferManager/Buffer.cpp
 
 HEADERS += \
     src/bufferManager/BufferManager.h \
@@ -29,7 +30,7 @@ HEADERS += \
     src/recordManager/RecordManager.h \
     src/catalogManager/CatalogManager.h \
     src/indexManager/IndexManager.h \
-    src/interpreter/Interpreter.h
+    src/bufferManager/Buffer.h
 
 OTHER_FILES += \
     src/interpreter/parser/parse.y \

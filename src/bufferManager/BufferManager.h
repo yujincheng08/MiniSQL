@@ -1,6 +1,7 @@
 #ifndef BUFFERMANAGER_H
 #define BUFFERMANAGER_H
 #include <QObject>
+#include <hash_map>
 class BufferManager : QObject
 {
     Q_OBJECT
