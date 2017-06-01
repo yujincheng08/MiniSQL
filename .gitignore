@@ -85,6 +85,9 @@ crashlytics-build.properties
 fabric.properties
 
 # Vim swap file
-.swp
+*.swp
+
+# QtCreator user file
+*.pro.usr
 
 # End of https://www.gitignore.io/api/clion
