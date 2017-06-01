@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console c++11
+CONFIG += console c++11 #warn_off
 CONFIG -= app_bundle
 
 SOURCES += \
@@ -13,7 +13,8 @@ SOURCES += \
     src/recordManager/RecordManager.cpp \
     src/catalogManager/CatalogManager.cpp \
     src/indexManager/IndexManager.cpp \
-    src/bufferManager/Buffer.cpp
+    src/bufferManager/Buffer.cpp \
+    src/bufferManager/File.cpp
 
 HEADERS += \
     src/bufferManager/BufferManager.h \
@@ -30,7 +31,8 @@ HEADERS += \
     src/recordManager/RecordManager.h \
     src/catalogManager/CatalogManager.h \
     src/indexManager/IndexManager.h \
-    src/bufferManager/Buffer.h
+    src/bufferManager/Buffer.h \
+    src/bufferManager/File.h
 
 OTHER_FILES += \
     src/interpreter/parser/parse.y \

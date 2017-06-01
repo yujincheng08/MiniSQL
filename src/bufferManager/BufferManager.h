@@ -1,15 +1,20 @@
 #ifndef BUFFERMANAGER_H
 #define BUFFERMANAGER_H
 #include <QObject>
-#include <hash_map>
+#include "Buffer.h"
 class BufferManager : QObject
 {
     Q_OBJECT
-private:
-    const size_t blockSize;
-    static size_t calBlockSize();
-    static QString partition();
+
 public:
     explicit BufferManager(QObject *parent = nullptr);
+    static size_t blockSize();
 };
+
+inline size_t BufferManager::blockSize()
+{
+    return Buffer::blockSize();
+}
+
+
 #endif
