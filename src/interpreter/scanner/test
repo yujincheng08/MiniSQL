@@ -1,0 +1,16 @@
+create table City (
+        ID int,
+        Name1 char(35) unique,
+        CountryCode char(3),
+        District char(20),
+        Population int,
+        primary key(ID)
+);
+drop table City;
+create index name_idx on City(Name);
+drop index name_idx on City;
+select * from  City where ID > 20 and Population > 1000;
+insert into City values (1,'Kabul','AFG','Kabol',1780000);
+delete  from  City where ID > 20 and Population < 1000;
+quit;
+exec <filename>;
