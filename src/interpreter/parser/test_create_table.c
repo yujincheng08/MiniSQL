@@ -4,7 +4,7 @@
 #include "parse.h"
 #include "test.h"
 
-void testCreateTable() {
+int main() {
     void *pParser = miniSqlParserAlloc(malloc);
     Parser *context = (Parser *) malloc(sizeof(Parser));
 

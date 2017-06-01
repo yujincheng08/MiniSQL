@@ -122,15 +122,15 @@ cmd ::= DROP TABLE if_exists(E) full_name(N). {
 if_exists(A) ::= . {A = 0;}
 if_exists(A) ::= IF EXISTS. {A = 1;}
 // where clause
-opt_where_clause = .
-opt_where_clause(A) = where_clause(X). {A = X;}
+opt_where_clause ::= .
+opt_where_clause(A) ::= where_clause(X). {A = X;}
 
 where_clause ::= WHERE .
 // select
 
 // insert
 
-cmd ::= INSERT INTO fullname(F) LP RP.
+cmd ::= INSERT INTO full_name(F) LP RP.
 
 // delete
 

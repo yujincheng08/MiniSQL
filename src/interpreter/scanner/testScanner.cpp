@@ -6,6 +6,7 @@ using namespace std;
 
 int main()
 {
+	ios::sync_with_stdio(false);
 	Scanner scanner;
 	while(int token = scanner.lex())
 	{
