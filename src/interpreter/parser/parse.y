@@ -122,23 +122,56 @@ cmd ::= DROP TABLE if_exists(E) full_name(N). {
 if_exists(A) ::= . {A = 0;}
 if_exists(A) ::= IF EXISTS. {A = 1;}
 // where clause
-opt_where_clause ::= .
+opt_where_clause ::= . {
+// delete all
+}
 opt_where_clause(A) ::= where_clause(X). {A = X;}
 
-where_clause ::= WHERE .
+where_clause ::= WHERE expr(X). {
+
+}
+
+expr(A) ::= literal(A). {}
+expr(A) ::= expr(A) AND(OP) expr(Y). {}
+expr(A) ::= expr(A) OR(OP) expr(Y). {}
+expr(A) ::= expr(A) LT|GT|GE|LE(OP) expr(Y). {}
+expr(A) ::= expr(A) EQ|NE(OP) expr(Y). {}
+expr(A) ::= expr(A) between_op(N) expr(X) AND expr(Y). {
+
+}
+
+literal(A) ::= NULL(X). {}
+// column name
+literal(A) ::= full_name(B). {}
+literal(A) ::= STRING(X). {}
+literal(A) ::= INTEGER(X). {}
+
+%type between_op {int}
+between_op(A) ::= BETWEEN. {A = 0;}
+between_op(A) ::= NOT BETWEEN. {A = 1;}
+
 // select
+cmd ::= SELECT select_column_list(L) FROM opt_where_clause(W). {
+
+}
 
 // insert
 
-cmd ::= INSERT INTO full_name(F) LP RP.
+cmd ::= INSERT INTO full_name(F) LP RP. {
+
+}
 
 // delete
 
-cmd ::= DELETE FROM full_name(N) opt_where_clause.
+cmd ::= DELETE FROM full_name(N) opt_where_clause. {
+
+}
 
 // create index
 
-cmd ::= CREATE INDEX if_not_exists(E) full_name(N) ON name(T) LP columnlist(C) RP.
+cmd ::= CREATE INDEX if_not_exists(E) full_name(N) ON name(T) LP columnlist(C) RP. {
+
+}
 
 // drop index
 
