@@ -97,3 +97,5 @@ Pointer<T> getPointer<T>(pos_type pos); //Get pointer of the provided type at po
 5. If get something exceed the end of file, the result will be undefined. So try to use `valid()` to determine.
 
 6. Once the pointer deference (`operator*()` or `operator->()`), the buffer it stored will immediately consider to be dirty and have to write into the disk. So if you are not going to modify the value of target, use `get()` instead.
+
+7. Buffer overwrites data after cursor, not insert into cursor. If you are going to delete or inserting something, use lazy deletion and free space link.
