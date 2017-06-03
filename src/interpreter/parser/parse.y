@@ -169,7 +169,7 @@ cmd ::= DELETE FROM full_name(N) opt_where_clause. {
 
 // create index
 
-cmd ::= CREATE INDEX if_not_exists(E) full_name(N) ON name(T) LP columnlist(C) RP. {
+cmd ::= CREATE INDEX if_not_exists(E) full_name(N) ON full_name(T) LP name_list(C) RP. {
 
 }
 

@@ -7,4 +7,6 @@
 
 void testCreateTable();
 
+void testIndex();
+
 #endif //MINISQL_TEST_H

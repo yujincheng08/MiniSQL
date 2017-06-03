@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include "miniSqlDef.h"
 #include "parse.h"
-#include "test.h"
+#include "ParserTest.h"
 
-int main() {
+void testCreateTable() {
     void *pParser = miniSqlParserAlloc(malloc);
     Parser *context = (Parser *) malloc(sizeof(Parser));
 
@@ -309,6 +309,125 @@ int main() {
     miniSqlParser(pParser, TOKEN_RP, token, context);
 
     miniSqlParser(pParser, TOKEN_RP, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    miniSqlParserFree(pParser, free);
+    free(context);
+}
+
+void testIndex() {
+    void *pParser = miniSqlParserAlloc(malloc);
+    Parser *context = (Parser *) malloc(sizeof(Parser));
+
+    Token token = {};
+
+    int i = 0;
+
+    /**
+     * test0: the simplest case should pass
+     * CREATE INDEX index-name ON table-name (index-column);
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_CREATE, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_ON, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_LP, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_RP, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test1: column list should pass
+     * CREATE INDEX index-name ON table-name (index-column0, index-column1);
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_CREATE, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_ON, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_LP, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_COMMA, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_RP, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test2: wrong index name with schema should pass
+     * CREATE INDEX schema.index-name ON table-name (index-column0, index-column1);
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_CREATE, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_DOT, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_ON, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_LP, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_RP, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test3: missing column list shouldn't pass
+     * CREATE INDEX index-name ON table-name;
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_CREATE, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_ON, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test4: table name with schema should pass
+     * CREATE INDEX index-name ON schema-name.table-name (index-column0);
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_CREATE, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_ON, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_DOT, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_LP, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_RP, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test5: simplest drop index case should pass
+     * DROP INDEX index-name;
+     */
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_DROP, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
+    miniSqlParser(pParser, 0, token, pParser);
+
+    /**
+     * test6: index name with schema name
+     */
+
+    printf("index test case %d:\n", i++);
+    miniSqlParser(pParser, TOKEN_DROP, token, context);
+    miniSqlParser(pParser, TOKEN_INDEX, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
+    miniSqlParser(pParser, TOKEN_DOT, token, context);
+    miniSqlParser(pParser, TOKEN_STRING, token, context);
     miniSqlParser(pParser, TOKEN_SEMICOLON, token, context);
     miniSqlParser(pParser, 0, token, pParser);
 

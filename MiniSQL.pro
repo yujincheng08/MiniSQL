@@ -6,6 +6,7 @@ SOURCES += \
     src/interpreter/scanner/Scanner.cpp \
     src/interpreter/parser/logutils.c \
     src/interpreter/parser/parse.c \
+    src/interpreter/parser/ParserTest.c \
     src/interpreter/Interpreter.cpp \
     src/bufferManager/Buffermanager.cpp \
     src/main.cpp \
