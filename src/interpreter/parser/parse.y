@@ -8,12 +8,17 @@
 %extra_argument {Parser *pParser}
 
 %syntax_error {
-    // TODO: add location of error
-    miniSqlError(pParser, "syntax error");
+// TODO: add location of error
+miniSqlError(pParser, "syntax error");
 }
 
+%parse_accept {
+miniSqlLog(pParser, "parsing complete");
+}
+
+
 %stack_overflow {
-    miniSqlError(pParser, "parser stack overflow");
+miniSqlError(pParser, "parser stack overflow");
 }
 
 %name miniSqlParser
@@ -28,19 +33,15 @@
 input ::= cmdlist.
 // cmd list is a list of one or more singlecmd
 // always use left recursion
-cmdlist ::= cmdlist cmd_and_end.
+        cmdlist ::= cmdlist cmd_and_end.
 cmdlist ::= cmd_and_end.
-cmd_and_end ::= singlecmd SEMICOLON.
+        cmd_and_end ::= singlecmd SEMICOLON.
 // singlecmd is the wrapper for all kind of cmd
 // use this to log some info
-singlecmd ::= cmd. {
-    // reach here doesn't mean there is no mistake in the statement
-    miniSqlLog(pParser, "finish a command");
-}
-
+singlecmd ::= cmd.
 // create table
 
-cmd ::= create_table create_table_args.
+        cmd ::= create_table create_table_args.
 create_table ::= CREATE TABLE if_not_exists(E) full_name(N).
 
 create_table_args ::= LP columnlist optional_constraint_list(X) RP(E).
@@ -67,7 +68,6 @@ column_constraint(A) ::= PRIMARY KEY. {A = 1;}
 column_constraint(A) ::= UNIQUE. {A = 2;}
 
 %type name {Token}
-name(A) ::= STRING(A).
 name(A) ::= ID(A).
 
 %type full_name {SrcList*}
@@ -75,7 +75,7 @@ name(A) ::= ID(A).
 ////TODO: add destructor
 //}
 full_name(A) ::= name(X).
-full_name(B) ::= name(A) DOT name(B).
+full_name(A) ::= name(X) DOT name(B).
 
 %type name_list {NameList*}
 //%destructor name_list {}
@@ -85,13 +85,13 @@ name_list ::= name_list(A) COMMA name(N).
 name_list ::= name(N).
 
 // can be empty/optional
-optional_constraint_list(A) ::= . {A.n = 0; A.text = 0;}
+        optional_constraint_list(A) ::= . {A.n = 0; A.text = 0;}
 optional_constraint_list(A) ::= COMMA(A) constraint_list.
 // constraint_list is one or more table_constraints
 constraint_list ::= constraint_list COMMA table_constraint.
 constraint_list ::= table_constraint.
 // primary key is for single column
-table_constraint ::= PRIMARY KEY LP name(N) RP.
+        table_constraint ::= PRIMARY KEY LP name(N) RP.
 // unique may apply to multiple column
 table_constraint ::= UNIQUE LP name_list(X) RP.
 
@@ -107,20 +107,22 @@ opt_where_clause(A) ::= where_clause(X). {A = X;}
 
 where_clause ::= WHERE expr(X).
 
-expr(A) ::= literal(A). {}
-expr(A) ::= expr(A) AND(OP) expr(Y). {}
-expr(A) ::= expr(A) OR(OP) expr(Y). {}
-expr(A) ::= expr(A) LT|GT|GE|LE(OP) expr(Y). {}
+expr(A) ::= literal(A).
+expr(A) ::= expr(A) AND(OP) expr(Y).
+expr(A) ::= expr(A) OR(OP) expr(Y).
+expr(A) ::= expr(A) LT|GT|GE|LE(OP) expr(Y).
 expr(A) ::= expr(A) EQ|NE(OP) expr(Y). {}
-expr(A) ::= expr(A) between_op(N) expr(X) AND expr(Y).
+expr(A) ::= expr(A) between_op(N) expr(X) AND expr(Y). [BETWEEN]
 
-literal(A) ::= NULL(X). {}
+literal(A) ::= NULL(X).
 // column name
-literal(A) ::= full_name(B). {}
-literal(A) ::= STRING(X). {}
-literal(A) ::= INTEGER(X). {}
+literal(A) ::= full_name(B).
+literal(A) ::= INTEGER(X).
+literal(A) ::= FLOAT(X).
+// string is with quotation marks
+literal(A) ::= STRING(B).
 
-literal_list ::= literal
+literal_list(A) ::= literal(X).
 
 %type between_op {int}
 between_op(A) ::= BETWEEN. {A = 0;}
@@ -130,10 +132,10 @@ between_op(A) ::= NOT BETWEEN. {A = 1;}
 cmd ::= SELECT select_column_list(L) FROM opt_where_clause(W).
 
 select_column(A) ::= STAR.
-select_column(A) ::= name(X).
+select_column(A) ::= fullname(X).
 
-select_column_list(A) ::= select_column.
-select_column_list(A) ::= select_column_list COMMA select_column.
+select_column_list(A) ::= select_column(X).
+select_column_list(A) ::= select_column_list(A) COMMA select_column.
 
 // insert
 
@@ -155,5 +157,5 @@ cmd ::= DROP INDEX if_exists(E) full_name(N).
 %left OR.
 %left AND.
 %right NOT.
-%left IS NE EQ BETWEEN.
-%left GT LE LT GE.
+%nonassoc IS NE EQ BETWEEN.
+%nonassoc GT LE LT GE.
