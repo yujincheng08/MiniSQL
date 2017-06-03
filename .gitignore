@@ -88,6 +88,6 @@ fabric.properties
 *.swp
 
 # QtCreator user file
-*.pro.usr
+*.pro.user
 
 # End of https://www.gitignore.io/api/clion
