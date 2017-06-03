@@ -155,6 +155,12 @@ cmd ::= SELECT select_column_list(L) FROM opt_where_clause(W). {
 
 }
 
+select_column(A) ::= STAR.
+select_column(A) ::= name(X).
+
+select_column_list(A) ::= select_column.
+select_column_list(A) ::= select_column_list COMMA select_column.
+
 // insert
 
 cmd ::= INSERT INTO full_name(F) LP RP. {
