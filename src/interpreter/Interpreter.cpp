@@ -126,6 +126,14 @@ void Interpreter::run()
             LineNo++;
             continue;
         }
+        else if(token == EXEC)
+        {
+            int newtoken = scanner->lex();
+            if(newtoken!=STRING)
+            {
+                error("error filename");
+            }
+        }
         //cout<<"Get "<<token<<" with "<<text<<endl;
         Parser(parser, token, new string(text),this);
         if(token == SEMICOLON)
@@ -156,4 +164,21 @@ void Interpreter::newConstraint(const string &columnName, const Constraint::Type
         column->Name = make_shared<string>(columnName);
         action->Constraints->Uniques->push_back(column);
     }
+}
+
+
+void Interpreter::newColumn (const string& columnName, const Column::Type type,
+                             const string &tableName)
+{
+    if(!action->Columns)
+        action->Columns = std::make_shared<list<ptr<const Column>>>();
+    //std::cout<<"Get column "<<columnName<<" type "<<type<<std::endl;
+    if(action->Columns->size()>32U)
+        return error("syntax error");
+    auto column = std::make_shared<Column>(Column());
+    column->ColumnType = type;
+    column->Name = std::make_shared<string>(columnName);
+    if(!tableName.empty())
+        column->TableName = std::make_shared<string>(tableName);
+    action->Columns->push_back(column);
 }

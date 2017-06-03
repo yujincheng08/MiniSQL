@@ -16,14 +16,14 @@ public:
     };
 private:
     Type Op = Underfined;
-    Condition *FirstOperand = nullptr;
-    Condition *SecondOperand = nullptr;
+    ptr<Condition> FirstOperand = nullptr;
+    ptr<Condition> SecondOperand = nullptr;
     ptr<Column> Value = nullptr;
     Condition();
 public:
     auto op() const -> const Type &;
-    auto firstOperand() const -> const Condition*;
-    auto secondOperand() const -> const Condition*;
+    auto firstOperand() const -> const ptr<const Condition>;
+    auto secondOperand() const -> const ptr<const Condition>;
     auto value() const -> const ptr<const Column>;
 };
 
@@ -35,12 +35,12 @@ inline auto Condition::op() const -> const Type &
     return Op;
 }
 
-inline auto Condition::firstOperand() const -> const Condition*
+inline auto Condition::firstOperand() const -> const ptr<const Condition>
 {
     return FirstOperand;
 }
 
-inline auto Condition::secondOperand() const -> const Condition*
+inline auto Condition::secondOperand() const -> const ptr<const Condition>
 {
     return SecondOperand;
 }

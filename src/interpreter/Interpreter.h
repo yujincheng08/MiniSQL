@@ -29,7 +29,7 @@ public:
         QUIT = 0x0, EXEC = -0x1, NEWLINE = -0x2
     };
     explicit Interpreter(QObject *parent = 0);
-    void error(string msg);
+    void error(const string &msg);
     void query();
     void setActionType(const Action::Type type);
     void addTableName(const string &tableName);
@@ -52,7 +52,7 @@ public slots:
     void run();
 };
 
-inline void Interpreter::error(std::string msg)
+inline void Interpreter::error(const string &msg)
 {
     std::cerr<<msg<<std::endl;
 }
@@ -70,23 +70,6 @@ inline void Interpreter::addTableName(const string &tableName)
     if(!action->TableName)
         action->TableName = std::make_shared<list<ptr<const string>>>();
     action->TableName->push_back(std::make_shared<const string>(tableName));
-    //std::cout<<"get tablename "<<tableName<<std::endl;
-}
-
-inline void Interpreter::newColumn (const string& columnName, const Column::Type type,
-                                    const string &tableName)
-{
-    if(!action->Columns)
-        action->Columns = std::make_shared<list<ptr<const Column>>>();
-    //std::cout<<"Get column "<<columnName<<" type "<<type<<std::endl;
-    if(action->Columns->size()>32U)
-        return error("syntax error");
-    auto column = std::make_shared<Column>(Column());
-    column->ColumnType = type;
-    column->Name = std::make_shared<string>(columnName);
-    if(!tableName.empty())
-        column->TableName = std::make_shared<string>(tableName);
-    action->Columns->push_back(column);
 }
 
 inline void Interpreter::addIndexName(const string &indexName)
@@ -97,6 +80,7 @@ inline void Interpreter::addIndexName(const string &indexName)
         error("syntax error");
 }
 
+//TODO: check type with the pevious value;
 inline void Interpreter::addValue(const string &value,const Column::Type type)
 {
     auto column = std::make_shared<Column>(Column());
@@ -130,8 +114,8 @@ inline Condition *Interpreter::newCondition(const Condition::Type type,
 {
     Condition * condition = new Condition();
     condition->Op = type;
-    condition->FirstOperand = first;
-    condition->SecondOperand = second;
+    condition->FirstOperand = ptr<Condition>(first);
+    condition->SecondOperand = ptr<Condition>(second);
     return condition;
 }
 

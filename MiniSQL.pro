@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console c++14 #warn_off
+CONFIG += console c++14 warn_off
 CONFIG -= app_bundle
 
 SOURCES += \
@@ -44,5 +44,6 @@ HEADERS += \
 
 OTHER_FILES += \
     src/interpreter/scanner/Scanner.l \
+    src/interpreter/parser/parser.y \
     src/interpreter/README.md \
     src/bufferManager/README.md
