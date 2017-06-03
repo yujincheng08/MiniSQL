@@ -44,10 +44,6 @@ int main() {
     miniSqlParser(pParser, TOKEN_CREATE, token, context);
     miniSqlParser(pParser, TOKEN_TABLE, token, context);
 
-    miniSqlParser(pParser, TOKEN_IF, token, context);
-    miniSqlParser(pParser, TOKEN_NOT, token, context);
-    miniSqlParser(pParser, TOKEN_EXISTS, token, context);
-
     miniSqlParser(pParser, TOKEN_STRING, token, context);
 
     miniSqlParser(pParser, TOKEN_LP, token, context);

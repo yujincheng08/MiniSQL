@@ -2,5 +2,5 @@
 
 // $insert class_h
 #include "Scanner.h"
-#include "def.h"
-
+#include "../parser/parser.h"
+#include "../interpreter.h"

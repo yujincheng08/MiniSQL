@@ -1,7 +1,9 @@
 %case-insensitive
 %lex-source = "Scanner.cpp"
 %%
-[[:space:]]+
+[[:blank:]]+
+\n          return Interpreter::NEWLINE;
+;			return SEMICOLON;
 create			return CREATE;
 table			return TABLE;
 insert			return INSERT;
@@ -10,31 +12,32 @@ select			return SELECT;
 from			return FROM;
 where			return WHERE;
 values			return VALUES;
-int			return INT;
-float			return FLOAT;
-[[:digit:]]+		return DIGITAL;
-;			return SEMICOLON;
-char			return CHAR;
-\(			return LBRACKER;
-\)			return RBRACKER;
+int			return INT_TYPE;
+float			return FLOAT_TYPE;
+char			return CHAR_TYPE;
+-?[[:digit:]]+		return INTEGER;
+\.                      return DOT;
+-?[[:digit:]]?\.[[:digit:]]+ return FLOAT;
+\(			return LP;
+\)			return RP;
 ,			return COMMA;
 unique			return UNIQUE;
 primary			return PRIMARY;
 key			return KEY;
 drop			return DROP;
-delete			return DELTE;
-quit			return QUIT;
-exec			return EXEC;
-\<			return LOWER;
-\>			return GREATER;
+delete			return DELETE;
+quit			return Interpreter::QUIT;
+exec			return Interpreter::EXEC;
+\<			return LT;
+\>			return GT;
 index			return INDEX;
 on			return ON;
-\*			return START;
-!=			return NOTEQUAL;
-=			return EQUAL;
+\*			return TIMES;
+=			return EQ;
+!=			return NE;
 and			return AND;
 or			return OR;
-'			return QUOTATION;
-[^[:space:],;\(\)\<\>\*\=\!]+ return NAME;
-<<EOF>>			return QUIT;
+not         return NOT;
+[^[:space:]\.,;\(\)\<\>\*\=\!]+ return STRING;
+<<EOF>>			return Interpreter::QUIT;
 %%

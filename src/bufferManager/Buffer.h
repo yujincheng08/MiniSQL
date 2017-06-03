@@ -8,10 +8,11 @@ class QString;
 class Buffer
 {
     char *Buff;
+    using pos_type = std::iostream::pos_type;
     static size_t BlockSize;
     size_t Size;
     std::iostream &Stream;
-    off_t Position;
+    pos_type Position;
     bool Dirty;
 private:
     static size_t calBlockSize();
@@ -20,14 +21,14 @@ public:
     explicit Buffer(std::iostream &stream,
                     const off_t &position);
     ~Buffer();
-    const off_t &position();
+    off_t position();
     const bool &dirty();
     std::iostream &stream();
     const char *rawData();
     static size_t blockSize();
 };
 
-inline const off_t &Buffer::position()
+inline off_t Buffer::position()
 {
     return Position;
 }
