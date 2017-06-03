@@ -30,7 +30,8 @@
 #define INSERT                          30
 #define VALUES                          31
 #define INTO                            32
-#define TIMES                           33
-#define DELETE                          34
-#define INDEX                           35
-#define ON                              36
+#define SQMSTRING                       33
+#define TIMES                           34
+#define DELETE                          35
+#define INDEX                           36
+#define ON                              37

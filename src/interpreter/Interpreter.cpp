@@ -3,6 +3,7 @@
 #include "scanner/Scanner.h"
 #include "parser/parser.h"
 #include <iostream>
+#include <fstream>
 using namespace std;
 extern void *ParserAlloc(void *(*)(size_t));
 extern void ParserFree(void *, void(*)(void *));
@@ -77,7 +78,7 @@ void Interpreter::query()
         cout<<"Constraints List: "<<endl;
         auto i = *action->constraints();
         if(i.primaryKey())
-            cout<<"\tprimaryKey: "<< *i.primaryKey()<<endl;
+            cout<<"\tprimaryKey: "<< *i.primaryKey()->name()<<endl;
         if(i.uniques())
         {
             cout<<"\tUniques: "<<endl;
@@ -92,12 +93,12 @@ void Interpreter::query()
         cout<<"value List: "<<endl;
         for(auto i : *action->values())
         {
-            cout<<"(";
+            cout<<"(\t";
             for(auto j : *i)
             {
-                cout<<"\t"<<j->type()<<":"<<*j->name();
+                cout<<*j<<"\t";
             }
-            cout<<"\t)"<<endl;
+            cout<<")"<<endl;
         }
     }
     if(action->conditions())
@@ -128,10 +129,27 @@ void Interpreter::run()
         }
         else if(token == EXEC)
         {
-            int newtoken = scanner->lex();
-            if(newtoken!=STRING)
+            string filename;
+            getline(cin,filename);
+            if(filename.back()!=';')
             {
-                error("error filename");
+                error("syntax error");
+                continue;
+            }
+            else
+            {
+                filename.pop_back();
+                if(filename.front()=='"' && filename.back()=='"')
+                    filename = filename.substr(1U,filename.length()-2);
+                ifstream file(filename);
+                if(!file.is_open())
+                {
+                    error("file not exists");
+                    continue;
+                }
+                file.close();
+                scanner->switchIstream(filename);
+                continue;
             }
         }
         //cout<<"Get "<<token<<" with "<<text<<endl;

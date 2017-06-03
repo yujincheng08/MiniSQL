@@ -21,6 +21,7 @@ char			return CHAR_TYPE;
 \(			return LP;
 \)			return RP;
 ,			return COMMA;
+'[^']*'           return SQMSTRING;
 unique			return UNIQUE;
 primary			return PRIMARY;
 key			return KEY;

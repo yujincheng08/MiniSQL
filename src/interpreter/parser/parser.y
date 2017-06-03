@@ -2,6 +2,7 @@
 %default_type {const string *}
 %token_destructor {delete $$;}
 // the parser context
+// the parser context
 // 4 th arg of Parse
 %extra_argument {Interpreter *interpreter}
 
@@ -128,12 +129,16 @@ where_clause ::= WHERE expr(A).{
 //binary_op(OP) ::= NE.{OP=Condition::NotEqual;}
 
 // column name
+expr (A) ::= stringvalue(X). {
+    A = interpreter->newCondition(*X,X->length());
+}
+
 expr(A) ::= name(X) DOT name(Y). {
     A = interpreter->newCondition(*Y,Column::Undefined, *X);
 }
 
 expr(A) ::= name(X) . {
-    A = interpreter->newCondition(*X,X->length());
+    A = interpreter->newCondition(*X,Column::Undefined);
 }
 
 expr(A) ::= INTEGER(X). {
@@ -184,7 +189,7 @@ expr(X) ::= expr(A) OR expr(B). {
 //    X = interpreter->newCondition(OP,A,B); 
 //}
 
-table_name ::= STRING(T).{
+table_name ::= name(T).{
     interpreter->addTableName(*T);
 }
 
@@ -205,6 +210,11 @@ cmd ::= INSERT into table_name VALUES valueslist. {
 into ::= .
 into ::= INTO.
 
+stringvalue(X) ::= SQMSTRING(A).{
+    X = new string(A->substr(1,A->length()-2));
+    delete A;
+}
+
 valueslist ::= valueslist COMMA values.
 valueslist ::= values.
 values ::= LP valuelist RP.
@@ -217,7 +227,7 @@ value ::= FLOAT(A).{
 value ::= INTEGER(A).{
     interpreter->addValue(*A, Column::Int);
 }
-value ::= STRING(A).{
+value ::= stringvalue(A).{
     interpreter->addValue(*A, A->length());
 }
 beginValue ::= .{
@@ -250,11 +260,10 @@ cmd ::= CREATE INDEX name(N) ON table_name LP rawcolumnlist RP. {
 
 // drop index
 
-cmd ::= DROP INDEX name(N). {
+cmd ::= DROP INDEX name(N) ON table_name. {
     interpreter->setActionType(Action::DropIndex);
     interpreter->addIndexName(*N);
 }
-
 
 // operators
 %left OR.
