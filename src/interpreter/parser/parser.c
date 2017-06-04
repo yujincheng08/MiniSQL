@@ -338,14 +338,14 @@ void ParserTrace(FILE *TraceFILE, char *zTracePrompt){
 ** are required.  The following table supplies these names */
 static const char *const yyTokenName[] = { 
   "$",             "SEMICOLON",     "CREATE",        "TABLE",       
-  "LP",            "RP",            "COMMA",         "INT_TYPE",    
+  "LEFTPARENTHESIS",  "RIGHTPARENTHESIS",  "COMMA",         "INT_TYPE",    
   "CHAR_TYPE",     "INTEGER",       "FLOAT_TYPE",    "PRIMARY",     
-  "KEY",           "UNIQUE",        "STRING",        "DROP",        
+  "KEY",           "UNIQUE",        "NAME",          "DROP",        
   "WHERE",         "DOT",           "FLOAT",         "NOT",         
   "EQ",            "NE",            "LT",            "GT",          
   "LE",            "GE",            "AND",           "OR",          
   "SELECT",        "FROM",          "INSERT",        "VALUES",      
-  "INTO",          "SQMSTRING",     "TIMES",         "DELETE",      
+  "INTO",          "STRING",        "TIMES",         "DELETE",      
   "INDEX",         "ON",            "error",         "start",       
   "cmdList",       "cmdAndEnd",     "cmd",           "create_table",
   "create_table_args",  "table_name",    "columnlist",    "optional_constraint_list",
@@ -370,7 +370,7 @@ static const char *const yyRuleName[] = {
  /*   4 */ "cmd ::=",
  /*   5 */ "cmd ::= create_table create_table_args",
  /*   6 */ "create_table ::= CREATE TABLE table_name",
- /*   7 */ "create_table_args ::= LP columnlist optional_constraint_list RP",
+ /*   7 */ "create_table_args ::= LEFTPARENTHESIS columnlist optional_constraint_list RIGHTPARENTHESIS",
  /*   8 */ "columnlist ::= columnlist COMMA column_define",
  /*   9 */ "columnlist ::= column_define",
  /*  10 */ "column_define ::= column column_constraint",
@@ -379,12 +379,12 @@ static const char *const yyRuleName[] = {
  /*  13 */ "rawcolumn ::= name",
  /*  14 */ "column ::= name type_token",
  /*  15 */ "type_token ::= INT_TYPE",
- /*  16 */ "type_token ::= CHAR_TYPE LP INTEGER RP",
+ /*  16 */ "type_token ::= CHAR_TYPE LEFTPARENTHESIS INTEGER RIGHTPARENTHESIS",
  /*  17 */ "type_token ::= FLOAT_TYPE",
  /*  18 */ "column_constraint ::=",
  /*  19 */ "column_constraint ::= PRIMARY KEY",
  /*  20 */ "column_constraint ::= UNIQUE",
- /*  21 */ "name ::= STRING",
+ /*  21 */ "name ::= NAME",
  /*  22 */ "unique_list ::= unique_list COMMA unique",
  /*  23 */ "unique_list ::= unique",
  /*  24 */ "unique ::= name",
@@ -392,8 +392,8 @@ static const char *const yyRuleName[] = {
  /*  26 */ "optional_constraint_list ::= COMMA constraint_list",
  /*  27 */ "constraint_list ::= constraint_list COMMA table_constraint",
  /*  28 */ "constraint_list ::= table_constraint",
- /*  29 */ "table_constraint ::= PRIMARY KEY LP name RP",
- /*  30 */ "table_constraint ::= UNIQUE LP unique_list RP",
+ /*  29 */ "table_constraint ::= PRIMARY KEY LEFTPARENTHESIS name RIGHTPARENTHESIS",
+ /*  30 */ "table_constraint ::= UNIQUE LEFTPARENTHESIS unique_list RIGHTPARENTHESIS",
  /*  31 */ "cmd ::= DROP TABLE table_name",
  /*  32 */ "opt_where_clause ::=",
  /*  33 */ "opt_where_clause ::= where_clause",
@@ -403,7 +403,7 @@ static const char *const yyRuleName[] = {
  /*  37 */ "expr ::= name",
  /*  38 */ "expr ::= INTEGER",
  /*  39 */ "expr ::= FLOAT",
- /*  40 */ "expr ::= LP expr RP",
+ /*  40 */ "expr ::= LEFTPARENTHESIS expr RIGHTPARENTHESIS",
  /*  41 */ "expr ::= NOT expr",
  /*  42 */ "expr ::= expr EQ expr",
  /*  43 */ "expr ::= expr NE expr",
@@ -420,10 +420,10 @@ static const char *const yyRuleName[] = {
  /*  54 */ "cmd ::= INSERT into table_name VALUES valueslist",
  /*  55 */ "into ::=",
  /*  56 */ "into ::= INTO",
- /*  57 */ "stringvalue ::= SQMSTRING",
+ /*  57 */ "stringvalue ::= STRING",
  /*  58 */ "valueslist ::= valueslist COMMA values",
  /*  59 */ "valueslist ::= values",
- /*  60 */ "values ::= LP valuelist RP",
+ /*  60 */ "values ::= LEFTPARENTHESIS valuelist RIGHTPARENTHESIS",
  /*  61 */ "valuelist ::= valuelist COMMA value",
  /*  62 */ "valuelist ::= beginValue value",
  /*  63 */ "value ::= FLOAT",
@@ -436,7 +436,7 @@ static const char *const yyRuleName[] = {
  /*  70 */ "full_name ::= name DOT name",
  /*  71 */ "full_name ::= rawcolumn",
  /*  72 */ "cmd ::= DELETE FROM table_name opt_where_clause",
- /*  73 */ "cmd ::= CREATE INDEX name ON table_name LP rawcolumnlist RP",
+ /*  73 */ "cmd ::= CREATE INDEX name ON table_name LEFTPARENTHESIS rawcolumnlist RIGHTPARENTHESIS",
  /*  74 */ "cmd ::= DROP INDEX name ON table_name",
 };
 #endif /* NDEBUG */
@@ -520,8 +520,8 @@ static void yy_destructor(
     case 1: /* SEMICOLON */
     case 2: /* CREATE */
     case 3: /* TABLE */
-    case 4: /* LP */
-    case 5: /* RP */
+    case 4: /* LEFTPARENTHESIS */
+    case 5: /* RIGHTPARENTHESIS */
     case 6: /* COMMA */
     case 7: /* INT_TYPE */
     case 8: /* CHAR_TYPE */
@@ -530,7 +530,7 @@ static void yy_destructor(
     case 11: /* PRIMARY */
     case 12: /* KEY */
     case 13: /* UNIQUE */
-    case 14: /* STRING */
+    case 14: /* NAME */
     case 15: /* DROP */
     case 16: /* WHERE */
     case 17: /* DOT */
@@ -549,7 +549,7 @@ static void yy_destructor(
     case 30: /* INSERT */
     case 31: /* VALUES */
     case 32: /* INTO */
-    case 33: /* SQMSTRING */
+    case 33: /* STRING */
     case 34: /* TIMES */
     case 35: /* DELETE */
     case 36: /* INDEX */
@@ -950,7 +950,7 @@ static void yy_reduce(
 }
 #line 952 "parser.c"
         break;
-      case 7: /* create_table_args ::= LP columnlist optional_constraint_list RP */
+      case 7: /* create_table_args ::= LEFTPARENTHESIS columnlist optional_constraint_list RIGHTPARENTHESIS */
 #line 64 "parser.y"
 {
   yy_destructor(yypParser,4,&yymsp[-3].minor);
@@ -1001,7 +1001,7 @@ static void yy_reduce(
 }
 #line 1003 "parser.c"
         break;
-      case 16: /* type_token ::= CHAR_TYPE LP INTEGER RP */
+      case 16: /* type_token ::= CHAR_TYPE LEFTPARENTHESIS INTEGER RIGHTPARENTHESIS */
 #line 87 "parser.y"
 { yygotominor.yy11 = stoi(*yymsp[-1].minor.yy0);  yy_destructor(yypParser,8,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
@@ -1033,7 +1033,7 @@ static void yy_reduce(
 }
 #line 1035 "parser.c"
         break;
-      case 21: /* name ::= STRING */
+      case 21: /* name ::= NAME */
 #line 95 "parser.y"
 {yygotominor.yy0=yymsp[0].minor.yy0;}
 #line 1040 "parser.c"
@@ -1045,7 +1045,7 @@ static void yy_reduce(
 }
 #line 1047 "parser.c"
         break;
-      case 29: /* table_constraint ::= PRIMARY KEY LP name RP */
+      case 29: /* table_constraint ::= PRIMARY KEY LEFTPARENTHESIS name RIGHTPARENTHESIS */
 #line 109 "parser.y"
 {
     interpreter->newConstraint(*yymsp[-1].minor.yy0,Constraint::PrimaryKey);
@@ -1056,7 +1056,7 @@ static void yy_reduce(
 }
 #line 1058 "parser.c"
         break;
-      case 30: /* table_constraint ::= UNIQUE LP unique_list RP */
+      case 30: /* table_constraint ::= UNIQUE LEFTPARENTHESIS unique_list RIGHTPARENTHESIS */
 #line 113 "parser.y"
 {
   yy_destructor(yypParser,13,&yymsp[-3].minor);
@@ -1118,7 +1118,7 @@ static void yy_reduce(
 }
 #line 1120 "parser.c"
         break;
-      case 40: /* expr ::= LP expr RP */
+      case 40: /* expr ::= LEFTPARENTHESIS expr RIGHTPARENTHESIS */
 #line 161 "parser.y"
 {
     yygotominor.yy116 = yymsp[-1].minor.yy116;
@@ -1232,7 +1232,7 @@ static void yy_reduce(
 }
 #line 1234 "parser.c"
         break;
-      case 57: /* stringvalue ::= SQMSTRING */
+      case 57: /* stringvalue ::= STRING */
 #line 223 "parser.y"
 {
     yygotominor.yy0 = new string(yymsp[0].minor.yy0->substr(1,yymsp[0].minor.yy0->length()-2));
@@ -1240,7 +1240,7 @@ static void yy_reduce(
 }
 #line 1242 "parser.c"
         break;
-      case 60: /* values ::= LP valuelist RP */
+      case 60: /* values ::= LEFTPARENTHESIS valuelist RIGHTPARENTHESIS */
 #line 230 "parser.y"
 {
   yy_destructor(yypParser,4,&yymsp[-2].minor);
@@ -1299,7 +1299,7 @@ static void yy_reduce(
 }
 #line 1301 "parser.c"
         break;
-      case 73: /* cmd ::= CREATE INDEX name ON table_name LP rawcolumnlist RP */
+      case 73: /* cmd ::= CREATE INDEX name ON table_name LEFTPARENTHESIS rawcolumnlist RIGHTPARENTHESIS */
 #line 266 "parser.y"
 {
     interpreter->setActionType(Action::CreateIndex);

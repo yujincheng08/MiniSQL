@@ -61,7 +61,7 @@ cmd ::= create_table create_table_args. {
 create_table ::= CREATE TABLE table_name.
 
 
-create_table_args ::= LP columnlist optional_constraint_list RP.
+create_table_args ::= LEFTPARENTHESIS columnlist optional_constraint_list RIGHTPARENTHESIS.
 
 // column_arg_list
 columnlist ::= columnlist COMMA column_define.
@@ -84,7 +84,7 @@ column(A) ::= name(X) type_token(Y). {
 //%token_class int INTEGER.
 %type type_token {Column::Type}
 type_token(A) ::= INT_TYPE. { A = Column::Int; }
-type_token(A) ::= CHAR_TYPE LP INTEGER(B) RP. { A = stoi(*B);}
+type_token(A) ::= CHAR_TYPE LEFTPARENTHESIS INTEGER(B) RIGHTPARENTHESIS. { A = stoi(*B);}
 type_token(A) ::= FLOAT_TYPE. { A = Column::Float;}
 
 %type column_constraint {Constraint::Type}
@@ -92,7 +92,7 @@ column_constraint(A) ::= . {A = Constraint::None;}
 column_constraint(A) ::= PRIMARY KEY. {A = Constraint::PrimaryKey;}
 column_constraint(A) ::= UNIQUE. {A = Constraint::Unique;}
 
-name(A) ::= STRING(B). {A=B;}
+name(A) ::= NAME(B). {A=B;}
 
 unique_list ::= unique_list COMMA unique.
 unique_list ::= unique.
@@ -106,11 +106,11 @@ optional_constraint_list ::= COMMA constraint_list.
 constraint_list ::= constraint_list COMMA table_constraint.
 constraint_list ::= table_constraint.
 // primary key is for single column
-table_constraint ::= PRIMARY KEY LP name(N) RP. {
+table_constraint ::= PRIMARY KEY LEFTPARENTHESIS name(N) RIGHTPARENTHESIS. {
     interpreter->newConstraint(*N,Constraint::PrimaryKey);
 }
 // unique may apply to multiple column
-table_constraint ::= UNIQUE LP unique_list RP.
+table_constraint ::= UNIQUE LEFTPARENTHESIS unique_list RIGHTPARENTHESIS.
 
 
 // drop table
@@ -158,7 +158,7 @@ expr(A) ::= FLOAT(X). {
     A = interpreter->newCondition(*X,Column::Float);
 }
 
-expr(A) ::= LP expr(B) RP.{
+expr(A) ::= LEFTPARENTHESIS expr(B) RIGHTPARENTHESIS.{
     A = B;
 }
 
@@ -220,14 +220,14 @@ cmd ::= INSERT into table_name VALUES valueslist. {
 into ::= .
 into ::= INTO.
 
-stringvalue(X) ::= SQMSTRING(A).{
+stringvalue(X) ::= STRING(A).{
     X = new string(A->substr(1,A->length()-2));
     delete A;
 }
 
 valueslist ::= valueslist COMMA values.
 valueslist ::= values.
-values ::= LP valuelist RP.
+values ::= LEFTPARENTHESIS valuelist RIGHTPARENTHESIS.
 valuelist ::= valuelist COMMA value.
 valuelist ::= beginValue value.
 
@@ -263,7 +263,7 @@ cmd ::= DELETE FROM table_name opt_where_clause. {
 
 // create index
 
-cmd ::= CREATE INDEX name(N) ON table_name LP rawcolumnlist RP. {
+cmd ::= CREATE INDEX name(N) ON table_name LEFTPARENTHESIS rawcolumnlist RIGHTPARENTHESIS. {
     interpreter->setActionType(Action::CreateIndex);
     interpreter->addIndexName(*N);
 }

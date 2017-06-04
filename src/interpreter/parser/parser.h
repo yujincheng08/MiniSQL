@@ -1,8 +1,8 @@
 #define SEMICOLON                        1
 #define CREATE                           2
 #define TABLE                            3
-#define LP                               4
-#define RP                               5
+#define LEFTPARENTHESIS                  4
+#define RIGHTPARENTHESIS                 5
 #define COMMA                            6
 #define INT_TYPE                         7
 #define CHAR_TYPE                        8
@@ -11,7 +11,7 @@
 #define PRIMARY                         11
 #define KEY                             12
 #define UNIQUE                          13
-#define STRING                          14
+#define NAME                            14
 #define DROP                            15
 #define WHERE                           16
 #define DOT                             17
@@ -30,7 +30,7 @@
 #define INSERT                          30
 #define VALUES                          31
 #define INTO                            32
-#define SQMSTRING                       33
+#define STRING                          33
 #define TIMES                           34
 #define DELETE                          35
 #define INDEX                           36

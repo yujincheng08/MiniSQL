@@ -28,7 +28,8 @@ private:
 public:
     enum
     {
-        QUIT = 0x0, EXEC = -0x1
+        QUIT = 0x0, EXEC = -0x1, UNEXPETED = -0x2,
+        END = 0x3
     };
     explicit Interpreter(QObject *parent = 0);
     void error(const string &msg);

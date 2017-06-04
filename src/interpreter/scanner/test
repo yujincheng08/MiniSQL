@@ -13,4 +13,3 @@ select * from  City where ID > 20 and Population > 1000;
 insert into City values (1,'Kabul','AFG','Kabol',1780000);
 delete  from  City where ID > 20 and Population < 1000;
 quit;
-exec <filename>;
