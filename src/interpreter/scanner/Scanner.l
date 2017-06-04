@@ -1,8 +1,7 @@
 %case-insensitive
 %lex-source = "Scanner.cpp"
 %%
-[[:blank:]]+
-\n          return Interpreter::NEWLINE;
+[[:space:]]+
 ;			return SEMICOLON;
 create			return CREATE;
 table			return TABLE;

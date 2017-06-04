@@ -46,10 +46,9 @@ void printCondition(Interpreter::ptr<const Condition> c)
     else
         printCondition(Interpreter::ptr<const Condition>(c->secondOperand()));
     cout<<")";
-
 }
 
-void Interpreter::query()
+void test(Action *action)
 {
     cout<<"Type: "<<action->actionType()<<endl;
     if(action->tableName())
@@ -106,9 +105,26 @@ void Interpreter::query()
         printCondition(action->conditions());
         cout<<endl;
     }
-    emit parsered(*action);
+
+}
+
+void Interpreter::query()
+{
+    if(Error)
+    {
+        cerr<<"Error occurs at line " << LineNo
+           <<" near \""<<Near<<"\" : "<<ErrorMsg<<endl;
+    }
+    else
+    {
+        test(action);
+        emit parsered(*action);
+    }
+    ErrorMsg = "";
+
     delete action;
     action = new Action();
+    Error = false;
 }
 
 Interpreter::~Interpreter()
@@ -116,24 +132,32 @@ Interpreter::~Interpreter()
     ParserFree(parser, free);
 }
 
+void Interpreter::error(const string &msg)
+{
+    if(!Error)
+    {
+        LineNo = scanner->lineNr();
+        Error = true;
+        ErrorMsg = msg;
+        Near = scanner->matched();
+    }
+}
+
+
+
 void Interpreter::run()
 {
     action = new Action();
     while(int token = scanner->lex())
     {
         const string &text = scanner->matched();
-        if(token == NEWLINE)
-        {
-            LineNo++;
-            continue;
-        }
-        else if(token == EXEC)
+        if(token == EXEC)
         {
             string filename;
             getline(cin,filename);
             if(filename.back()!=';')
             {
-                error("syntax error");
+                error("Syntax error. Expected ';'.");
                 continue;
             }
             else
@@ -144,7 +168,7 @@ void Interpreter::run()
                 ifstream file(filename);
                 if(!file.is_open())
                 {
-                    error("file not exists");
+                    error("File not exists.");
                     continue;
                 }
                 file.close();
@@ -152,10 +176,12 @@ void Interpreter::run()
                 continue;
             }
         }
-        //cout<<"Get "<<token<<" with "<<text<<endl;
         Parser(parser, token, new string(text),this);
         if(token == SEMICOLON)
+        {
             Parser(parser, 0, nullptr,this);
+            query();
+        }
     }
     cout<<"Good Bye!"<<endl;
 }
@@ -169,7 +195,7 @@ void Interpreter::newConstraint(const string &columnName, const Constraint::Type
     if(type==Constraint::PrimaryKey)
     {
         if(action->Constraints->Primary)
-            return error("Syntax error");
+            return error("Syntax error: Multiple primary keys");
         auto column = make_shared<Column>(Column());
         action->Constraints->Primary  = column;
         column->Name = make_shared<string>(columnName);
@@ -184,6 +210,11 @@ void Interpreter::newConstraint(const string &columnName, const Constraint::Type
     }
 }
 
+void Interpreter::expected(const Interpreter::string &token)
+{
+    ;
+}
+
 
 void Interpreter::newColumn (const string& columnName, const Column::Type type,
                              const string &tableName)
@@ -192,7 +223,7 @@ void Interpreter::newColumn (const string& columnName, const Column::Type type,
         action->Columns = std::make_shared<list<ptr<const Column>>>();
     //std::cout<<"Get column "<<columnName<<" type "<<type<<std::endl;
     if(action->Columns->size()>32U)
-        return error("syntax error");
+        return error("More than 32 attributes in one table.");
     auto column = std::make_shared<Column>(Column());
     column->ColumnType = type;
     column->Name = std::make_shared<string>(columnName);

@@ -20,13 +20,15 @@ private:
     Q_OBJECT
     void *parser = nullptr;
     Scanner *scanner = nullptr;
-    size_t LineNo;
+    size_t LineNo = 0U;
+    string ErrorMsg;
+    string Near;
     Action *action = nullptr;
-    bool Error;
+    bool Error = false;
 public:
     enum
     {
-        QUIT = 0x0, EXEC = -0x1, NEWLINE = -0x2
+        QUIT = 0x0, EXEC = -0x1
     };
     explicit Interpreter(QObject *parent = 0);
     void error(const string &msg);
@@ -44,18 +46,13 @@ public:
     Condition *newCondition(const Condition::Type type,
                       Condition *first, Condition * second = nullptr);
     void newCondition(Condition *condition);
-
+    void expected(const string &token);
     ~Interpreter();
 signals:
     void parsered(Action);
 public slots:
     void run();
 };
-
-inline void Interpreter::error(const string &msg)
-{
-    std::cerr<<msg<<std::endl;
-}
 
 inline void Interpreter::setActionType(const Action::Type type)
 {

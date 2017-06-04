@@ -4,7 +4,7 @@
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */
 #include <stdio.h>
-#line 20 "parser.y"
+#line 32 "parser.y"
 
 #include "parser.h"
 #include <iostream>
@@ -67,16 +67,16 @@ using namespace std;
 **                       defined, then do no error processing.
 */
 #define YYCODETYPE unsigned char
-#define YYNOCODE 75
+#define YYNOCODE 74
 #define YYACTIONTYPE unsigned char
 #define ParserTOKENTYPE const string *
 typedef union {
   int yyinit;
   ParserTOKENTYPE yy0;
-  Condition * yy22;
-  Constraint::Type yy40;
-  Condition::Type yy82;
-  Column::Type yy133;
+  Column::Type yy11;
+  Constraint::Type yy112;
+  Condition * yy116;
+  Condition::Type yy130;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -85,7 +85,7 @@ typedef union {
 #define ParserARG_PDECL ,Interpreter *interpreter
 #define ParserARG_FETCH Interpreter *interpreter = yypParser->interpreter
 #define ParserARG_STORE yypParser->interpreter = interpreter
-#define YYNSTATE 139
+#define YYNSTATE 138
 #define YYNRULE 75
 #define YY_NO_ACTION      (YYNSTATE+YYNRULE+2)
 #define YY_ACCEPT_ACTION  (YYNSTATE+YYNRULE+1)
@@ -155,96 +155,96 @@ static const YYMINORTYPE yyzerominor = { 0 };
 **                     shifting non-terminals after a reduce.
 **  yy_default[]       Default action for each state.
 */
-#define YY_ACTTAB_COUNT (218)
+#define YY_ACTTAB_COUNT (217)
 static const YYACTIONTYPE yy_action[] = {
- /*     0 */   102,   14,   12,   10,    9,    8,    7,    6,    5,   14,
- /*    10 */    12,   10,    9,    8,    7,   14,   12,   10,    9,    8,
- /*    20 */     7,    6,    5,   14,   12,   10,    9,    8,    7,    6,
- /*    30 */   214,  214,  214,  214,  214,  214,   13,  138,   82,  136,
- /*    40 */    46,  104,  139,  131,   62,   45,  125,  117,   37,  137,
- /*    50 */   103,   11,   35,  128,   79,  134,  126,   60,  215,    2,
- /*    60 */    83,   82,  136,   46,   78,  101,  133,   37,   62,   27,
- /*    70 */     3,   35,   39,   96,   68,   76,  118,   64,   89,   15,
- /*    80 */   121,   60,   63,  119,   98,  127,   59,   90,   61,  111,
- /*    90 */   113,   77,  115,   94,    3,   74,   39,   67,   96,   68,
- /*   100 */    36,   64,  101,   22,   44,   48,   67,  106,   75,   67,
- /*   110 */    72,  125,   67,   67,   50,   32,  106,   47,   97,  106,
- /*   120 */    51,   57,  106,  106,   29,   67,   67,  120,   33,   67,
- /*   130 */    67,  112,   30,   56,   55,  106,  106,   54,   53,  106,
- /*   140 */   106,   67,   67,   16,   92,   21,  114,  113,   43,   52,
- /*   150 */    49,  106,  106,   80,   75,  130,   72,   42,  125,   58,
- /*   160 */   121,   20,  116,  122,   70,  110,   17,   65,   86,  109,
- /*   170 */   115,  100,  115,  115,   66,   23,  123,  115,   95,  115,
- /*   180 */    84,  107,  115,  115,   99,  107,   19,   31,   18,   28,
- /*   190 */    41,   88,   40,   25,   88,   38,   24,    4,   91,  135,
- /*   200 */     1,   87,   73,   81,  125,   71,   85,   69,   26,   93,
- /*   210 */   108,  105,   34,   15,  132,  129,  216,  124,
+ /*     0 */   102,   13,   11,    9,    8,    7,    6,    5,    4,   13,
+ /*    10 */    11,    9,    8,    7,    6,   13,   11,    9,    8,    7,
+ /*    20 */     6,    5,    4,   13,   11,    9,    8,    7,    6,    5,
+ /*    30 */   213,  213,  213,  213,  213,  213,  138,  134,   62,   12,
+ /*    40 */   128,   79,   32,  126,  104,   96,   68,  133,   37,  125,
+ /*    50 */    62,   60,   35,  103,   10,  136,   76,  118,  214,   15,
+ /*    60 */    83,   82,   46,   60,    2,   97,   39,   45,  101,  117,
+ /*    70 */    37,   64,   96,   68,   35,   43,    2,   89,   39,  121,
+ /*    80 */    78,   63,  119,   64,  131,   59,   90,   98,   61,  111,
+ /*    90 */   113,   80,   94,  130,   67,  115,  137,   82,   46,   67,
+ /*   100 */    67,  101,   48,   67,  106,   77,   22,   50,   47,  106,
+ /*   110 */   106,   51,   67,  106,   29,   67,   67,  120,   33,   67,
+ /*   120 */    57,   16,  106,   56,   55,  106,  106,   54,   67,  106,
+ /*   130 */    44,   67,   67,  112,   30,   75,   53,   72,  106,   52,
+ /*   140 */    49,  106,  106,   75,   17,   72,  125,   42,   92,   21,
+ /*   150 */   116,   58,  121,   20,   70,  122,  114,  113,  115,  110,
+ /*   160 */    27,  109,  115,  100,   66,   65,   86,  115,   23,  115,
+ /*   170 */    14,  115,  115,  125,  127,   74,  115,   36,  123,   84,
+ /*   180 */   107,   99,  107,   19,   88,   31,   18,   28,   88,   41,
+ /*   190 */    38,   91,   40,   95,    3,   87,   25,   24,   81,  135,
+ /*   200 */     1,  125,   73,   26,   93,   71,   69,   34,   85,  108,
+ /*   210 */   105,  132,   14,  215,  129,  215,  124,
 };
 static const YYCODETYPE yy_lookahead[] = {
  /*     0 */     5,   20,   21,   22,   23,   24,   25,   26,   27,   20,
  /*    10 */    21,   22,   23,   24,   25,   20,   21,   22,   23,   24,
  /*    20 */    25,   26,   27,   20,   21,   22,   23,   24,   25,   26,
- /*    30 */    20,   21,   22,   23,   24,   25,    4,   41,   42,   43,
- /*    40 */    44,    9,    0,   12,    2,   47,   14,   49,   50,    1,
- /*    50 */    18,   19,   54,    7,    8,    5,   10,   15,   39,   40,
- /*    60 */    41,   42,   43,   44,    4,   33,   49,   50,    2,    6,
- /*    70 */    28,   54,   30,   53,   54,   58,   59,   35,    9,   16,
- /*    80 */    54,   15,   56,   57,   46,    5,   66,   18,   52,   53,
- /*    90 */    54,    9,   54,   73,   28,   12,   30,   54,   53,   54,
- /*   100 */     6,   35,   33,   65,    4,   62,   54,   64,   11,   54,
- /*   110 */    13,   14,   54,   54,   62,    3,   64,   62,   73,   64,
- /*   120 */    62,   62,   64,   64,    3,   54,   54,    5,    6,   54,
- /*   130 */    54,    5,    6,   62,   62,   64,   64,   62,   62,   64,
- /*   140 */    64,   54,   54,    6,    5,    6,   53,   54,   36,   62,
- /*   150 */    62,   64,   64,   11,   11,   13,   13,   36,   14,   70,
- /*   160 */    54,   72,   46,   57,   46,   46,   29,   68,   69,   46,
- /*   170 */    54,   46,   54,   54,   46,   46,    5,   54,   34,   54,
- /*   180 */    60,   61,   54,   54,   60,   61,    4,   37,    4,   37,
- /*   190 */    17,   64,   17,   31,   64,    6,   29,    4,   71,   45,
- /*   200 */     6,   71,   54,   48,   14,   54,   32,   54,   67,   69,
- /*   210 */    54,   54,    4,   16,   51,   55,   74,   59,
+ /*    30 */    20,   21,   22,   23,   24,   25,    0,    5,    2,    4,
+ /*    40 */     7,    8,    3,   10,    9,   52,   53,   48,   49,   14,
+ /*    50 */     2,   15,   53,   18,   19,    1,   57,   58,   39,   40,
+ /*    60 */    41,   42,   43,   15,   28,   72,   30,   46,   33,   48,
+ /*    70 */    49,   35,   52,   53,   53,   36,   28,    9,   30,   53,
+ /*    80 */     4,   55,   56,   35,   12,   65,   18,   45,   51,   52,
+ /*    90 */    53,   11,   72,   13,   53,   53,   41,   42,   43,   53,
+ /*   100 */    53,   33,   61,   53,   63,    9,   64,   61,   61,   63,
+ /*   110 */    63,   61,   53,   63,    3,   53,   53,    5,    6,   53,
+ /*   120 */    61,    6,   63,   61,   61,   63,   63,   61,   53,   63,
+ /*   130 */     4,   53,   53,    5,    6,   11,   61,   13,   63,   61,
+ /*   140 */    61,   63,   63,   11,   29,   13,   14,   36,    5,    6,
+ /*   150 */    45,   69,   53,   71,   45,   56,   52,   53,   53,   45,
+ /*   160 */     6,   45,   53,   45,   45,   67,   68,   53,   45,   53,
+ /*   170 */    16,   53,   53,   14,    5,   12,   53,    6,    5,   59,
+ /*   180 */    60,   59,   60,    4,   63,   37,    4,   37,   63,   17,
+ /*   190 */     6,   70,   17,   34,    4,   70,   31,   29,   47,   44,
+ /*   200 */     6,   14,   53,   66,   68,   53,   53,    4,   32,   53,
+ /*   210 */    53,   50,   16,   73,   54,   73,   58,
 };
 #define YY_SHIFT_USE_DFLT (-20)
 #define YY_SHIFT_COUNT (82)
 #define YY_SHIFT_MIN   (-19)
-#define YY_SHIFT_MAX   (208)
+#define YY_SHIFT_MAX   (203)
 static const short yy_shift_ofst[] = {
- /*     0 */    66,   97,   42,  144,  190,   32,   32,   32,   32,   32,
- /*    10 */    32,   32,   32,   32,   32,   32,  190,  190,  190,  190,
- /*    20 */    69,   69,   63,  197,  190,  208,  190,  190,  190,  190,
- /*    30 */   190,  190,  190,  190,  -20,   46,  143,  142,  208,  174,
- /*    40 */   190,  190,  190,  190,  190,  194,  193,   -5,  -19,    3,
- /*    50 */    10,   10,  -11,   10,   10,   10,   10,  -11,  139,  137,
- /*    60 */   121,  126,  112,  122,  167,  189,  162,  175,  173,  152,
- /*    70 */   184,  150,  182,  171,  100,   83,   94,   80,   82,   60,
- /*    80 */    31,   50,   48,
+ /*     0 */    48,  132,  159,  187,   35,   35,   35,   35,   35,   35,
+ /*    10 */    35,   35,   35,   35,   35,   36,  187,  187,  187,  187,
+ /*    20 */    68,   68,  154,  196,  187,  203,  187,  187,  187,  187,
+ /*    30 */   187,  187,  187,  187,  -20,   33,  124,   80,  203,  176,
+ /*    40 */   187,  187,  187,  187,  187,  194,  190,   -5,  -19,    3,
+ /*    50 */    10,   10,  -11,   10,   10,   10,   10,  -11,  143,  115,
+ /*    60 */   111,  128,   39,  112,  168,  184,  165,  175,  172,  150,
+ /*    70 */   182,  148,  179,  173,  126,  163,  171,  169,   96,   76,
+ /*    80 */    72,   32,   54,
 };
-#define YY_REDUCE_USE_DFLT (-5)
+#define YY_REDUCE_USE_DFLT (-8)
 #define YY_REDUCE_COUNT (46)
-#define YY_REDUCE_MIN   (-4)
-#define YY_REDUCE_MAX   (163)
+#define YY_REDUCE_MIN   (-7)
+#define YY_REDUCE_MAX   (161)
 static const short yy_reduce_ofst[] = {
- /*     0 */    19,   17,   -4,   20,   -2,   88,   87,   76,   75,   72,
- /*    10 */    71,   59,   58,   55,   52,   43,   45,   38,   36,   26,
- /*    20 */   130,  127,  124,  120,  129,   99,  128,  125,  123,  119,
- /*    30 */    93,  118,  116,  106,   89,  160,  158,  163,  140,  141,
- /*    40 */   157,  156,  153,  151,  148,  155,  154,
+ /*     0 */    19,   -1,   20,   21,   79,   78,   75,   66,   63,   62,
+ /*    10 */    59,   50,   47,   46,   41,   55,   -7,   42,   37,   26,
+ /*    20 */   125,  121,  122,  120,  123,   98,  119,  118,  116,  114,
+ /*    30 */   104,  109,  105,   99,   82,  160,  158,  161,  136,  137,
+ /*    40 */   157,  156,  153,  152,  149,  151,  155,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   214,  214,  214,  214,  214,  214,  214,  214,  214,  214,
- /*    10 */   214,  214,  214,  214,  214,  214,  214,  214,  214,  214,
- /*    20 */   214,  214,  171,  171,  214,  214,  214,  214,  214,  214,
- /*    30 */   214,  214,  214,  214,  205,  214,  214,  157,  214,  194,
- /*    40 */   214,  214,  214,  214,  214,  164,  214,  214,  173,  188,
- /*    50 */   181,  182,  187,  186,  185,  184,  183,  180,  214,  214,
- /*    60 */   214,  214,  214,  214,  214,  193,  214,  176,  152,  214,
- /*    70 */   214,  214,  214,  214,  214,  214,  165,  214,  214,  214,
- /*    80 */   214,  214,  214,  141,  211,  195,  198,  201,  204,  203,
- /*    90 */   202,  200,  199,  197,  208,  206,  210,  207,  191,  192,
- /*   100 */   190,  196,  179,  178,  177,  175,  174,  172,  209,  213,
- /*   110 */   170,  151,  212,  152,  150,  189,  145,  148,  167,  162,
- /*   120 */   169,  163,  161,  168,  166,  160,  156,  155,  154,  153,
- /*   130 */   159,  158,  149,  147,  146,  144,  143,  142,  140,
+ /*     0 */   142,  213,  213,  213,  213,  213,  213,  213,  213,  213,
+ /*    10 */   213,  213,  213,  213,  213,  142,  213,  213,  213,  213,
+ /*    20 */   213,  213,  170,  170,  213,  213,  213,  213,  213,  213,
+ /*    30 */   213,  213,  213,  213,  204,  213,  213,  156,  213,  193,
+ /*    40 */   213,  213,  213,  213,  213,  163,  213,  213,  172,  187,
+ /*    50 */   180,  181,  186,  185,  184,  183,  182,  179,  213,  213,
+ /*    60 */   213,  213,  213,  213,  213,  192,  213,  175,  151,  213,
+ /*    70 */   213,  213,  213,  213,  213,  213,  164,  213,  213,  213,
+ /*    80 */   213,  213,  213,  140,  210,  194,  197,  200,  203,  202,
+ /*    90 */   201,  199,  198,  196,  207,  205,  209,  206,  190,  191,
+ /*   100 */   189,  195,  178,  177,  176,  174,  173,  171,  208,  212,
+ /*   110 */   169,  150,  211,  151,  149,  188,  144,  147,  166,  161,
+ /*   120 */   168,  162,  160,  167,  165,  159,  155,  154,  153,  152,
+ /*   130 */   158,  157,  148,  146,  145,  143,  141,  139,
 };
 
 /* The next table maps tokens into fallback tokens.  If a construct
@@ -347,15 +347,15 @@ static const char *const yyTokenName[] = {
   "SELECT",        "FROM",          "INSERT",        "VALUES",      
   "INTO",          "SQMSTRING",     "TIMES",         "DELETE",      
   "INDEX",         "ON",            "error",         "start",       
-  "cmdList",       "cmdAndEnd",     "singlcmd",      "cmd",         
-  "create_table",  "create_table_args",  "table_name",    "columnlist",  
-  "optional_constraint_list",  "column_define",  "column",        "column_constraint",
-  "rawcolumnlist",  "rawcolumn",     "name",          "type_token",  
-  "unique_list",   "unique",        "constraint_list",  "table_constraint",
-  "opt_where_clause",  "where_clause",  "expr",          "binary_op",   
-  "stringvalue",   "table_list",    "select_column_list",  "into",        
-  "valueslist",    "values",        "valuelist",     "value",       
-  "beginValue",    "full_name",   
+  "cmdList",       "cmdAndEnd",     "cmd",           "create_table",
+  "create_table_args",  "table_name",    "columnlist",    "optional_constraint_list",
+  "column_define",  "column",        "column_constraint",  "rawcolumnlist",
+  "rawcolumn",     "name",          "type_token",    "unique_list", 
+  "unique",        "constraint_list",  "table_constraint",  "opt_where_clause",
+  "where_clause",  "expr",          "binary_op",     "stringvalue", 
+  "table_list",    "select_column_list",  "into",          "valueslist",  
+  "values",        "valuelist",     "value",         "beginValue",  
+  "full_name",   
 };
 #endif /* NDEBUG */
 
@@ -366,8 +366,8 @@ static const char *const yyRuleName[] = {
  /*   0 */ "start ::= cmdList",
  /*   1 */ "cmdList ::= cmdList cmdAndEnd",
  /*   2 */ "cmdList ::= cmdAndEnd",
- /*   3 */ "cmdAndEnd ::= singlcmd SEMICOLON",
- /*   4 */ "singlcmd ::= cmd",
+ /*   3 */ "cmdAndEnd ::= cmd SEMICOLON",
+ /*   4 */ "cmd ::=",
  /*   5 */ "cmd ::= create_table create_table_args",
  /*   6 */ "create_table ::= CREATE TABLE table_name",
  /*   7 */ "create_table_args ::= LP columnlist optional_constraint_list RP",
@@ -739,9 +739,9 @@ static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor){
    while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
    /* Here code is inserted which will execute if the parser
    ** stack every overflows */
-#line 14 "parser.y"
+#line 26 "parser.y"
 
-    interpreter->error("Stack overflow");
+    interpreter->error("Stack overflow.");
 #line 746 "parser.c"
    ParserARG_STORE; /* Suppress warning about unused %extra_argument var */
 }
@@ -803,77 +803,77 @@ static const struct {
   { 40, 2 },
   { 40, 1 },
   { 41, 2 },
-  { 42, 1 },
-  { 43, 2 },
-  { 44, 3 },
-  { 45, 4 },
-  { 47, 3 },
-  { 47, 1 },
-  { 49, 2 },
-  { 52, 3 },
-  { 52, 1 },
-  { 53, 1 },
-  { 50, 2 },
-  { 55, 1 },
-  { 55, 4 },
-  { 55, 1 },
-  { 51, 0 },
-  { 51, 2 },
-  { 51, 1 },
-  { 54, 1 },
-  { 56, 3 },
-  { 56, 1 },
-  { 57, 1 },
-  { 48, 0 },
-  { 48, 2 },
-  { 58, 3 },
-  { 58, 1 },
-  { 59, 5 },
-  { 59, 4 },
+  { 42, 0 },
+  { 42, 2 },
   { 43, 3 },
-  { 60, 0 },
-  { 60, 1 },
-  { 61, 2 },
-  { 62, 1 },
-  { 62, 3 },
-  { 62, 1 },
-  { 62, 1 },
-  { 62, 1 },
-  { 62, 3 },
-  { 62, 2 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
-  { 62, 3 },
+  { 44, 4 },
+  { 46, 3 },
   { 46, 1 },
+  { 48, 2 },
+  { 51, 3 },
+  { 51, 1 },
+  { 52, 1 },
+  { 49, 2 },
+  { 54, 1 },
+  { 54, 4 },
+  { 54, 1 },
+  { 50, 0 },
+  { 50, 2 },
+  { 50, 1 },
+  { 53, 1 },
+  { 55, 3 },
+  { 55, 1 },
+  { 56, 1 },
+  { 47, 0 },
+  { 47, 2 },
+  { 57, 3 },
+  { 57, 1 },
+  { 58, 5 },
+  { 58, 4 },
+  { 42, 3 },
+  { 59, 0 },
+  { 59, 1 },
+  { 60, 2 },
+  { 61, 1 },
+  { 61, 3 },
+  { 61, 1 },
+  { 61, 1 },
+  { 61, 1 },
+  { 61, 3 },
+  { 61, 2 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 61, 3 },
+  { 45, 1 },
+  { 64, 3 },
+  { 64, 1 },
+  { 42, 5 },
+  { 42, 5 },
+  { 66, 0 },
+  { 66, 1 },
+  { 63, 1 },
+  { 67, 3 },
+  { 67, 1 },
+  { 68, 3 },
+  { 69, 3 },
+  { 69, 2 },
+  { 70, 1 },
+  { 70, 1 },
+  { 70, 1 },
+  { 71, 0 },
+  { 65, 1 },
   { 65, 3 },
   { 65, 1 },
-  { 43, 5 },
-  { 43, 5 },
-  { 67, 0 },
-  { 67, 1 },
-  { 64, 1 },
-  { 68, 3 },
-  { 68, 1 },
-  { 69, 3 },
-  { 70, 3 },
-  { 70, 2 },
-  { 71, 1 },
-  { 71, 1 },
-  { 71, 1 },
-  { 72, 0 },
-  { 66, 1 },
-  { 66, 3 },
-  { 66, 1 },
-  { 73, 3 },
-  { 73, 1 },
-  { 43, 4 },
-  { 43, 8 },
-  { 43, 5 },
+  { 72, 3 },
+  { 72, 1 },
+  { 42, 4 },
+  { 42, 8 },
+  { 42, 5 },
 };
 
 static void yy_accept(yyParser*);  /* Forward Declaration */
@@ -928,42 +928,35 @@ static void yy_reduce(
   **  #line <lineno> <thisfile>
   **     break;
   */
-      case 3: /* cmdAndEnd ::= singlcmd SEMICOLON */
-#line 41 "parser.y"
+      case 3: /* cmdAndEnd ::= cmd SEMICOLON */
+#line 53 "parser.y"
 {
   yy_destructor(yypParser,1,&yymsp[0].minor);
 }
 #line 937 "parser.c"
         break;
-      case 4: /* singlcmd ::= cmd */
-#line 43 "parser.y"
-{
-    interpreter-> query();
-}
-#line 944 "parser.c"
-        break;
       case 5: /* cmd ::= create_table create_table_args */
-#line 47 "parser.y"
+#line 57 "parser.y"
 {
     interpreter->setActionType(Action::CreateTable);
 }
-#line 951 "parser.c"
+#line 944 "parser.c"
         break;
       case 6: /* create_table ::= CREATE TABLE table_name */
-#line 51 "parser.y"
+#line 61 "parser.y"
 {
   yy_destructor(yypParser,2,&yymsp[-2].minor);
   yy_destructor(yypParser,3,&yymsp[-1].minor);
 }
-#line 959 "parser.c"
+#line 952 "parser.c"
         break;
       case 7: /* create_table_args ::= LP columnlist optional_constraint_list RP */
-#line 54 "parser.y"
+#line 64 "parser.y"
 {
   yy_destructor(yypParser,4,&yymsp[-3].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 967 "parser.c"
+#line 960 "parser.c"
         break;
       case 8: /* columnlist ::= columnlist COMMA column_define */
       case 11: /* rawcolumnlist ::= rawcolumnlist COMMA rawcolumn */ yytestcase(yyruleno==11);
@@ -974,86 +967,86 @@ static void yy_reduce(
       case 58: /* valueslist ::= valueslist COMMA values */ yytestcase(yyruleno==58);
       case 61: /* valuelist ::= valuelist COMMA value */ yytestcase(yyruleno==61);
       case 68: /* select_column_list ::= select_column_list COMMA full_name */ yytestcase(yyruleno==68);
-#line 57 "parser.y"
+#line 67 "parser.y"
 {
   yy_destructor(yypParser,6,&yymsp[-1].minor);
 }
-#line 982 "parser.c"
+#line 975 "parser.c"
         break;
       case 10: /* column_define ::= column column_constraint */
-#line 59 "parser.y"
+#line 69 "parser.y"
 {
-    interpreter->newConstraint(*yymsp[-1].minor.yy0,yymsp[0].minor.yy40);
+    interpreter->newConstraint(*yymsp[-1].minor.yy0,yymsp[0].minor.yy112);
 }
-#line 989 "parser.c"
+#line 982 "parser.c"
         break;
       case 13: /* rawcolumn ::= name */
-#line 65 "parser.y"
+#line 75 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0,Column::Undefined);
 }
-#line 996 "parser.c"
+#line 989 "parser.c"
         break;
       case 14: /* column ::= name type_token */
-#line 69 "parser.y"
+#line 79 "parser.y"
 {
-    interpreter->newColumn(*yymsp[-1].minor.yy0, yymsp[0].minor.yy133);
+    interpreter->newColumn(*yymsp[-1].minor.yy0, yymsp[0].minor.yy11);
     yygotominor.yy0 = yymsp[-1].minor.yy0;
 }
-#line 1004 "parser.c"
+#line 997 "parser.c"
         break;
       case 15: /* type_token ::= INT_TYPE */
-#line 76 "parser.y"
-{ yygotominor.yy133 = Column::Int;   yy_destructor(yypParser,7,&yymsp[0].minor);
+#line 86 "parser.y"
+{ yygotominor.yy11 = Column::Int;   yy_destructor(yypParser,7,&yymsp[0].minor);
 }
-#line 1010 "parser.c"
+#line 1003 "parser.c"
         break;
       case 16: /* type_token ::= CHAR_TYPE LP INTEGER RP */
-#line 77 "parser.y"
-{ yygotominor.yy133 = stoi(*yymsp[-1].minor.yy0);  yy_destructor(yypParser,8,&yymsp[-3].minor);
+#line 87 "parser.y"
+{ yygotominor.yy11 = stoi(*yymsp[-1].minor.yy0);  yy_destructor(yypParser,8,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1018 "parser.c"
+#line 1011 "parser.c"
         break;
       case 17: /* type_token ::= FLOAT_TYPE */
-#line 78 "parser.y"
-{ yygotominor.yy133 = Column::Float;  yy_destructor(yypParser,10,&yymsp[0].minor);
+#line 88 "parser.y"
+{ yygotominor.yy11 = Column::Float;  yy_destructor(yypParser,10,&yymsp[0].minor);
 }
-#line 1024 "parser.c"
+#line 1017 "parser.c"
         break;
       case 18: /* column_constraint ::= */
-#line 81 "parser.y"
-{yygotominor.yy40 = Constraint::None;}
-#line 1029 "parser.c"
+#line 91 "parser.y"
+{yygotominor.yy112 = Constraint::None;}
+#line 1022 "parser.c"
         break;
       case 19: /* column_constraint ::= PRIMARY KEY */
-#line 82 "parser.y"
-{yygotominor.yy40 = Constraint::PrimaryKey;  yy_destructor(yypParser,11,&yymsp[-1].minor);
+#line 92 "parser.y"
+{yygotominor.yy112 = Constraint::PrimaryKey;  yy_destructor(yypParser,11,&yymsp[-1].minor);
   yy_destructor(yypParser,12,&yymsp[0].minor);
 }
-#line 1036 "parser.c"
+#line 1029 "parser.c"
         break;
       case 20: /* column_constraint ::= UNIQUE */
-#line 83 "parser.y"
-{yygotominor.yy40 = Constraint::Unique;  yy_destructor(yypParser,13,&yymsp[0].minor);
+#line 93 "parser.y"
+{yygotominor.yy112 = Constraint::Unique;  yy_destructor(yypParser,13,&yymsp[0].minor);
 }
-#line 1042 "parser.c"
+#line 1035 "parser.c"
         break;
       case 21: /* name ::= STRING */
-#line 85 "parser.y"
+#line 95 "parser.y"
 {yygotominor.yy0=yymsp[0].minor.yy0;}
-#line 1047 "parser.c"
+#line 1040 "parser.c"
         break;
       case 24: /* unique ::= name */
-#line 89 "parser.y"
+#line 99 "parser.y"
 {
     interpreter->newConstraint(*yymsp[0].minor.yy0,Constraint::Unique);
 }
-#line 1054 "parser.c"
+#line 1047 "parser.c"
         break;
       case 29: /* table_constraint ::= PRIMARY KEY LP name RP */
-#line 99 "parser.y"
+#line 109 "parser.y"
 {
     interpreter->newConstraint(*yymsp[-1].minor.yy0,Constraint::PrimaryKey);
   yy_destructor(yypParser,11,&yymsp[-4].minor);
@@ -1061,253 +1054,253 @@ static void yy_reduce(
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1065 "parser.c"
+#line 1058 "parser.c"
         break;
       case 30: /* table_constraint ::= UNIQUE LP unique_list RP */
-#line 103 "parser.y"
+#line 113 "parser.y"
 {
   yy_destructor(yypParser,13,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1074 "parser.c"
+#line 1067 "parser.c"
         break;
       case 31: /* cmd ::= DROP TABLE table_name */
-#line 107 "parser.y"
+#line 117 "parser.y"
 {
     interpreter->setActionType(Action::DropTable);
   yy_destructor(yypParser,15,&yymsp[-2].minor);
   yy_destructor(yypParser,3,&yymsp[-1].minor);
 }
-#line 1083 "parser.c"
+#line 1076 "parser.c"
         break;
       case 34: /* where_clause ::= WHERE expr */
-#line 118 "parser.y"
+#line 128 "parser.y"
 {
-    interpreter->newCondition(yymsp[0].minor.yy22);
+    interpreter->newCondition(yymsp[0].minor.yy116);
   yy_destructor(yypParser,16,&yymsp[-1].minor);
+}
+#line 1084 "parser.c"
+        break;
+      case 35: /* expr ::= stringvalue */
+#line 142 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(*yymsp[0].minor.yy0,yymsp[0].minor.yy0->length());
 }
 #line 1091 "parser.c"
         break;
-      case 35: /* expr ::= stringvalue */
-#line 132 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(*yymsp[0].minor.yy0,yymsp[0].minor.yy0->length());
-}
-#line 1098 "parser.c"
-        break;
       case 36: /* expr ::= name DOT name */
-#line 136 "parser.y"
+#line 146 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined, *yymsp[-2].minor.yy0);
+    yygotominor.yy116 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined, *yymsp[-2].minor.yy0);
   yy_destructor(yypParser,17,&yymsp[-1].minor);
+}
+#line 1099 "parser.c"
+        break;
+      case 37: /* expr ::= name */
+#line 150 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined);
 }
 #line 1106 "parser.c"
         break;
-      case 37: /* expr ::= name */
-#line 140 "parser.y"
+      case 38: /* expr ::= INTEGER */
+#line 154 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined);
+    yygotominor.yy116 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Int);
 }
 #line 1113 "parser.c"
         break;
-      case 38: /* expr ::= INTEGER */
-#line 144 "parser.y"
+      case 39: /* expr ::= FLOAT */
+#line 157 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Int);
+    yygotominor.yy116 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Float);
 }
 #line 1120 "parser.c"
         break;
-      case 39: /* expr ::= FLOAT */
-#line 147 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Float);
-}
-#line 1127 "parser.c"
-        break;
       case 40: /* expr ::= LP expr RP */
-#line 151 "parser.y"
+#line 161 "parser.y"
 {
-    yygotominor.yy22 = yymsp[-1].minor.yy22;
+    yygotominor.yy116 = yymsp[-1].minor.yy116;
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1136 "parser.c"
+#line 1129 "parser.c"
         break;
       case 41: /* expr ::= NOT expr */
-#line 155 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::Not, yymsp[0].minor.yy22);
-  yy_destructor(yypParser,19,&yymsp[-1].minor);
-}
-#line 1144 "parser.c"
-        break;
-      case 42: /* expr ::= expr EQ expr */
-#line 159 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::Equal,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
-  yy_destructor(yypParser,20,&yymsp[-1].minor);
-}
-#line 1152 "parser.c"
-        break;
-      case 43: /* expr ::= expr NE expr */
-#line 162 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::NotEqual,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
-  yy_destructor(yypParser,21,&yymsp[-1].minor);
-}
-#line 1160 "parser.c"
-        break;
-      case 44: /* expr ::= expr LT expr */
 #line 165 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(Condition::LessThan,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
+    yygotominor.yy116 = interpreter->newCondition(Condition::Not, yymsp[0].minor.yy116);
+  yy_destructor(yypParser,19,&yymsp[-1].minor);
+}
+#line 1137 "parser.c"
+        break;
+      case 42: /* expr ::= expr EQ expr */
+#line 169 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::Equal,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
+  yy_destructor(yypParser,20,&yymsp[-1].minor);
+}
+#line 1145 "parser.c"
+        break;
+      case 43: /* expr ::= expr NE expr */
+#line 172 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::NotEqual,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
+  yy_destructor(yypParser,21,&yymsp[-1].minor);
+}
+#line 1153 "parser.c"
+        break;
+      case 44: /* expr ::= expr LT expr */
+#line 175 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::LessThan,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
   yy_destructor(yypParser,22,&yymsp[-1].minor);
 }
-#line 1168 "parser.c"
+#line 1161 "parser.c"
         break;
       case 45: /* expr ::= expr GT expr */
-#line 168 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::GreaterThan,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
-  yy_destructor(yypParser,23,&yymsp[-1].minor);
-}
-#line 1176 "parser.c"
-        break;
-      case 46: /* expr ::= expr LE expr */
-#line 171 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::LessEqual,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
-  yy_destructor(yypParser,24,&yymsp[-1].minor);
-}
-#line 1184 "parser.c"
-        break;
-      case 47: /* expr ::= expr GE expr */
-#line 174 "parser.y"
-{
-    yygotominor.yy22 = interpreter->newCondition(Condition::GreaterEqual,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
-  yy_destructor(yypParser,25,&yymsp[-1].minor);
-}
-#line 1192 "parser.c"
-        break;
-      case 48: /* expr ::= expr AND expr */
 #line 178 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(Condition::And,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
+    yygotominor.yy116 = interpreter->newCondition(Condition::GreaterThan,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
+  yy_destructor(yypParser,23,&yymsp[-1].minor);
+}
+#line 1169 "parser.c"
+        break;
+      case 46: /* expr ::= expr LE expr */
+#line 181 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::LessEqual,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
+  yy_destructor(yypParser,24,&yymsp[-1].minor);
+}
+#line 1177 "parser.c"
+        break;
+      case 47: /* expr ::= expr GE expr */
+#line 184 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::GreaterEqual,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
+  yy_destructor(yypParser,25,&yymsp[-1].minor);
+}
+#line 1185 "parser.c"
+        break;
+      case 48: /* expr ::= expr AND expr */
+#line 188 "parser.y"
+{
+    yygotominor.yy116 = interpreter->newCondition(Condition::And,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
   yy_destructor(yypParser,26,&yymsp[-1].minor);
 }
-#line 1200 "parser.c"
+#line 1193 "parser.c"
         break;
       case 49: /* expr ::= expr OR expr */
-#line 182 "parser.y"
+#line 192 "parser.y"
 {
-    yygotominor.yy22 = interpreter->newCondition(Condition::Or,yymsp[-2].minor.yy22,yymsp[0].minor.yy22); 
+    yygotominor.yy116 = interpreter->newCondition(Condition::Or,yymsp[-2].minor.yy116,yymsp[0].minor.yy116); 
   yy_destructor(yypParser,27,&yymsp[-1].minor);
 }
-#line 1208 "parser.c"
+#line 1201 "parser.c"
         break;
       case 50: /* table_name ::= name */
-#line 192 "parser.y"
+#line 202 "parser.y"
 {
     interpreter->addTableName(*yymsp[0].minor.yy0);
 }
-#line 1215 "parser.c"
+#line 1208 "parser.c"
         break;
       case 53: /* cmd ::= SELECT select_column_list FROM table_list opt_where_clause */
-#line 200 "parser.y"
+#line 210 "parser.y"
 {
     interpreter->setActionType(Action::Select);
     
   yy_destructor(yypParser,28,&yymsp[-4].minor);
   yy_destructor(yypParser,29,&yymsp[-2].minor);
 }
-#line 1225 "parser.c"
+#line 1218 "parser.c"
         break;
       case 54: /* cmd ::= INSERT into table_name VALUES valueslist */
-#line 206 "parser.y"
+#line 216 "parser.y"
 {
    interpreter->setActionType(Action::Insert);
   yy_destructor(yypParser,30,&yymsp[-4].minor);
   yy_destructor(yypParser,31,&yymsp[-1].minor);
 }
-#line 1234 "parser.c"
+#line 1227 "parser.c"
         break;
       case 56: /* into ::= INTO */
-#line 211 "parser.y"
+#line 221 "parser.y"
 {
   yy_destructor(yypParser,32,&yymsp[0].minor);
 }
-#line 1241 "parser.c"
+#line 1234 "parser.c"
         break;
       case 57: /* stringvalue ::= SQMSTRING */
-#line 213 "parser.y"
+#line 223 "parser.y"
 {
     yygotominor.yy0 = new string(yymsp[0].minor.yy0->substr(1,yymsp[0].minor.yy0->length()-2));
     delete yymsp[0].minor.yy0;
 }
-#line 1249 "parser.c"
+#line 1242 "parser.c"
         break;
       case 60: /* values ::= LP valuelist RP */
-#line 220 "parser.y"
+#line 230 "parser.y"
 {
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1257 "parser.c"
+#line 1250 "parser.c"
         break;
       case 63: /* value ::= FLOAT */
-#line 224 "parser.y"
+#line 234 "parser.y"
 {
     interpreter->addValue(*yymsp[0].minor.yy0, Column::Float);
 }
-#line 1264 "parser.c"
+#line 1257 "parser.c"
         break;
       case 64: /* value ::= INTEGER */
-#line 227 "parser.y"
+#line 237 "parser.y"
 {
     interpreter->addValue(*yymsp[0].minor.yy0, Column::Int);
 }
-#line 1271 "parser.c"
+#line 1264 "parser.c"
         break;
       case 65: /* value ::= stringvalue */
-#line 230 "parser.y"
+#line 240 "parser.y"
 {
     interpreter->addValue(*yymsp[0].minor.yy0, yymsp[0].minor.yy0->length());
 }
-#line 1278 "parser.c"
+#line 1271 "parser.c"
         break;
       case 66: /* beginValue ::= */
-#line 233 "parser.y"
+#line 243 "parser.y"
 {
     interpreter->beginValue();
 }
-#line 1285 "parser.c"
+#line 1278 "parser.c"
         break;
       case 67: /* select_column_list ::= TIMES */
-#line 236 "parser.y"
+#line 246 "parser.y"
 {  yy_destructor(yypParser,34,&yymsp[0].minor);
 }
-#line 1291 "parser.c"
+#line 1284 "parser.c"
         break;
       case 70: /* full_name ::= name DOT name */
-#line 242 "parser.y"
+#line 252 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0,Column::Undefined, *yymsp[-2].minor.yy0);
   yy_destructor(yypParser,17,&yymsp[-1].minor);
 }
-#line 1299 "parser.c"
+#line 1292 "parser.c"
         break;
       case 72: /* cmd ::= DELETE FROM table_name opt_where_clause */
-#line 250 "parser.y"
+#line 260 "parser.y"
 {
     interpreter->setActionType(Action::Delete);
   yy_destructor(yypParser,35,&yymsp[-3].minor);
   yy_destructor(yypParser,29,&yymsp[-2].minor);
 }
-#line 1308 "parser.c"
+#line 1301 "parser.c"
         break;
       case 73: /* cmd ::= CREATE INDEX name ON table_name LP rawcolumnlist RP */
-#line 256 "parser.y"
+#line 266 "parser.y"
 {
     interpreter->setActionType(Action::CreateIndex);
     interpreter->addIndexName(*yymsp[-5].minor.yy0);
@@ -1317,10 +1310,10 @@ static void yy_reduce(
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1321 "parser.c"
+#line 1314 "parser.c"
         break;
       case 74: /* cmd ::= DROP INDEX name ON table_name */
-#line 263 "parser.y"
+#line 273 "parser.y"
 {
     interpreter->setActionType(Action::DropIndex);
     interpreter->addIndexName(*yymsp[-2].minor.yy0);
@@ -1328,12 +1321,13 @@ static void yy_reduce(
   yy_destructor(yypParser,36,&yymsp[-3].minor);
   yy_destructor(yypParser,37,&yymsp[-1].minor);
 }
-#line 1332 "parser.c"
+#line 1325 "parser.c"
         break;
       default:
       /* (0) start ::= cmdList */ yytestcase(yyruleno==0);
       /* (1) cmdList ::= cmdList cmdAndEnd */ yytestcase(yyruleno==1);
       /* (2) cmdList ::= cmdAndEnd */ yytestcase(yyruleno==2);
+      /* (4) cmd ::= */ yytestcase(yyruleno==4);
       /* (9) columnlist ::= column_define */ yytestcase(yyruleno==9);
       /* (12) rawcolumnlist ::= rawcolumn */ yytestcase(yyruleno==12);
       /* (23) unique_list ::= unique */ yytestcase(yyruleno==23);
@@ -1409,8 +1403,20 @@ static void yy_syntax_error(
 #line 9 "parser.y"
 
     //cout<<"error"<<endl;
-    interpreter->error("Syntax error");
-#line 1414 "parser.c"
+    int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    string expect = "Syntax error.\n";
+    expect += "Expected token:\n";
+    for (int i = 0; i < n; ++i) {
+            int a = yy_find_shift_action(yypParser, (YYCODETYPE)i);
+            if (a < YYNSTATE + YYNRULE) {
+                    expect += '\t';
+                    expect += yyTokenName[i];
+                    expect += '\n';
+            }
+    }
+    expect.pop_back();
+    interpreter->error(expect);
+#line 1420 "parser.c"
   ParserARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
 

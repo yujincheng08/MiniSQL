@@ -8,11 +8,23 @@
 
 %syntax_error {
     //cout<<"error"<<endl;
-    interpreter->error("Syntax error");
+    int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+    string expect = "Syntax error.\n";
+    expect += "Expected token:\n";
+    for (int i = 0; i < n; ++i) {
+            int a = yy_find_shift_action(yypParser, (YYCODETYPE)i);
+            if (a < YYNSTATE + YYNRULE) {
+                    expect += '\t';
+                    expect += yyTokenName[i];
+                    expect += '\n';
+            }
+    }
+    expect.pop_back();
+    interpreter->error(expect);
 }
 
 %stack_overflow {
-    interpreter->error("Stack overflow");
+    interpreter->error("Stack overflow.");
 }
 
 %name Parser
@@ -38,11 +50,9 @@ start ::= cmdList.
 // always use left recursion
 cmdList ::= cmdList cmdAndEnd.
 cmdList ::= cmdAndEnd.
-cmdAndEnd ::= singlcmd SEMICOLON.
+cmdAndEnd ::= cmd SEMICOLON.
 
-singlcmd ::= cmd.{
-    interpreter-> query();
-}
+cmd ::= .
 
 cmd ::= create_table create_table_args. {
     interpreter->setActionType(Action::CreateTable);
