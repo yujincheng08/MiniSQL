@@ -87,19 +87,6 @@ void test(Action *action)
             }
         }
     }
-    if(action->values())
-    {
-        cout<<"value List: "<<endl;
-        for(auto i : *action->values())
-        {
-            cout<<"(\t";
-            for(auto j : *i)
-            {
-                cout<<*j<<"\t";
-            }
-            cout<<")"<<endl;
-        }
-    }
     if(action->conditions())
     {
         printCondition(action->conditions());

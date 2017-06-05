@@ -40,8 +40,6 @@ public:
                    const string &tableName = string());
     void newConstraint(const string &columnName, const Constraint::Type type);
     void addIndexName(const string &indexName);
-    void addValue(const string &value, const Column::Type type);
-    void beginValue();
     Condition *newCondition(const string& columnName, const Column::Type,
                       const string &tableName = string());
     Condition *newCondition(const Condition::Type type,
@@ -76,22 +74,6 @@ inline void Interpreter::addIndexName(const string &indexName)
         action->IndexName = std::make_shared<string>(indexName);
     else
         error("syntax error");
-}
-
-//TODO: check type with the pevious value;
-inline void Interpreter::addValue(const string &value,const Column::Type type)
-{
-    auto column = std::make_shared<Column>(Column());
-    column->ColumnType = type;
-    column->Name = std::make_shared<string>(value);
-    action->Values->back()->push_back(column);
-}
-
-inline void Interpreter::beginValue()
-{
-    if(!action->Values)
-        action->Values = std::make_shared<list<ptr<list<ptr<const Column>>>>>();
-    action->Values->push_back(std::make_shared<list<ptr<const Column>>>());
 }
 
 inline Condition *Interpreter::newCondition(const string &columnName, const Column::Type type,

@@ -213,9 +213,7 @@ cmd ::= SELECT select_column_list FROM table_list opt_where_clause. {
 }
 
 // insert
-cmd ::= INSERT into table_name VALUES valueslist. {
-   interpreter->setActionType(Action::Insert);
-}
+cmd ::= INSERT into table_name VALUES LEFTPARENTHESIS valuelist RIGHTPARENTHESIS.
 
 into ::= .
 into ::= INTO.
@@ -225,24 +223,19 @@ stringvalue(X) ::= STRING(A).{
     delete A;
 }
 
-valueslist ::= valueslist COMMA values.
-valueslist ::= values.
-values ::= LEFTPARENTHESIS valuelist RIGHTPARENTHESIS.
 valuelist ::= valuelist COMMA value.
-valuelist ::= beginValue value.
+valuelist ::= value.
 
 value ::= FLOAT(A).{
-    interpreter->addValue(*A, Column::Float);
+    interpreter->newColumn(*A, Column::Float);
 }
 value ::= INTEGER(A).{
-    interpreter->addValue(*A, Column::Int);
+    interpreter->newColumn(*A, Column::Int);
 }
 value ::= stringvalue(A).{
-    interpreter->addValue(*A, A->length());
+    interpreter->newColumn(*A, A->length());
 }
-beginValue ::= .{
-    interpreter->beginValue();
-}
+
 select_column_list ::= TIMES.{}
 
 select_column_list ::= select_column_list COMMA full_name.
