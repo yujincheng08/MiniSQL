@@ -1,109 +1,54 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
-#include "Action.h"
-#include "Column.h"
-#include "Constraint.h"
-#include "Condition.h"
+#include "BaseInterpreter.h"
 #include <QObject>
 #include <iostream>
-#include <memory>
 class Scanner;
-class Interpreter : public QObject
+class Interpreter : public QObject, protected BaseInterpreter
 {
-public:
-    template<typename T>
-    using list = std::list<T>;
-    using string = std::string;
-    template<typename T>
-    using ptr = std::shared_ptr<T>;
+    friend class Main;
+    friend class Parser;
 private:
-    Q_OBJECT
-    void *parser = nullptr;
-    Scanner *scanner = nullptr;
     size_t LineNo = 0U;
     string ErrorMsg;
     string Near;
-    Action *action = nullptr;
     bool Error = false;
-public:
-    enum
-    {
-        QUIT = 0x0, EXEC = -0x1, UNEXPETED = -0x2,
-        END = 0x3
-    };
+    bool isFile = false;
+    void *parser = nullptr;
+    Scanner *scanner = nullptr;
+private:
+    Q_OBJECT
     explicit Interpreter(QObject *parent = 0);
-    void error(const string &msg);
     void query();
-    void setActionType(const Action::Type type);
-    void addTableName(const string &tableName);
-    void newColumn(const string& columnName, const Column::Type type,
-                   const string &tableName = string());
-    void newConstraint(const string &columnName, const Constraint::Type type);
-    void addIndexName(const string &indexName);
-    Condition *newCondition(const string& columnName, const Column::Type,
-                      const string &tableName = string());
-    Condition *newCondition(const Condition::Type type,
-                      Condition *first, Condition * second = nullptr);
-    void newCondition(Condition *condition);
-    void expected(const string &token);
-    ~Interpreter();
+public:
+    virtual ~Interpreter() override final;
+protected:
+    virtual void error(const string &msg) override final;
+    virtual void reset() override final;
 signals:
     void parsered(Action);
 public slots:
     void run();
+    void display(const QString &result);
+    void display(const string &result);
+
 };
 
-inline void Interpreter::setActionType(const Action::Type type)
+inline void Interpreter::reset()
 {
-    if(action->ActionType==Action::Undefined)
-        action->ActionType = type;
-    else
-        error("syntax error");
+    ErrorMsg = "";
+    Error = false;
+    BaseInterpreter::reset();
 }
 
-inline void Interpreter::addTableName(const string &tableName)
+inline void Interpreter::display(const QString &result)
 {
-    if(!action->TableName)
-        action->TableName = std::make_shared<list<ptr<const string>>>();
-    action->TableName->push_back(std::make_shared<const string>(tableName));
+    std::cout<<result.toStdString()<<std::endl;
 }
 
-inline void Interpreter::addIndexName(const string &indexName)
+inline void Interpreter::display(const Interpreter::string &result)
 {
-    if(!action->IndexName)
-        action->IndexName = std::make_shared<string>(indexName);
-    else
-        error("syntax error");
+    std::cout<<result<<std::endl;
 }
-
-inline Condition *Interpreter::newCondition(const string &columnName, const Column::Type type,
-                                            const string &tableName)
-{
-    Condition * condition = new Condition();
-    condition->Op = Condition::Node;
-    condition->Value = std::make_shared<Column>(Column());
-    condition->Value->ColumnType = type;
-    condition->Value->Name = std::make_shared<string>(columnName);
-    if(!tableName.empty())
-        condition->Value->TableName = std::make_shared<string>(tableName);
-    return condition;
-}
-
-inline Condition *Interpreter::newCondition(const Condition::Type type,
-                                            Condition *first, Condition * second)
-{
-    Condition * condition = new Condition();
-    condition->Op = type;
-    condition->FirstOperand = ptr<Condition>(first);
-    condition->SecondOperand = ptr<Condition>(second);
-    return condition;
-}
-
-inline void Interpreter::newCondition(Condition *condition)
-{
-    action->Conditions = std::shared_ptr<Condition>(condition);
-}
-
-
 
 #endif // INTERPRETER_H

@@ -7,7 +7,7 @@ class Column;
 class Constraint
 {
 public:
-    friend class Interpreter;
+    friend class BaseInterpreter;
     template<typename T>
     using list = std::list<T>;
     using string = std::string;

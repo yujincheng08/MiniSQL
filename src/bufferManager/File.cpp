@@ -1,6 +1,6 @@
 #include "File.h"
 #include "BufferManager.h"
-File::File(QString fileName)
+File::File(const QString &fileName)
     :FileName(fileName)
 {
     Stream.rdbuf()->pubsetbuf(nullptr,0);

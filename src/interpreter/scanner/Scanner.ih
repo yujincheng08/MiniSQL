@@ -3,4 +3,4 @@
 // $insert class_h
 #include "Scanner.h"
 #include "../parser/parser.h"
-#include "../interpreter.h"
+#include "../BaseInterpreter.h"

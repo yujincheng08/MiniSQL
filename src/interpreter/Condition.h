@@ -5,7 +5,7 @@ class Column;
 class Condition
 {
 public:
-    friend class Interpreter;
+    friend class BaseInterpreter;
     template<typename T>
     using ptr = std::shared_ptr<T>;
     enum Type

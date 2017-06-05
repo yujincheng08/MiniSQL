@@ -4,7 +4,7 @@
 // the parser context
 // the parser context
 // 4 th arg of Parse
-%extra_argument {Interpreter *interpreter}
+%extra_argument {BaseInterpreter *interpreter}
 
 %syntax_error {
     //cout<<"error"<<endl;
@@ -35,7 +35,7 @@
 #include <string>
 #include <list>
 #include <assert.h>
-#include "../Interpreter.h"
+#include "../BaseInterpreter.h"
 #include "../Column.h"
 #include "../Action.h"
 #include "../Condition.h"
@@ -84,7 +84,16 @@ column(A) ::= name(X) type_token(Y). {
 //%token_class int INTEGER.
 %type type_token {Column::Type}
 type_token(A) ::= INT_TYPE. { A = Column::Int; }
-type_token(A) ::= CHAR_TYPE LEFTPARENTHESIS INTEGER(B) RIGHTPARENTHESIS. { A = stoi(*B);}
+type_token(A) ::= CHAR_TYPE LEFTPARENTHESIS INTEGER(B) RIGHTPARENTHESIS. {
+    int x = stoi(*B);
+    if(x<=0 || x > 255)
+    {
+        interpreter->error("Syntax error: Exceed rang of char.");
+        A = 0U;
+    }
+    else
+        A = (unsigned)x;
+}
 type_token(A) ::= FLOAT_TYPE. { A = Column::Float;}
 
 %type column_constraint {Constraint::Type}
@@ -129,14 +138,6 @@ where_clause ::= WHERE expr(A).{
     interpreter->newCondition(A);
 }
 %type binary_op{Condition::Type}
-//binary_op(OP) ::= AND.{OP=Condition::And;}
-//binary_op(OP) ::= OR.{OP=Condition::Or;}
-//binary_op(OP) ::= LT.{OP=Condition::LessThan;}
-//binary_op(OP) ::= GT.{OP=Condition::GreaterThan;}
-//binary_op(OP) ::= LE.{OP=Condition::LessEqual;}
-//binary_op(OP) ::= GE.{OP=Condition::GreaterEqual;}
-//binary_op(OP) ::= EQ.{OP=Condition::Equal;}
-//binary_op(OP) ::= NE.{OP=Condition::NotEqual;}
 
 // column name
 expr (A) ::= stringvalue(X). {

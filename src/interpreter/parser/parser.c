@@ -11,7 +11,7 @@
 #include <string>
 #include <list>
 #include <assert.h>
-#include "../Interpreter.h"
+#include "../BaseInterpreter.h"
 #include "../Column.h"
 #include "../Action.h"
 #include "../Condition.h"
@@ -81,9 +81,9 @@ typedef union {
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
 #endif
-#define ParserARG_SDECL Interpreter *interpreter;
-#define ParserARG_PDECL ,Interpreter *interpreter
-#define ParserARG_FETCH Interpreter *interpreter = yypParser->interpreter
+#define ParserARG_SDECL BaseInterpreter *interpreter;
+#define ParserARG_PDECL ,BaseInterpreter *interpreter
+#define ParserARG_FETCH BaseInterpreter *interpreter = yypParser->interpreter
 #define ParserARG_STORE yypParser->interpreter = interpreter
 #define YYNSTATE 133
 #define YYNRULE 71
@@ -992,50 +992,59 @@ static void yy_reduce(
         break;
       case 16: /* type_token ::= CHAR_TYPE LEFTPARENTHESIS INTEGER RIGHTPARENTHESIS */
 #line 87 "parser.y"
-{ yygotominor.yy5 = stoi(*yymsp[-1].minor.yy0);  yy_destructor(yypParser,8,&yymsp[-3].minor);
+{
+    int x = stoi(*yymsp[-1].minor.yy0);
+    if(x<=0 || x > 255)
+    {
+        interpreter->error("Syntax error: Exceed rang of char.");
+        yygotominor.yy5 = 0U;
+    }
+    else
+        yygotominor.yy5 = (unsigned)x;
+  yy_destructor(yypParser,8,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1000 "parser.c"
+#line 1009 "parser.c"
         break;
       case 17: /* type_token ::= FLOAT_TYPE */
-#line 88 "parser.y"
+#line 97 "parser.y"
 { yygotominor.yy5 = Column::Float;  yy_destructor(yypParser,10,&yymsp[0].minor);
 }
-#line 1006 "parser.c"
+#line 1015 "parser.c"
         break;
       case 18: /* column_constraint ::= */
-#line 91 "parser.y"
+#line 100 "parser.y"
 {yygotominor.yy16 = Constraint::None;}
-#line 1011 "parser.c"
+#line 1020 "parser.c"
         break;
       case 19: /* column_constraint ::= PRIMARY KEY */
-#line 92 "parser.y"
+#line 101 "parser.y"
 {yygotominor.yy16 = Constraint::PrimaryKey;  yy_destructor(yypParser,11,&yymsp[-1].minor);
   yy_destructor(yypParser,12,&yymsp[0].minor);
 }
-#line 1018 "parser.c"
+#line 1027 "parser.c"
         break;
       case 20: /* column_constraint ::= UNIQUE */
-#line 93 "parser.y"
+#line 102 "parser.y"
 {yygotominor.yy16 = Constraint::Unique;  yy_destructor(yypParser,13,&yymsp[0].minor);
 }
-#line 1024 "parser.c"
+#line 1033 "parser.c"
         break;
       case 21: /* name ::= NAME */
-#line 95 "parser.y"
+#line 104 "parser.y"
 {yygotominor.yy0=yymsp[0].minor.yy0;}
-#line 1029 "parser.c"
+#line 1038 "parser.c"
         break;
       case 24: /* unique ::= name */
-#line 99 "parser.y"
+#line 108 "parser.y"
 {
     interpreter->newConstraint(*yymsp[0].minor.yy0,Constraint::Unique);
 }
-#line 1036 "parser.c"
+#line 1045 "parser.c"
         break;
       case 29: /* table_constraint ::= PRIMARY KEY LEFTPARENTHESIS name RIGHTPARENTHESIS */
-#line 109 "parser.y"
+#line 118 "parser.y"
 {
     interpreter->newConstraint(*yymsp[-1].minor.yy0,Constraint::PrimaryKey);
   yy_destructor(yypParser,11,&yymsp[-4].minor);
@@ -1043,239 +1052,239 @@ static void yy_reduce(
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1047 "parser.c"
+#line 1056 "parser.c"
         break;
       case 30: /* table_constraint ::= UNIQUE LEFTPARENTHESIS unique_list RIGHTPARENTHESIS */
-#line 113 "parser.y"
+#line 122 "parser.y"
 {
   yy_destructor(yypParser,13,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1056 "parser.c"
+#line 1065 "parser.c"
         break;
       case 31: /* cmd ::= DROP TABLE table_name */
-#line 117 "parser.y"
+#line 126 "parser.y"
 {
     interpreter->setActionType(Action::DropTable);
   yy_destructor(yypParser,15,&yymsp[-2].minor);
   yy_destructor(yypParser,3,&yymsp[-1].minor);
 }
-#line 1065 "parser.c"
+#line 1074 "parser.c"
         break;
       case 34: /* where_clause ::= WHERE expr */
-#line 128 "parser.y"
+#line 137 "parser.y"
 {
     interpreter->newCondition(yymsp[0].minor.yy74);
   yy_destructor(yypParser,16,&yymsp[-1].minor);
 }
-#line 1073 "parser.c"
+#line 1082 "parser.c"
         break;
       case 35: /* expr ::= stringvalue */
-#line 142 "parser.y"
+#line 143 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(*yymsp[0].minor.yy0,yymsp[0].minor.yy0->length());
 }
-#line 1080 "parser.c"
+#line 1089 "parser.c"
         break;
       case 36: /* expr ::= name DOT name */
-#line 146 "parser.y"
+#line 147 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined, *yymsp[-2].minor.yy0);
   yy_destructor(yypParser,17,&yymsp[-1].minor);
 }
-#line 1088 "parser.c"
+#line 1097 "parser.c"
         break;
       case 37: /* expr ::= name */
-#line 150 "parser.y"
+#line 151 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Undefined);
 }
-#line 1095 "parser.c"
+#line 1104 "parser.c"
         break;
       case 38: /* expr ::= INTEGER */
-#line 154 "parser.y"
+#line 155 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Int);
 }
-#line 1102 "parser.c"
+#line 1111 "parser.c"
         break;
       case 39: /* expr ::= FLOAT */
-#line 157 "parser.y"
+#line 158 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(*yymsp[0].minor.yy0,Column::Float);
 }
-#line 1109 "parser.c"
+#line 1118 "parser.c"
         break;
       case 40: /* expr ::= LEFTPARENTHESIS expr RIGHTPARENTHESIS */
-#line 161 "parser.y"
+#line 162 "parser.y"
 {
     yygotominor.yy74 = yymsp[-1].minor.yy74;
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1118 "parser.c"
+#line 1127 "parser.c"
         break;
       case 41: /* expr ::= NOT expr */
-#line 165 "parser.y"
+#line 166 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::Not, yymsp[0].minor.yy74);
   yy_destructor(yypParser,19,&yymsp[-1].minor);
 }
-#line 1126 "parser.c"
+#line 1135 "parser.c"
         break;
       case 42: /* expr ::= expr EQ expr */
-#line 169 "parser.y"
+#line 170 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::Equal,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,20,&yymsp[-1].minor);
 }
-#line 1134 "parser.c"
+#line 1143 "parser.c"
         break;
       case 43: /* expr ::= expr NE expr */
-#line 172 "parser.y"
+#line 173 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::NotEqual,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,21,&yymsp[-1].minor);
 }
-#line 1142 "parser.c"
+#line 1151 "parser.c"
         break;
       case 44: /* expr ::= expr LT expr */
-#line 175 "parser.y"
+#line 176 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::LessThan,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,22,&yymsp[-1].minor);
 }
-#line 1150 "parser.c"
+#line 1159 "parser.c"
         break;
       case 45: /* expr ::= expr GT expr */
-#line 178 "parser.y"
+#line 179 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::GreaterThan,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,23,&yymsp[-1].minor);
 }
-#line 1158 "parser.c"
+#line 1167 "parser.c"
         break;
       case 46: /* expr ::= expr LE expr */
-#line 181 "parser.y"
+#line 182 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::LessEqual,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,24,&yymsp[-1].minor);
 }
-#line 1166 "parser.c"
+#line 1175 "parser.c"
         break;
       case 47: /* expr ::= expr GE expr */
-#line 184 "parser.y"
+#line 185 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::GreaterEqual,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,25,&yymsp[-1].minor);
 }
-#line 1174 "parser.c"
+#line 1183 "parser.c"
         break;
       case 48: /* expr ::= expr AND expr */
-#line 188 "parser.y"
+#line 189 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::And,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,26,&yymsp[-1].minor);
 }
-#line 1182 "parser.c"
+#line 1191 "parser.c"
         break;
       case 49: /* expr ::= expr OR expr */
-#line 192 "parser.y"
+#line 193 "parser.y"
 {
     yygotominor.yy74 = interpreter->newCondition(Condition::Or,yymsp[-2].minor.yy74,yymsp[0].minor.yy74); 
   yy_destructor(yypParser,27,&yymsp[-1].minor);
 }
-#line 1190 "parser.c"
+#line 1199 "parser.c"
         break;
       case 50: /* table_name ::= name */
-#line 202 "parser.y"
+#line 203 "parser.y"
 {
     interpreter->addTableName(*yymsp[0].minor.yy0);
 }
-#line 1197 "parser.c"
+#line 1206 "parser.c"
         break;
       case 53: /* cmd ::= SELECT select_column_list FROM table_list opt_where_clause */
-#line 210 "parser.y"
+#line 211 "parser.y"
 {
     interpreter->setActionType(Action::Select);
     
   yy_destructor(yypParser,28,&yymsp[-4].minor);
   yy_destructor(yypParser,29,&yymsp[-2].minor);
 }
-#line 1207 "parser.c"
+#line 1216 "parser.c"
         break;
       case 54: /* cmd ::= INSERT into table_name VALUES LEFTPARENTHESIS valuelist RIGHTPARENTHESIS */
-#line 216 "parser.y"
+#line 217 "parser.y"
 {
   yy_destructor(yypParser,30,&yymsp[-6].minor);
   yy_destructor(yypParser,31,&yymsp[-3].minor);
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1217 "parser.c"
+#line 1226 "parser.c"
         break;
       case 56: /* into ::= INTO */
-#line 219 "parser.y"
+#line 220 "parser.y"
 {
   yy_destructor(yypParser,32,&yymsp[0].minor);
 }
-#line 1224 "parser.c"
+#line 1233 "parser.c"
         break;
       case 57: /* stringvalue ::= STRING */
-#line 221 "parser.y"
+#line 222 "parser.y"
 {
     yygotominor.yy0 = new string(yymsp[0].minor.yy0->substr(1,yymsp[0].minor.yy0->length()-2));
     delete yymsp[0].minor.yy0;
 }
-#line 1232 "parser.c"
+#line 1241 "parser.c"
         break;
       case 60: /* value ::= FLOAT */
-#line 229 "parser.y"
+#line 230 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0, Column::Float);
 }
-#line 1239 "parser.c"
+#line 1248 "parser.c"
         break;
       case 61: /* value ::= INTEGER */
-#line 232 "parser.y"
+#line 233 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0, Column::Int);
 }
-#line 1246 "parser.c"
+#line 1255 "parser.c"
         break;
       case 62: /* value ::= stringvalue */
-#line 235 "parser.y"
+#line 236 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0, yymsp[0].minor.yy0->length());
 }
-#line 1253 "parser.c"
+#line 1262 "parser.c"
         break;
       case 63: /* select_column_list ::= TIMES */
-#line 239 "parser.y"
+#line 240 "parser.y"
 {  yy_destructor(yypParser,34,&yymsp[0].minor);
 }
-#line 1259 "parser.c"
+#line 1268 "parser.c"
         break;
       case 66: /* full_name ::= name DOT name */
-#line 245 "parser.y"
+#line 246 "parser.y"
 {
     interpreter->newColumn(*yymsp[0].minor.yy0,Column::Undefined, *yymsp[-2].minor.yy0);
   yy_destructor(yypParser,17,&yymsp[-1].minor);
 }
-#line 1267 "parser.c"
+#line 1276 "parser.c"
         break;
       case 68: /* cmd ::= DELETE FROM table_name opt_where_clause */
-#line 253 "parser.y"
+#line 254 "parser.y"
 {
     interpreter->setActionType(Action::Delete);
   yy_destructor(yypParser,35,&yymsp[-3].minor);
   yy_destructor(yypParser,29,&yymsp[-2].minor);
 }
-#line 1276 "parser.c"
+#line 1285 "parser.c"
         break;
       case 69: /* cmd ::= CREATE INDEX name ON table_name LEFTPARENTHESIS rawcolumnlist RIGHTPARENTHESIS */
-#line 259 "parser.y"
+#line 260 "parser.y"
 {
     interpreter->setActionType(Action::CreateIndex);
     interpreter->addIndexName(*yymsp[-5].minor.yy0);
@@ -1285,10 +1294,10 @@ static void yy_reduce(
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[0].minor);
 }
-#line 1289 "parser.c"
+#line 1298 "parser.c"
         break;
       case 70: /* cmd ::= DROP INDEX name ON table_name */
-#line 266 "parser.y"
+#line 267 "parser.y"
 {
     interpreter->setActionType(Action::DropIndex);
     interpreter->addIndexName(*yymsp[-2].minor.yy0);
@@ -1296,7 +1305,7 @@ static void yy_reduce(
   yy_destructor(yypParser,36,&yymsp[-3].minor);
   yy_destructor(yypParser,37,&yymsp[-1].minor);
 }
-#line 1300 "parser.c"
+#line 1309 "parser.c"
         break;
       default:
       /* (0) start ::= cmdList */ yytestcase(yyruleno==0);
@@ -1390,7 +1399,7 @@ static void yy_syntax_error(
     }
     expect.pop_back();
     interpreter->error(expect);
-#line 1394 "parser.c"
+#line 1403 "parser.c"
   ParserARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
 

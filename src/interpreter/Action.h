@@ -6,6 +6,7 @@
 class Constraint;
 class Column;
 class Condition;
+
 class Action
 {
     template<typename T>
@@ -13,7 +14,7 @@ class Action
     template<typename T>
     using list = std::list<T>;
     using string = std::string;
-    friend class Interpreter;
+    friend class BaseInterpreter;
 public:
     enum Type
     {
@@ -27,7 +28,6 @@ private:
     ptr<list<ptr<const string>>> TableName = nullptr;
     ptr<string> IndexName = nullptr;
     ptr<Condition> Conditions = nullptr;
-    ptr<list<ptr<list<ptr<const Column>>>>> Values = nullptr;
     Action();
 public:
     auto actionType() const -> const Type &;
@@ -36,7 +36,6 @@ public:
     auto tableName() const -> const ptr<const list<ptr<const string>>>;
     auto indexName() const -> const ptr<const string>;
     auto conditions() const -> const ptr<const Condition>;
-    auto values() const -> const ptr<const list<ptr<list<ptr<const Column>>>>>;
 };
 
 inline Action::Action()
@@ -70,10 +69,5 @@ inline auto Action::conditions() const -> const ptr<const Condition>
 inline auto Action::actionType() const -> const Type &
 {
     return ActionType;
-}
-
-inline auto Action::values() const -> const ptr<const list<ptr<list<ptr<const Column>>>>>
-{
-  return Values;
 }
 #endif //ACTION_H

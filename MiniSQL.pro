@@ -2,6 +2,12 @@ TEMPLATE = app
 CONFIG += console c++14 warn_off
 CONFIG -= app_bundle
 
+CONFIG(debug, debug|release)
+{
+SOURCES += \
+    src/interpreter/test.cpp \
+    src/interpreter/BaseInterpreter.cpp
+}
 SOURCES += \
     src/interpreter/scanner/Scanner.cpp \
     src/interpreter/Interpreter.cpp \
@@ -16,9 +22,6 @@ SOURCES += \
     src/bufferManager/List.cpp \
     src/bufferManager/ListItem.cpp \
     src/interpreter/Action.cpp \
-    src/interpreter/Column.cpp \
-    src/interpreter/Constraint.cpp \
-    src/interpreter/Condition.cpp \
     src/interpreter/parser/parser.cpp
 
 HEADERS += \
@@ -40,7 +43,8 @@ HEADERS += \
     src/interpreter/Column.h \
     src/interpreter/Constraint.h \
     src/interpreter/Condition.h \
-    src/interpreter/parser/parser.h
+    src/interpreter/parser/parser.h \
+    src/interpreter/BaseInterpreter.h
 
 OTHER_FILES += \
     src/interpreter/scanner/Scanner.l \

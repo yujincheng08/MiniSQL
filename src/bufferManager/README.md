@@ -37,9 +37,9 @@ void put<T>(const T&); //Put a object data to the buff.
 File &operator>>(T &target); //Equals to target = get<T>();
 File &operator<<(const T &source); //Equals to put<T>(source);
 auto getPointer<T>()
-  ->typename enable_if<!is_class<T>::value &&!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type.
+  ->typename enable_if<!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type.
 auto getPointer<T>(pos_type pos)
-  ->typename enable_if<!is_class<T>::value &&!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type at pos.
+  ->typename enable_if<!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type at pos.
 ```
 ## Example
 

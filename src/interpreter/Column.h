@@ -6,7 +6,7 @@
 class Column
 {
 public:
-    friend class Interpreter;
+    friend class BaseInterpreter;
     using Type = unsigned;
     constexpr static Type Undefined = 0U;
     constexpr static Type Int = 256U;
