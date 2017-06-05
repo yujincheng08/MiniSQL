@@ -36,8 +36,10 @@ void put(const char&); //Put a charactor to the buffer. Notablly, data will be o
 void put<T>(const T&); //Put a object data to the buff.
 File &operator>>(T &target); //Equals to target = get<T>();
 File &operator<<(const T &source); //Equals to put<T>(source);
-Pointer<T> getPointer<T>(); //Get pointer of the provided type.
-Pointer<T> getPointer<T>(pos_type pos); //Get pointer of the provided type at pos.
+auto getPointer<T>()
+  ->typename enable_if<!is_class<T>::value &&!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type.
+auto getPointer<T>(pos_type pos)
+  ->typename enable_if<!is_class<T>::value &&!is_pointer<T>::value, Pointer<T>>::type; //Get pointer of the provided type at pos.
 ```
 ## Example
 
