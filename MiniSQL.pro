@@ -1,13 +1,8 @@
 TEMPLATE = app
 CONFIG += console c++14 warn_off
 CONFIG -= app_bundle
+# CONFIG += test
 
-CONFIG(debug, debug|release)
-{
-SOURCES += \
-    src/interpreter/test.cpp \
-    src/interpreter/BaseInterpreter.cpp
-}
 SOURCES += \
     src/interpreter/scanner/Scanner.cpp \
     src/interpreter/Interpreter.cpp \
@@ -21,7 +16,8 @@ SOURCES += \
     src/bufferManager/File.cpp \
     src/bufferManager/List.cpp \
     src/bufferManager/ListItem.cpp \
-    src/interpreter/parser/parser.cpp
+    src/interpreter/parser/parser.cpp \
+    src/interpreter/BaseInterpreter.cpp
 
 HEADERS += \
     src/bufferManager/BufferManager.h \
@@ -50,3 +46,8 @@ OTHER_FILES += \
     src/interpreter/parser/parser.y \
     src/interpreter/README.md \
     src/bufferManager/README.md
+
+CONFIG(test) {
+    DEFINES += TEST
+    SOURCES += src/interpreter/test.cpp
+}

@@ -27,7 +27,7 @@ void Interpreter::query()
     }
     else
     {
-#ifdef QT_DEBUG
+#ifdef TEST
         extern void testInterpreter(Action *action);
         testInterpreter(action);
 #endif
