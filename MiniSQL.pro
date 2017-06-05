@@ -21,7 +21,6 @@ SOURCES += \
     src/bufferManager/File.cpp \
     src/bufferManager/List.cpp \
     src/bufferManager/ListItem.cpp \
-    src/interpreter/Action.cpp \
     src/interpreter/parser/parser.cpp
 
 HEADERS += \
