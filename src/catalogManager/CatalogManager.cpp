@@ -1,7 +1,7 @@
+#include "CatalogManager.h"
 #include<iostream>
 #include<string>
 #include<fstream>
-#include<cstring>
 
 using namespace std;
 
@@ -18,120 +18,14 @@ void CreateDatabase(const char* DB)
 	cout<<"Query OK!\n";
 }
 
-class catalogManager 
-{
-	private:
-		ifstream fin;
-		string Database;//数据库名字 
-		string TableName;//目前找到的表名字 
-		int RecordLength;//每条记录的长度 
-		int AttrNum;//表属性个数
-		string* Attribute;//表的属性
-		string* type;//表属性的类型
-		bool* IsUnique;//判断是否unique
-		bool* HaveIndex;//判断是否有索引
-		string* IndexName;//索引名字
-		int PriIndex;//主键编号
-		const char* DB;
-		
-		//判断catalogManager中是否存在表TableName
-		bool FindTableName();
-		//判断catalogManager中是否存在名字为Name的表 
-		bool FindTableName(string Name);
-		//设置类的属性 
-		void SetAttrNum(int Num);
-		void SetAttribute(string* Attr);
-		void SetType(string *t);
-		void SetIsUnique(bool* IsUni);
-		void SetHaveIndex(bool* HavInd);
-		void SetIndexName(string *IndName);
-		void SetPriIndex(int PrimaryKey);
-		string TableNameFromStr(string Str);
-		
-	public:
-		//构造函数和析构函数 
-		/***********************************************/ 
-		catalogManager(string DBName);
-		catalogManager(string DBName, string TableName);
-		~catalogManager();
-		/***********************************************/ 
-		
-		//删除数据库
-		/***********************************************/ 
-		void DropDatabase();
-		/***********************************************/ 
-		
-		
-		/*对catalog文件进行操作的函数*/ 
-		/***********************************************/ 
-		//从catalog中获取TableName的信息，放入到类的变量中 
-		bool GetTableInfo();
-		//从catalog中获取名字为Name的表的信息，放入到类的变量中 
-		bool GetTableInfo(string Name); 
-		//向catalog中添加表信息，Str为要写入的信息
-		bool AddTableInfo(string Str);
-		//向catalog中添加表信息，需要调用Set开头的函数，事先设置好类中的所有信息
-		bool AddTableInfo(); 
-		//在catalog中删除当前的表
-		bool DropTable();
-		//在catalog中删除名字为Name的表 
-		bool DropTable(string Name);
-		//在catalog中删除表Table中的名为Index的索引 
-		bool DropIndex(string Table,string Index); 
-		/***********************************************/ 
-		
-		
-		
-		//Set类函数，用于设置类内的信息
-		/***********************************************/  
-		//设置TableName
-		void SetTableName(string Name);
-		//设置RecordLength
-		void SetRecordLength(int length);
-		//设置Attribute等信息
-		void SetAttributeInfo(int num,string* Attr,string *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey);
-		/***********************************************/ 
-		
-		
-		//以下函数用于获取类内的信息 
-		/***********************************************/  
-		//找到表中是否有某个属性，没有返回-1，有则返回属性数组下标
-		int FindAttributeIndex(string AttrName);
-		//找到根据Index名称找到数组下标，没有返回-1，有则返回属性数组下标
-		int FindIndexAccordingToIndexName(string Index);
-		//根据数组下标得到相应数据，数组下标可以用FindAttribute函数得到
-		bool GetIsUnique(int i);
-		string GetType(int i);
-		bool GetHaveIndex(int i);
-		string GetIndexName(int i);
-		int GetRecordLength();
-		int GetAttrNum();
-		int GetPriIndex();
-		//返回主键名称
-		string GetPrimaryKey(); 
-		/***********************************************/ 
-		
-		
-		//一些其他函数 
-		/***********************************************/ 
-		//删除类里的所有信息
-		void Clear();
-		//从catalog中获取数据并且打印表信息 
-		void PrintInfo();
-		/***********************************************/ 
-		
-		
-};
+catalogManager::catalogManager(string DBName)
+    :catalogManager(DBName,string())
 
-catalogManager::catalogManager(string DBName):
-Database(DBName),AttrNum(0),Attribute(NULL),type(NULL),IsUnique(NULL),HaveIndex(NULL),IndexName(NULL) 
 {
-	DB = Database.c_str();
-	fin.open(DB);
 }
 
 catalogManager::catalogManager(string DBName, string TableName):
-Database(DBName),AttrNum(0),TableName(TableName),Attribute(NULL),type(NULL),IsUnique(NULL),HaveIndex(NULL),IndexName(NULL) 
+Database(DBName),TableName(TableName)
 {
 	DB = Database.c_str();
 	fin.open(DB);
@@ -164,11 +58,11 @@ void catalogManager::Clear()
 		delete[] HaveIndex;
 	if(IndexName)
 		delete[] IndexName;
-	Attribute = NULL;
-	type = NULL;
-	IsUnique = NULL;
-	HaveIndex = NULL;
-	IndexName = NULL;
+    Attribute = nullptr;
+    type = nullptr;
+    IsUnique = nullptr;
+    HaveIndex = nullptr;
+    IndexName = nullptr;
 	Database = "\0";
 	TableName = "\0";
 	AttrNum = 0;
@@ -417,7 +311,7 @@ void catalogManager::SetAttribute(string* Attr)
 	}
 }
 
-void catalogManager::SetType(string* t)
+void catalogManager::SetType(const string* t)
 {
 	int j;
 	type = new string[AttrNum];
@@ -450,7 +344,7 @@ void catalogManager::SetHaveIndex(bool* HavInd)
 	}
 }
 
-void catalogManager::SetIndexName(string* IndName)
+void catalogManager::SetIndexName(const string *IndName)
 {
 	int j;
 	IndexName = new string[AttrNum];
@@ -617,6 +511,7 @@ string catalogManager::GetPrimaryKey()
 		if(i == PriIndex)
 			return Attribute[i];
 	}
+    return string();
 }
 
 bool catalogManager::GetIsUnique(int i)
@@ -654,7 +549,7 @@ void catalogManager::DropDatabase()
 	cout<<"Query OK!\n";
 }
 
-string catalogManager::TableNameFromStr(string Str)
+string catalogManager::TableNameFromStr(const string &Str)
 {
 	int i = 0;
 	string tmp;
