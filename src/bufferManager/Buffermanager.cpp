@@ -6,3 +6,9 @@ BufferManager::BufferManager(QObject *parent)
 {
 
 }
+
+BufferManager &BufferManager::bufferManager()
+{
+    static BufferManager bm;
+    return bm;
+}

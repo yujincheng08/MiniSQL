@@ -8,5 +8,5 @@ File::File(const QString &fileName)
     Stream.seekg(Stream.end);
     BlockCount = ((BufferManager::blockSize() + Stream.tellg()) -1L)
             / BufferManager::blockSize();
-    //while()
+    BufferManager::bufferManager();
 }

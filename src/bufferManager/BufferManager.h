@@ -15,6 +15,7 @@ private:
     List list;
 public:
     explicit BufferManager(QObject *parent = nullptr);
+    static BufferManager &bufferManager();
     static size_t blockSize();
 };
 
