@@ -18,17 +18,10 @@ void CreateDatabase(const char* DB)
 	cout<<"Query OK!\n";
 }
 
-catalogManager::catalogManager(string DBName)
-    :catalogManager(DBName,string())
-
-{
-}
-
 catalogManager::catalogManager(string DBName, string TableName):
 Database(DBName),TableName(TableName)
 {
-	DB = Database.c_str();
-	fin.open(DB);
+    fin.open(Database);
 }
 
 catalogManager::~catalogManager()
@@ -170,9 +163,9 @@ bool catalogManager::DropIndex(string Table,string Index)
 	
 	fin.close();
 	fout.close();
-	remove(DB);
-	rename("tmp.txt",DB);
-	fin.open(DB);
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
 	cout<<"Query OK!"<<endl;
 	return true;
 }
@@ -298,32 +291,16 @@ void catalogManager::SetPriIndex(int PrimaryKey)
 
 void catalogManager::SetAttribute(string* Attr)
 {
-	int j;
-	Attribute = new string[AttrNum];
+    Attribute = new string[AttrNum];
 	for(int i = 0; i < AttrNum; i++)
-	{
-		j = 0;
-		while(Attr[i][j])
-		{
-			Attribute[i] += Attr[i][j];
-			j++;
-		}
-	}
+        Attribute[i] = Attr[i];
 }
 
 void catalogManager::SetType(const string* t)
 {
-	int j;
 	type = new string[AttrNum];
 	for(int i = 0; i < AttrNum; i++)
-	{
-		j = 0;
-		while(t[i][j])
-		{
-			type[i] += t[i][j];
-			j++;
-		}
-	}
+        type[i] = t[i];
 }
 
 void catalogManager::SetIsUnique(bool* IsUni)
@@ -346,20 +323,10 @@ void catalogManager::SetHaveIndex(bool* HavInd)
 
 void catalogManager::SetIndexName(const string *IndName)
 {
-	int j;
 	IndexName = new string[AttrNum];
-	for(int i = 0; i < AttrNum; i++)
-	{
-		if(HaveIndex[i])
-		{
-			j = 0;
-			while(IndName[i][j])
-			{
-				IndexName[i] += IndName[i][j];
-				j++;
-			}
-		}
-	}
+    for(int i = 0; i < AttrNum; i++)
+        if(HaveIndex[i])
+            IndexName[i] = IndName[i];
 }
 
 void catalogManager::SetAttributeInfo(int Num,string* Attr,string *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey)
@@ -387,7 +354,7 @@ bool catalogManager::AddTableInfo(string Str)
 	fout.close();
 	//update fin
 	fin.close();
-	fin.open(DB);
+    fin.open(Database);
 	cout<<"Query OK!"<<endl;
 	return true;
 }
@@ -401,7 +368,7 @@ bool catalogManager::AddTableInfo()
 		return false;
 	}
 	
-	ofstream fout(DB,ios::app);
+    ofstream fout(Database,ios::app);
 	fout<<TableName<<" "<<RecordLength<<" "<<AttrNum<<" ";
 	for(int i = 0; i < AttrNum; i++)
 	{
@@ -413,7 +380,7 @@ bool catalogManager::AddTableInfo()
 	fout.close();
 	//update fin
 	fin.close();
-	fin.open(DB);
+    fin.open(Database);
 	cout<<"Query OK!"<<endl;
 	return true;
 } 
@@ -464,10 +431,10 @@ bool catalogManager::DropTable(string Name)
 	}
 	fin.close();
 	fout.close();
-	remove(DB);
-	rename("tmp.txt",DB);
-	fin.open(DB);
-	cout<<"Query OK!"<<endl;
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
+    error("Query OK!\n");
 	return true;
 }
 
@@ -496,9 +463,9 @@ bool catalogManager::DropTable()
 	}
 	fin.close();
 	fout.close();
-	remove(DB);
-	rename("tmp.txt",DB);
-	fin.open(DB);
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
 	cout<<"Query OK"<<endl;
 	return true;
 }
@@ -545,7 +512,7 @@ int catalogManager::GetPriIndex()
 
 void catalogManager::DropDatabase()
 {
-	remove(DB);
+    remove(Database.c_str());
 	cout<<"Query OK!\n";
 }
 

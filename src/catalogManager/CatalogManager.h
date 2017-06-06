@@ -22,7 +22,6 @@ private:
     bool* HaveIndex = nullptr;//判断是否有索引
     string* IndexName = nullptr;//索引名字
     int PriIndex;//主键编号
-    const char* DB = nullptr;
 
     //判断catalogManager中是否存在表TableName
     bool FindTableName();
@@ -111,7 +110,13 @@ public:
     /***********************************************/
 
 
+signals:
+    void error(const string &msg);
 };
+
+inline catalogManager::catalogManager(string DBName)
+    :catalogManager(DBName,string())
+{}
 
 
 #endif // CATALOGMANAGER_H
