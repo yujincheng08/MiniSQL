@@ -10,7 +10,7 @@ HEADERS += \
     API.h
 
 SOURCES += \
-    API.cpp \
+    API.cpp
 
 OTHER_FILES += \
     README.md

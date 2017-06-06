@@ -12,7 +12,7 @@ HEADERS += \
     CatalogManager.h
 
 SOURCES += \
-    CatalogManager.cpp \
+    CatalogManager.cpp
 
 OTHER_FILES += \
     README.md
