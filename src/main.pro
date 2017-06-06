@@ -11,7 +11,7 @@ SOURCES += \
 TARGET = MiniSQL
 
 HEADERS += \
-    main.h \
+    main.h
 
 LIBS += -L../ -linterpreter
 
