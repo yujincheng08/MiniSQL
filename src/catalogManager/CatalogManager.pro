@@ -4,7 +4,7 @@ QT       -= gui
 include(../../MiniSQL.pri)
 
 TARGET = BufferManager
-TEMPLATE = lib
+# TEMPLATE = lib
 
 DESTDIR = ../../
 

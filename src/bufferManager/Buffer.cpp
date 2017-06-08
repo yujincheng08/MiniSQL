@@ -6,8 +6,14 @@ namespace windows
 #include <windows.h>
 }
 
-size_t Buffer::BlockSize = Buffer::calBlockSize();
-size_t Buffer::calBlockSize()
+static QString partition()
+{
+    QDir current = QDir::current();
+    while(current.cdUp());
+    return current.absolutePath();
+}
+
+static size_t calBufferSize()
 {
     windows::DWORD SectorsPerCluster,lpBytesPerSector;
     windows::GetDiskFreeSpace(partition().toStdWString().c_str(),
@@ -15,9 +21,6 @@ size_t Buffer::calBlockSize()
     return static_cast<size_t>(SectorsPerCluster*lpBytesPerSector);
 }
 
-QString Buffer::partition()
-{
-    QDir current = QDir::current();
-    while(current.cdUp());
-    return current.absolutePath();
-}
+
+const size_t Buffer::BufferSize = calBufferSize();
+

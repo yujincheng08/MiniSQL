@@ -1,60 +1,68 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include <iostream>
-
+#include <QIODevice>
+#include <BufferListItem.h>
+#include <mutex>
+#include <cstring>
 //Buffer of a file block
 class QString;
-class Buffer
+class Buffer : protected BufferListItem
 {
-    char *Buff;
-    using pos_type = std::iostream::pos_type;
-    static size_t BlockSize;
-    size_t Size;
-    std::iostream &Stream;
-    pos_type Position;
-    bool Dirty;
-private:
-    static size_t calBlockSize();
-    static QString partition();
+    friend class BufferManager;
+    friend class File;
+    friend class WriteThread;
 public:
-    explicit Buffer(std::iostream &stream,
-                    const off_t &position);
-    ~Buffer();
-    off_t position();
-    const bool &dirty();
-    std::iostream &stream();
-    const char *rawData();
-    static size_t blockSize();
+    using pos_type = std::streamoff;
+private:
+    static const size_t BufferSize;
+    char *Buff;
+    QIODevice &Stream;
+    pos_type Position;
+    pos_type Size;
+    bool Dirty = false;
+    bool InList = false;
+    std::mutex Mutex;
+private:
+    static QString partition();
+    explicit Buffer(QIODevice &stream,
+                    const pos_type &position,
+                    const size_t &empty = 0U);
+    void write();
+    void changeSize(const pos_type &size);
+public:
+    virtual ~Buffer();
+    static size_t bufferSize();
 };
 
-inline off_t Buffer::position()
+inline Buffer::Buffer(QIODevice &stream,
+                      const pos_type &position, const size_t &empty)
+    : Buff(new char[bufferSize()]),
+      Stream(stream), Position(position),Size(std::min(empty,bufferSize()))
 {
-    return Position;
+    if(empty)
+        memset(Buff,0, Size);
+    else
+    {
+        Stream.seek(position);
+        Size = Stream.read(Buff,bufferSize());
+    }
 }
 
-inline const bool &Buffer::dirty()
+inline void Buffer::write()
 {
-    return Dirty;
+    Mutex.lock();
+    Stream.seek(Position);
+    Stream.write(Buff, Size);
+    Mutex.unlock();
 }
 
-inline std::iostream &Buffer::stream()
+inline void Buffer::changeSize(const pos_type &size)
 {
-    return Stream;
-}
-
-inline const char *Buffer::rawData()
-{
-    return Buff;
-}
-
-inline Buffer::Buffer(std::iostream &stream,
-               const off_t &position)
-    : Buff(new char[blockSize()]),
-      Stream(stream), Position(position),Dirty(false)
-{
-    Stream.read(Buff,blockSize());
-    Size = Stream.gcount();
+    if(size>Size)
+        memset(Buff+Size,0,size-Size);
+    //else
+    Size=size;
 }
 
 inline Buffer::~Buffer()
@@ -62,12 +70,9 @@ inline Buffer::~Buffer()
     delete [] Buff;
 }
 
-inline size_t Buffer::blockSize()
+inline size_t Buffer::bufferSize()
 {
-    if(BlockSize)
-        return BlockSize;
-    else
-        return BlockSize = calBlockSize();
+    return BufferSize;
 }
 
 #endif // BUFFER_H
