@@ -1,128 +1,567 @@
-#ifndef CATALOGMANAGER_H
-#define CATALOGMANAGER_H
+#include "CatalogManager.h"
+#include<iostream>
+#include<string>
+#include<fstream>
 
-#include <QObject>
-#include <fstream>
-#include <vector>
+using namespace std;
 
-class catalogManager : public QObject
+void CreateDatabase(const char* DB)
 {
-    Q_OBJECT
-    using string = std::string;
-    using ifstream = std::ifstream;
-    using ofstream = std::ofstream;
-private:
-    ifstream fin;
-    string Database;//数据库名字
-    string TableName;//目前找到的表名字
-    int RecordLength = 0;//每条记录的长度
-    int AttrNum = 0;//表属性个数
-    std::vector<string> Attribute;
-    //string* Attribute = nullptr;//表的属性
-    std::vector<unsigned int> type;
-    //unsigned int* type = nullptr;//表属性的类型
-    std::vector<bool> IsUnique;
-    //bool* IsUnique = nullptr;//判断是否unique
-    std::vector<bool> HaveIndex;
-    //bool* HaveIndex = nullptr;//判断是否有索引
-    std::vector<string> IndexName;
-    //string* IndexName = nullptr;//索引名字
-    int PriIndex;//主键编号
+	ifstream fin(DB);
+	if(fin.is_open())
+	{
+		cout<<"Database exists!"<<endl;
+		return;
+	}
+	ofstream fout(DB);
+	fout.close();
+	cout<<"Query OK!\n";
+}
 
-    //判断catalogManager中是否存在表TableName
-    bool FindTableName();
-    //判断catalogManager中是否存在名字为Name的表
-    bool FindTableName(string Name);
-    //设置类的属性
-    void SetAttrNum(int Num);
-    void SetAttribute(const std::vector<string> &Attr);
-    void SetType(const std::vector<unsigned int> &t);
-    void SetIsUnique(const std::vector<bool> &IsUni);
-    void SetHaveIndex(const std::vector<bool> &HavInd);
-    void SetIndexName(const std::vector<string> &IndName);
-    void SetPriIndex(int PrimaryKey);
-    string TableNameFromStr(const string &Str);
+catalogManager::catalogManager(string DBName, string TableName):
+Database(DBName),TableName(TableName)
+{
+    fin.open(Database);
+}
 
-public:
-    //构造函数和析构函数
-    /***********************************************/
-    catalogManager(string DBName);
-    catalogManager(string DBName, string TableName);
-    ~catalogManager();
-    /***********************************************/
+catalogManager::~catalogManager()
+{
+	fin.close();
+}
 
-    //删除数据库
-    /***********************************************/
-    void DropDatabase();
-    /***********************************************/
+void catalogManager::Clear()
+{
+    Attribute.clear();
+    type.clear();
+    IsUnique.clear();
+    HaveIndex.clear();
+    IndexName.clear();
+	TableName = "\0";
+	AttrNum = 0;
+	PriIndex = -1;
+	RecordLength = 0;
+}
+
+bool catalogManager::DropIndex(string Table,string Index)
+{
+	//查找是否有表 
+	if(FindTableName(Table) == false)
+	{
+		cout<<"No such table!"<<endl;
+		return false;
+	}
+	
+	bool exist = false;
+	int num;
+	int RLen;
+	fin>>RLen>>num;
+	
+	string *AName;
+	string *t;
+	bool *IsUni;
+	bool *HavInd;
+	string *IndName;
+	int Pri;
+	int i;
+	
+	AName = new string[num];
+	t = new string[num];
+	IsUni = new bool[num];
+	HavInd = new bool[num];
+	IndName = new string[num];
+	//读入表信息 
+	for(i = 0; i < num; i++)
+	{
+		fin>>AName[i]>>t[i]>>IsUni[i]>>HavInd[i];
+		if(HavInd[i])
+			fin>>IndName[i];
+	}
+	fin>>Pri;
+	//检查index是否存在 
+	for(i = 0; i < num; i++)
+	{
+		if(HavInd[i] && IndName[i] == Index)
+		{
+			exist = true;
+			break;
+		}
+	}
+	//index不存在，提示错误信息 
+	if(exist == false)
+	{
+		delete[] AName;
+		delete[] t;
+		delete[] IsUni;
+		delete[] HavInd;
+		delete[] IndName;
+		cout<<"No such index!"<<endl;
+		return false;
+	}
+	if(i == Pri)
+	{
+		delete[] AName;
+		delete[] t;
+		delete[] IsUni;
+		delete[] HavInd;
+		delete[] IndName;
+		cout<<"Cannot delete the index of primary key!"<<endl;
+		return false;
+	}
+	//修改信息 
+	HavInd[i] = false;
+	
+	ofstream fout("tmp.txt");
+	string tmp,Name;
+	fin.seekg(0,ios::beg);
+	while(fin>>Name)
+	{
+		if(Name == Table)
+		{
+			getline(fin,tmp);
+		}
+		else
+		{
+			getline(fin,tmp);
+			fout<<Name<<tmp<<endl;
+		}
+	}
+	fout<<Table<<" "<<RLen<<" "<<num<<" ";
+	for(i = 0; i < num; i++)
+	{
+		fout<<AName[i]<<" "<<t[i]<<" "<<IsUni[i]<<" "<<HavInd[i]<<" ";
+		if(HavInd[i])
+			fout<<IndName[i]<<" ";
+	}
+	fout<<Pri<<endl;
+	
+	delete[] AName;
+	delete[] t;
+	delete[] IsUni;
+	delete[] HavInd;
+	delete[] IndName;
+	
+	fin.close();
+	fout.close();
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
+	cout<<"Query OK!"<<endl;
+	return true;
+}
+
+bool catalogManager::FindTableName()
+{
+	string tmp,Table;
+	fin.seekg(0,ios::beg);
+	while(fin>>Table)
+	{
+		if(TableName == Table)
+			return true;
+		else
+			getline(fin,tmp);
+	}
+	return false;
+}
+
+bool catalogManager::FindTableName(string Name)
+{
+	string tmp,Table;
+	fin.seekg(0,ios::beg);
+	while(fin>>Table)
+	{
+		if(Name == Table)
+			return true;
+		else
+			getline(fin,tmp);
+	}
+	return false;
+}
+
+bool catalogManager::GetTableInfo()
+{
+	if(FindTableName() == false)
+	{
+		cout<<"No such table!"<<endl;
+		return false;
+	}
+	fin>>RecordLength;
+	fin>>AttrNum;
+    string Attr;
+    unsigned int t;
+    bool IsUni;
+    bool HaveInd;
+    string IndName;
+	for(int i = 0; i < AttrNum; i++)
+	{
+        fin>>Attr>>t>>IsUni>>HaveInd;
+        Attribute.push_back(Attr);
+        type.push_back(t);
+        IsUnique.push_back(IsUni);
+        HaveIndex.push_back(HaveInd);
+        if(HaveInd)
+        {
+            fin>>IndName;
+            IndexName.push_back(IndName);
+        }
+        else
+        {
+            IndexName.push_back("\0");
+        }
+	}
+	fin>>PriIndex;
+	return true;
+}
+
+bool catalogManager::GetTableInfo(string Name)
+{
+	SetTableName(Name);
+    if(FindTableName() == false)
+    {
+        cout<<"No such table!"<<endl;
+        return false;
+    }
+    fin>>RecordLength;
+    fin>>AttrNum;
+    string Attr;
+    unsigned int t;
+    bool IsUni;
+    bool HaveInd;
+    string IndName;
+    for(int i = 0; i < AttrNum; i++)
+    {
+        fin>>Attr>>t>>IsUni>>HaveInd;
+        Attribute.push_back(Attr);
+        type.push_back(t);
+        IsUnique.push_back(IsUni);
+        HaveIndex.push_back(HaveInd);
+        if(HaveInd)
+        {
+            fin>>IndName;
+            IndexName.push_back(IndName);
+        }
+        else
+        {
+            IndexName.push_back("\0");
+        }
+    }
+    fin>>PriIndex;
+    return true;
+}
+
+void catalogManager::PrintInfo()
+{
+	if(GetTableInfo() == true)
+	{
+		cout<<"TableName: "<<TableName<<endl;
+		cout<<"Attribute Info: "<<endl;
+		for(int i = 0; i < AttrNum; i++)
+		{
+			if(IsUnique[i])
+				cout<<"\t"<<Attribute[i]<<"\t"<<type[i]<<"\tunique";
+			else
+				cout<<"\t"<<Attribute[i]<<"\t"<<type[i];
+			if(HaveIndex[i])
+				cout<<"\t"<<IndexName[i]<<endl;
+			else
+				cout<<"\t"<<endl;
+		}
+		cout<<"Primary key: "<<Attribute[PriIndex]<<endl;	
+		cout<<"Record length: "<<RecordLength<<endl;
+	}
+}
+
+void catalogManager::SetTableName(string Name)
+{
+	TableName = Name;
+}
+
+void catalogManager::SetRecordLength(int length)
+{
+	RecordLength = length;
+}
+
+void catalogManager::SetAttrNum(int Num)
+{
+	AttrNum = Num;
+}
+
+void catalogManager::SetPriIndex(int PrimaryKey)
+{
+	PriIndex = PrimaryKey;
+}
+
+void catalogManager::SetAttribute(const vector<string> &Attr)
+{
+    Attribute.clear();
+	for(int i = 0; i < AttrNum; i++)
+        Attribute.push_back(Attr[i]);
+}
+
+void catalogManager::SetType(const vector<unsigned int> &t)
+{
+    type.clear();
+	for(int i = 0; i < AttrNum; i++)
+        type.push_back(t[i]);
+}
+
+void catalogManager::SetIsUnique(const vector<bool> &IsUni)
+{
+    IsUnique.clear();
+	for(int i = 0; i < AttrNum; i++)
+        IsUnique.push_back(IsUni[i]);
+}
+
+void catalogManager::SetHaveIndex(const vector<bool> &HavInd)
+{
+    HaveIndex.clear();
+	for(int i = 0; i < AttrNum; i++)
+        HaveIndex.push_back(HavInd[i]);
+}
+
+void catalogManager::SetIndexName(const vector<string> &IndName)
+{
+    IndexName.clear();
+    for(int i = 0; i < AttrNum; i++)
+    {
+        if(HaveIndex[i])
+            IndexName.push_back(IndName[i]);
+        else
+            IndexName.push_back("\0");
+    }
+}
+
+void catalogManager::SetAttributeInfo(int Num,const vector<string> &Attr,const vector<unsigned int> &t,const vector<bool> &IsUni,const vector<bool> &HavInd,const vector<string> &IndName,int PrimaryKey)
+{
+	SetAttrNum(Num);
+	SetAttribute(Attr);
+	SetType(t);
+	SetIsUnique(IsUni);
+	SetHaveIndex(HavInd);
+	SetIndexName(IndName);
+	SetPriIndex(PrimaryKey);
+}
+
+bool catalogManager::AddTableInfo(string Str)
+{
+	fin.seekg(0,ios::beg);
+	string Name = TableNameFromStr(Str);
+	if(FindTableName(Name) == true)
+	{
+		cout<<"Table Exists!"<<endl;
+		return false;
+	}
+	ofstream fout("catalogManager.txt",ios::app);
+	fout<<Str<<endl;
+	fout.close();
+	//update fin
+	fin.close();
+    fin.open(Database);
+	cout<<"Query OK!"<<endl;
+	return true;
+}
+
+bool catalogManager::AddTableInfo()
+{
+	fin.seekg(0,ios::beg);
+	if(FindTableName() == true)
+	{
+		cout<<"Table Exists!"<<endl;
+		return false;
+	}
+	
+    ofstream fout(Database,ios::app);
+	fout<<TableName<<" "<<RecordLength<<" "<<AttrNum<<" ";
+	for(int i = 0; i < AttrNum; i++)
+	{
+		fout<<Attribute[i]<<" "<<type[i]<<" "<<IsUnique[i]<<" "<<HaveIndex[i]<<" ";
+		if(HaveIndex[i])
+			fout<<IndexName[i]<<" ";
+	}
+	fout<<PriIndex<<endl;
+	fout.close();
+	//update fin
+	fin.close();
+    fin.open(Database);
+	cout<<"Query OK!"<<endl;
+	return true;
+} 
+
+int catalogManager::FindAttributeIndex(string AttrName)
+{
+	for(int i = 0; i < AttrNum; i++)
+	{
+		if(Attribute[i] == AttrName)
+			return i;
+	}
+	return -1;
+}
+
+int catalogManager::FindIndexAccordingToIndexName(string Index)
+{
+	for(int i = 0; i < AttrNum; i++)
+	{
+		if(HaveIndex[i]) 
+		if(IndexName[i] == Index)
+			return i;
+	}
+	return -1;
+}
+
+bool catalogManager::DropTable(string Name)
+{
+	if(FindTableName(Name) == false)
+	{
+		cout<<"No such table!"<<endl;
+		return false;
+	}
+	ofstream fout("tmp.txt");
+	
+	string tmp,Table;
+	fin.seekg(0,ios::beg);
+	while(fin>>Table)
+	{
+		if(TableName == Table)
+		{
+			getline(fin,tmp);
+		}
+		else
+		{
+			getline(fin,tmp);
+			fout<<Table<<tmp<<endl;
+		}
+	}
+	fin.close();
+	fout.close();
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
+    error("Query OK!\n");
+	return true;
+}
+
+bool catalogManager::DropTable()
+{
+	if(FindTableName() == false)
+	{
+		cout<<"No such table!"<<endl;
+		return false;
+	}
+	ofstream fout("tmp.txt");
+	
+	string tmp,Table;
+	fin.seekg(0,ios::beg);
+	while(fin>>Table)
+	{
+		if(TableName == Table)
+		{
+			getline(fin,tmp);
+		}
+		else
+		{
+			getline(fin,tmp);
+			fout<<Table<<tmp<<endl;
+		}
+	}
+	fin.close();
+	fout.close();
+    remove(Database.c_str());
+    rename("tmp.txt",Database.c_str());
+    fin.open(Database);
+	cout<<"Query OK"<<endl;
+	return true;
+}
 
 
-    /*对catalog文件进行操作的函数*/
-    /***********************************************/
-    //从catalog中获取TableName的信息，放入到类的变量中
-    bool GetTableInfo();
-    //从catalog中获取名字为Name的表的信息，放入到类的变量中
-    bool GetTableInfo(string Name);
-    //向catalog中添加表信息，Str为要写入的信息
-    bool AddTableInfo(string Str);
-    //向catalog中添加表信息，需要调用Set开头的函数，事先设置好类中的所有信息
-    bool AddTableInfo();
-    //在catalog中删除当前的表
-    bool DropTable();
-    //在catalog中删除名字为Name的表
-    bool DropTable(string Name);
-    //在catalog中删除表Table中的名为Index的索引
-    bool DropIndex(string Table,string Index);
-    /***********************************************/
+string catalogManager::GetPrimaryKey()
+{
+	for(int i = 0; i < AttrNum; i++)
+	{
+		if(i == PriIndex)
+			return Attribute[i];
+	}
+    return string();
+}
 
+bool catalogManager::GetIsUnique(int i)
+{
+	return IsUnique[i];
+}
+int catalogManager::GetType(int i)
+{
+	return type[i];
+}
+bool catalogManager::GetHaveIndex(int i)
+{
+	return HaveIndex[i];
+}
+string catalogManager::GetIndexName(int i)
+{
+	return IndexName[i];
+}
+int catalogManager::GetRecordLength()
+{
+	return RecordLength;
+}
+int catalogManager::GetAttrNum()
+{
+	return AttrNum;
+}
+int catalogManager::GetPriIndex()
+{
+	return PriIndex;
+}
 
+void catalogManager::DropDatabase()
+{
+    remove(Database.c_str());
+	cout<<"Query OK!\n";
+}
 
-    //Set类函数，用于设置类内的信息
-    /***********************************************/
-    //设置TableName
-    void SetTableName(string Name);
-    //设置RecordLength
-    void SetRecordLength(int length);
-    //设置Attribute等信息
-    void SetAttributeInfo(int num,const std::vector<string> &Attr,const std::vector<unsigned int> &t,const std::vector<bool> &IsUni,const std::vector<bool> &HavInd,const std::vector<string> &IndName,int PrimaryKey);
-    /***********************************************/
+string catalogManager::TableNameFromStr(const string &Str)
+{
+	int i = 0;
+	string tmp;
+	while(Str[i] != ' ')
+	{
+		tmp += Str[i];
+		i++;
+	}
+	return tmp;
+}
 
-
-    //以下函数用于获取类内的信息
-    /***********************************************/
-    //找到表中是否有某个属性，没有返回-1，有则返回属性数组下标
-    int FindAttributeIndex(string AttrName);
-    //找到根据Index名称找到数组下标，没有返回-1，有则返回属性数组下标
-    int FindIndexAccordingToIndexName(string Index);
-    //根据数组下标得到相应数据，数组下标可以用FindAttribute函数得到
-    bool GetIsUnique(int i);
-    int GetType(int i);
-    bool GetHaveIndex(int i);
-    string GetIndexName(int i);
-    int GetRecordLength();
-    int GetAttrNum();
-    int GetPriIndex();
-    //返回主键名称
-    string GetPrimaryKey();
-    /***********************************************/
-
-
-    //一些其他函数
-    /***********************************************/
-    //删除类里的所有信息
-    void Clear();
-    //从catalog中获取数据并且打印表信息
-    void PrintInfo();
-    /***********************************************/
-
-
-signals:
-    void error(const string &msg);
-};
-
-inline catalogManager::catalogManager(string DBName)
-    :catalogManager(DBName,string())
-{}
-
-
-#endif // CATALOGMANAGER_H
+int main()
+{
+	CreateDatabase("a.txt");
+	catalogManager s("a.txt","Teacher");
+	//插入信息例子1
+	int AttrNum = 2;
+	string Attribute[2] = {"Name","Age"};
+    unsigned int type[2] = {12,256};
+	bool HaveIndex[2] = {true,true};
+	string IndexName[2] = {"NameIndex","AgeIndex"};
+	bool IsUnique[2] = {true,true};
+	int PrimaryKey = 0;
+	int RecordLen = 16; 
+    vector<string> Attr(Attribute, Attribute + 2);
+    vector<unsigned int> t(type, type + 2);
+    vector<bool> HavInd(HaveIndex, HaveIndex + 2);
+    vector<bool> IsUni(IsUnique, IsUnique + 2);
+    vector<string> IndName(IndexName, IndexName + 2);
+    s.SetAttributeInfo(AttrNum,Attr,t,IsUni,HavInd,IndName,PrimaryKey);
+	s.SetRecordLength(RecordLen);
+	s.AddTableInfo();
+	//插入信息例子2
+	s.SetTableName("student");
+	s.AddTableInfo();
+	//获取表信息1 
+	s.GetTableInfo();
+	s.PrintInfo();
+	//获取表信息2
+	s.GetTableInfo("Teacher");
+	s.PrintInfo();
+	//删除index
+	s.DropIndex("Teacher","AgeIndex");
+	s.SetTableName("Teacher");
+	s.PrintInfo();
+	 
+}
