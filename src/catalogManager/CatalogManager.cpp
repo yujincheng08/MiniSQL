@@ -535,7 +535,7 @@ int main()
 	//插入信息例子1
 	int AttrNum = 2;
 	string Attribute[2] = {"Name","Age"};
-	string type[2] = {12,256};
+    unsigned int type[2] = {12,256};
 	bool HaveIndex[2] = {true,true};
 	string IndexName[2] = {"NameIndex","AgeIndex"};
 	bool IsUnique[2] = {true,true};
