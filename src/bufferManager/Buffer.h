@@ -7,6 +7,7 @@
 #include <cstring>
 //Buffer of a file block
 class QString;
+class File;
 class Buffer : protected BufferListItem
 {
     friend class BufferManager;
@@ -17,37 +18,27 @@ public:
 private:
     static const size_t BufferSize;
     char *Buff;
+    File &f;
     QIODevice &Stream;
     pos_type Position;
-    pos_type Size;
+    size_t Size;
     bool Dirty = false;
     bool InList = false;
+
     std::mutex Mutex;
 private:
     static QString partition();
-    explicit Buffer(QIODevice &stream,
+    explicit Buffer(File &stream,
                     const pos_type &position,
                     const size_t &empty = 0U);
     void write();
-    void changeSize(const pos_type &size);
+    void changeSize(const size_t &size);
+protected:
+    virtual bool removeable() override final;
 public:
-    virtual ~Buffer();
+    virtual ~Buffer() override;
     static size_t bufferSize();
 };
-
-inline Buffer::Buffer(QIODevice &stream,
-                      const pos_type &position, const size_t &empty)
-    : Buff(new char[bufferSize()]),
-      Stream(stream), Position(position),Size(std::min(empty,bufferSize()))
-{
-    if(empty)
-        memset(Buff,0, Size);
-    else
-    {
-        Stream.seek(position);
-        Size = Stream.read(Buff,bufferSize());
-    }
-}
 
 inline void Buffer::write()
 {
@@ -57,7 +48,7 @@ inline void Buffer::write()
     Mutex.unlock();
 }
 
-inline void Buffer::changeSize(const pos_type &size)
+inline void Buffer::changeSize(const size_t &size)
 {
     if(size>Size)
         memset(Buff+Size,0,size-Size);
@@ -65,9 +56,9 @@ inline void Buffer::changeSize(const pos_type &size)
     Size=size;
 }
 
-inline Buffer::~Buffer()
+inline bool Buffer::removeable()
 {
-    delete [] Buff;
+    return Dirty == false;
 }
 
 inline size_t Buffer::bufferSize()

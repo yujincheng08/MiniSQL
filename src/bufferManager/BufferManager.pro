@@ -11,7 +11,8 @@ HEADERS += \
     WriteThread.h \
     ReadThread.h \
     BufferList.h \
-    BufferListItem.h
+    BufferListItem.h \
+    FixString.h
 
 SOURCES += \
     Buffer.cpp \
@@ -19,8 +20,8 @@ SOURCES += \
     File.cpp \
     WriteThread.cpp \
     ReadThread.cpp \
-    BufferList.cpp \
-    BufferListItem.cpp
+    BufferListItem.cpp \
+    FixString.cpp
 
 OTHER_FILES += \
     README.md
@@ -31,5 +32,5 @@ SOURCES += \
     test.cpp
 }
 else{
-TEMPLATE += lib
+TEMPLATE = lib
 }

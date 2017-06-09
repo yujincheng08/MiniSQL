@@ -6,9 +6,10 @@
 class BufferList
 {
     friend class BufferListItem;
+    friend class BufferManager;
     BufferListItem *head;
     BufferListItem *tail;
-    size_t Size;
+    size_t Size = 0U;
 private:
     BufferList();
     void insert(BufferListItem *item);
@@ -19,7 +20,7 @@ private:
 };
 
 inline BufferList::BufferList()
-    :head(nullptr),tail(head)
+    :head(nullptr),tail(nullptr)
 {}
 
 inline void BufferList::insert(BufferListItem *item)
@@ -29,15 +30,23 @@ inline void BufferList::insert(BufferListItem *item)
     if(!tail)
         tail = item;
     else
+    {
+        item->Prev = tail;
         tail->Next = item;
-    ++Size;
+        tail = item;
+    }
 }
 
 inline void BufferList::top(BufferListItem *item)
 {
+    if(head==item)
+        return;
     remove(item);
-    item->Next = head->Next;
-    head->Next = item;
+    item->Next = head;
+    if(head)
+        head->Prev = item;
+    head = item;
+    if(!tail) tail = item;
 }
 
 inline void BufferList::remove(BufferListItem *item)
@@ -46,6 +55,10 @@ inline void BufferList::remove(BufferListItem *item)
         item->Next->Prev = item->Prev;
     if(item->Prev)
         item->Prev->Next = item->Next;
+    if(tail==item)
+        tail = item->Prev;
+    if(head == item)
+        head = item->Next;
 }
 
 inline BufferListItem *BufferList::last()

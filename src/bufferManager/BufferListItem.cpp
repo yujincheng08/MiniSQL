@@ -5,6 +5,7 @@ BufferList *const BufferListItem::List = new BufferList();
 BufferListItem::BufferListItem()
 {
     List->insert(this);
+    ++List->Size;
 }
 
 void BufferListItem::top()
@@ -15,4 +16,5 @@ void BufferListItem::top()
 BufferListItem::~BufferListItem()
 {
     List->remove(this);
+    --List->Size;
 }

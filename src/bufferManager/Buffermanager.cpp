@@ -1,8 +1,9 @@
 #include "BufferManager.h"
 #include "ReadThread.h"
 #include "WriteThread.h"
+#include "BufferList.h"
 using namespace std;
-
+size_t BufferManager::MaxBuffer = 10;//200000;
 BufferManager &BufferManager::bufferManager()
 {
     static BufferManager bm;
@@ -18,16 +19,21 @@ Buffer *BufferManager::buff(File *file, const Buffer::pos_type &pos, const Buffe
 {
     Mutex.lock();
     Buffer *buffer = nullptr;
-    if(!file->Exist(pos))
+    if(list->size() > MaxBuffer - 1)
     {
-        if(pos>file->Stream.size())
-            buffer = new Buffer(file->Stream,pos,size);
-        else
-            buffer = new Buffer(file->Stream,pos);
-        file->Insert(buffer);
+        for(size_t i = 0U; i < list->size() - MaxBuffer + 1; ++i)
+        {
+            auto last = list->last();
+            if(last->removeable())
+            {
+                last->deleting = true;
+                delete last;
+            }
+            else
+                break;
+        }
     }
-    else
-        buffer = file->GetBuffer(pos);
+    buffer = new Buffer(*file, pos, size);
     Mutex.unlock();
     return buffer;
 }
@@ -62,4 +68,13 @@ File &BufferManager::Open(const string &fileName)
 void BufferManager::wait()
 {
     writeThread->wait();
+}
+
+
+bool BufferManager::full()
+{
+    Mutex.lock();
+    bool result = list->size()>=MaxBuffer;
+    Mutex.unlock();
+    return result;
 }

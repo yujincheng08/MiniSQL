@@ -1,6 +1,6 @@
 #include "ReadThread.h"
 #include "BufferManager.h"
-
+#include <iostream>
 void ReadThread::run()
 {
     while(true)
@@ -9,8 +9,15 @@ void ReadThread::run()
         Buffer::pos_type pos = CurrentPos += Buffer::bufferSize();
         File *file = CurrentFile;
         Mutex.unlock();
-        if(!file->IsEnd(pos) && !file->Exist(pos))
-            BufferManager::bufferManager().buff(file, pos);
+        BufferManager &bm = BufferManager::bufferManager();
+        if(!file->IsEnd(pos) && !file->Exist(pos) && !bm.full())
+        {
+            Buffer * buff = bm.buff(file, pos);
+            file->Insert(buff);
+            std::cout<<"read"<<std::endl;
+        }
+        else
+            break;
     }
     quit();
 }

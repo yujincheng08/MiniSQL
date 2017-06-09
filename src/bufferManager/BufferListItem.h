@@ -8,11 +8,15 @@ class BufferListItem
     static BufferList * const List;
     BufferListItem *Prev = nullptr;
     BufferListItem *Next = nullptr;
+
 protected:
     static BufferList * const &list();
     BufferListItem();
     void top();
+public:
+    virtual bool removeable() = 0;
     virtual ~BufferListItem();
+    bool deleting = false;
 };
 
 inline BufferList * const &BufferListItem::list()

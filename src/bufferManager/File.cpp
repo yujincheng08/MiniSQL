@@ -8,51 +8,44 @@ File::File(const string &fileName)
     BlockCount = Convert(FileSize);
 }
 
-Buffer *File::GetBuffer(const pos_type &pos)
-{
-    auto i = Buffers.find(Convert(pos));
-    if(i==Buffers.end())
-    {
-        Buffer * buffer = BufferManager::bufferManager().buff(this,GetPos(pos));
-        BufferManager::bufferManager().preRead(this, (size_t)pos + Buffer::bufferSize());
-        return buffer;
-    }
-    else
-        return i->second;
-}
-
-Buffer *File::GetBuffer(const pos_type &pos, const pos_type &size)
+Buffer *File::GetBuffer(const size_t &block, const pos_type &offset)
 {
     Buffer *buffer;
-    auto newpos = pos+size;
-    auto newBlock = Convert(newpos);
-    auto offset = GetOffset(pos,size) + size;
-    if(newBlock>BlockCount)
+    Mutex.lock();
+    auto i = Buffers.find(block);
+    if(i==Buffers.end())
     {
-        resize(newBlock * Buffer::bufferSize() + offset);
-        buffer = BufferManager::bufferManager().buff(this,GetPos(newpos), offset);
+        pos_type pos = block * Buffer::bufferSize();
+        buffer = BufferManager::bufferManager()
+                .buff(this, pos, offset);
+        Buffers.insert(std::make_pair(block,buffer));
+        buffer->top();
+        BufferManager::bufferManager()
+                .preRead(this,pos + Buffer::bufferSize() );
     }
     else
     {
-        buffer = GetBuffer(newpos);
-        if(buffer->Size < offset)
-            resize(newBlock * Buffer::bufferSize() + offset);
+        buffer = i->second;
+        i->second->top();
+    }
+    Mutex.unlock();
+    if(block > BlockCount || buffer->Size < offset)
+    {
+        //resize(newBlock * Buffer::bufferSize() + offset);
+        buffer->changeSize(offset);
+        BlockCount = block;
     }
     return buffer;
 }
 
-File::pos_type File::GetOffset(const pos_type &pos, const pos_type &size)
+//开始读取地址
+File::pos_type File::GetPos(const pos_type &pos, const pos_type &size)
 {
     pos_type offset = (pos + size) % Buffer::bufferSize();
-    if(offset < size)
-        return 0U;
+    if(offset && offset < size)
+        return pos + size - offset;
     else
-        return offset - size;
-}
-
-File::pos_type File::GetPos(const File::pos_type &pos)
-{
-    return Convert(pos) * Buffer::bufferSize();
+        return pos;
 }
 
 File::~File()
@@ -65,38 +58,31 @@ File::~File()
 
 void File::resize(const pos_type &pos)
 {
-    size_t oldBlock = Convert(FileSize);
     size_t newBlock = Convert(pos);
-    if(newBlock<oldBlock)
+    Mutex.lock();
+    if(newBlock<BlockCount)
     {
-        for(;newBlock<=oldBlock;++newBlock)
+        for(pos_type i = newBlock; i<=BlockCount;++i)
         {
-            auto i = Buffers.find(newBlock);
-            if(i!=Buffers.end())
+            auto iter = Buffers.find(newBlock);
+            if(iter!=Buffers.end())
             {
-                delete i->second;
-                Buffers.erase(i);
+                delete iter->second;
+                Buffers.erase(iter);
             }
         }
     }
-    else
-    {
-        auto i = Buffers.find(oldBlock);
-        if(i!=Buffers.end())
-        {
-            if(newBlock==oldBlock)
-                i->second->changeSize(pos % Buffer::bufferSize());
-            else
-                i->second->changeSize(Buffer::bufferSize());
-        }
-    }
+    Mutex.unlock();
+    BlockCount = newBlock;
     FileSize = pos;
 }
 
 
 void File::flush()
 {
+    Mutex.lock();
     for(auto i : Buffers)
         if(i.second->Dirty)
             BufferManager::bufferManager().queueBuff(i.second);
+    Mutex.unlock();
 }

@@ -25,21 +25,34 @@ private:
     HashMap<string, File *> Files;
     File &Open(const string &fileName);
     std::mutex Mutex;
+    static size_t MaxBuffer;
     static BufferManager &bufferManager();
     Buffer *buff(File *file, const Buffer::pos_type &pos, const Buffer::pos_type &size = Buffer::bufferSize());
     void preRead(File *file, const Buffer::pos_type &pos);
     void queueBuff(Buffer * const buffer);
     explicit BufferManager();
     void wait();
+    bool full();
 public:
     static File &open(const std::string &fileName);
     static size_t blockSize();
-
+    static const size_t &maxBuffer();
+    static void setMaxBuffer(const size_t &max);
 };
 
 inline size_t BufferManager::blockSize()
 {
     return 8192U;
+}
+
+inline const size_t &BufferManager::maxBuffer()
+{
+    return MaxBuffer;
+}
+
+inline void BufferManager::setMaxBuffer(const size_t &max)
+{
+    MaxBuffer = max;
 }
 
 #endif

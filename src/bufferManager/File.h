@@ -6,22 +6,28 @@
 #include <unordered_map>
 #include <QObject>
 #include "Buffer.h"
+#include "FixString.h"
+
 class Buffer;
 class File : public QObject
 {
     Q_OBJECT
     friend class BufferManager;
     friend class ReadThread;
+    friend class Buffer;
 public:
     template<bool T, class K = void>
     using enable_if = typename std::enable_if<T,K>::type;
     template<typename T>
     using Valid = enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value, T>;
+    template<typename T>
+    using isFixString = enable_if<std::is_same<T,FixString>::value, T>;
     template<typename T, typename K>
     using HashMap = std::unordered_map<T,K>;
     using string = std::string;
     using pos_type = std::streamoff;
 private:
+    std::mutex Mutex;
     QFile Stream;
     pos_type FileSize;
     size_t BlockCount;
@@ -34,10 +40,10 @@ private:
     bool Exist(const pos_type &pos);
     bool IsEnd(const pos_type &pos);
     size_t Convert(const pos_type &pos);
-    Buffer *GetBuffer(const pos_type &pos, const pos_type &size);
-    Buffer *GetBuffer(const pos_type &pos);
-    pos_type GetOffset(const pos_type &pos, const pos_type &size = 0U);
-    pos_type GetPos(const pos_type &pos);
+    Buffer *GetBuffer(const size_t &pos, const pos_type &offset);
+    //pos_type GetOffset(const pos_type &pos, const pos_type &size = 0U);
+    pos_type GetPos(const pos_type &pos, const pos_type &size = 0U);
+    pos_type NextPos(const pos_type &pos, const pos_type &size);
 public slots:
     void flush();
     void reset();
@@ -54,21 +60,80 @@ public:
     template<typename T>
     auto get() -> const Valid<T> &;
     template<typename T>
+    auto get(const pos_type &pos, const size_t &size) -> const isFixString<T>;
+    template<typename T>
+    auto get(const size_t &size) -> const isFixString<T>;
+    template<typename T>
     auto get(const pos_type &pos) -> const Valid<T> &;
     template<typename T>
     auto peek() -> const Valid<T> &;
     template<typename T, typename = Valid<T>>
-    void unget();
-    template<typename T, typename = Valid<T>>
     void put(const T& item);
     template<typename T, typename = Valid<T>>
     void put(const T& item, const pos_type &pos);
+    void put(const FixString &item);
+    void put(const FixString &item, const pos_type &pos);
     template<typename T, typename = Valid<T>>
     File &operator>>(T &target);
+    File &operator>>(FixString &target);
     template<typename T, typename = Valid<T>>
     File &operator<<(const T &source);
+    File &operator<<(const FixString &source);
     virtual ~File();
 };
+
+inline void File::put(const FixString &item)
+{
+    auto next = NextPos(WriteCursor, item.size());
+    put(item, WriteCursor);
+    WriteCursor = next;
+}
+
+inline void File::put(const FixString &item, const pos_type &pos)
+{
+    auto start = GetPos(pos, item.size());
+    auto offset = start % Buffer::bufferSize();
+    Buffer *buff = GetBuffer(Convert(start),offset + item.size());
+    buff->Mutex.lock();
+    buff->Dirty = true;
+    memcpy(buff->Buff+ offset,item.begin(), item.size());
+    buff->Mutex.unlock();
+//    Buffer *buff = GetBuffer(pos, item.size());
+//    size_t offset = GetOffset(pos, item.size());
+//    buff->Mutex.lock();
+//    buff->Dirty = true;
+//    memcpy(buff->Buff+ offset,item.begin(),item.size());
+//    buff->Mutex.unlock();
+}
+
+inline File &File::operator>>(FixString &target)
+{
+    target = get<FixString>(target.size());
+    return *this;
+}
+
+inline File &File::operator<<(const FixString &source)
+{
+    put(source);
+    return *this;
+}
+
+template<typename T>
+auto File::get(const size_t &size) -> const isFixString<T>
+{
+    auto next = NextPos(ReadCursor, size);
+    ReadCursor = next;
+    return get<FixString>(next - size, size);
+}
+
+template<typename T>
+auto File::get(const pos_type &pos, const size_t &size) -> const isFixString<T>
+{
+    auto start = GetPos(pos, sizeof(T));
+    auto offset = start % Buffer::bufferSize();
+    Buffer *buff = GetBuffer(Convert(start),offset + sizeof(T));
+    return FixString(buff->Buff+offset, size);
+}
 
 template<typename T, typename = File::Valid<T>>
 File &File::operator<<(const T &source)
@@ -87,25 +152,21 @@ File &File::operator>>(T &target)
 template<typename T, typename = File::Valid<T>>
 void File::put(const T &item)
 {
+    auto next = NextPos(WriteCursor, sizeof(T));
     put(item, WriteCursor);
-    WriteCursor += sizeof(T);
+    WriteCursor = next;
 }
 
 template<typename T, typename = File::Valid<T>>
 void File::put(const T &item, const pos_type &pos)
 {
-    Buffer *buff = GetBuffer(pos,sizeof(T));
-    size_t offset = GetOffset(pos,sizeof(T));
+    auto start = GetPos(pos, sizeof(T));
+    auto offset = start % Buffer::bufferSize();
+    Buffer *buff = GetBuffer(Convert(start),offset + sizeof(T));
     buff->Mutex.lock();
     buff->Dirty = true;
     memcpy(buff->Buff+ offset,(const char*)&item,sizeof(T));
     buff->Mutex.unlock();
-}
-
-template<typename T, typename = File::Valid<T>>
-void File::unget()
-{
-    ReadCursor -= sizeof(T);
 }
 
 template<typename T>
@@ -117,21 +178,28 @@ auto File::peek() -> const Valid<T> &
 template<typename T>
 auto File::get(const pos_type &pos) -> const Valid<T> &
 {
-    Buffer *buff = GetBuffer(pos,sizeof(T));
-    size_t offset = GetOffset(pos,sizeof(T));
+    auto start = GetPos(pos, sizeof(T));
+    auto offset = start % Buffer::bufferSize();
+    Buffer *buff = GetBuffer(Convert(start),offset + sizeof(T));
     return *(T*)(buff->Buff+ offset);
 }
 
 template<typename T>
 auto File::get() -> const Valid<T> &
 {
-    ReadCursor += sizeof(T);
-    return get<T>(ReadCursor - sizeof(T));
+    auto Cursor = ReadCursor;
+    ReadCursor = NextPos(ReadCursor, sizeof(T));
+    return get<T>(Cursor);
 }
 
 inline size_t File::Convert(const pos_type &pos)
 {
     return pos / Buffer::bufferSize();
+}
+
+inline auto File::NextPos(const pos_type &pos, const pos_type &size) -> pos_type
+{
+    return GetPos(pos, size) + size;
 }
 
 inline void File::reset()
@@ -184,17 +252,25 @@ inline void File::Release(const pos_type &pos)
 
 inline void File::Insert(Buffer * const buffer)
 {
+    Mutex.lock();
     Buffers.insert(std::make_pair(Convert(buffer->Position),buffer));
+    Mutex.unlock();
 }
 
 inline bool File::Exist(const pos_type &pos)
 {
-    return Buffers.find(Convert(pos)) != Buffers.end();
+    Mutex.lock();
+    bool result = Buffers.find(Convert(pos)) != Buffers.end();
+    Mutex.unlock();
+    return result;
 }
 
 inline bool File::IsEnd(const pos_type &pos)
 {
-    return pos >= Stream.size();
+    Mutex.lock();
+    bool result = pos >= Stream.size();
+    Mutex.unlock();
+    return result;
 }
 
 #endif // FILE_H
