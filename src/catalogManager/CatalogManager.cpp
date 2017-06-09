@@ -280,6 +280,36 @@ void catalogManager::PrintInfo()
 }
 
 
+void catalogManager::SetAttributeInfo(const int Num,const string* Attr,const unsigned int* t,const bool* IsUni,const bool* HavInd,const string* IndName,const int PrimaryKey)
+{
+    SetAttrNum(Num);
+
+    for(int i = 0; i < Num; i++)
+    {
+        Attribute.push_back(Attr[i]);
+        type.push_back(t[i]);
+        IsUnique.push_back(IsUni[i]);
+        HaveIndex.push_back(HavInd[i]);
+        if(HavInd[i])
+            IndexName.push_back(IndName[i]);
+        else
+            IndexName.push_back("\0");
+
+    }
+
+    SetPriIndex(PrimaryKey);
+
+    int RLen = 0;
+    for(int i = 0; i < Num; i++)
+    {
+        if(t[i] == 256 || t[i] == 257)
+            RLen += 4;
+        else
+            RLen += t[i];
+    }
+    SetRecordLength(RLen);
+}
+
 void catalogManager::SetAttributeInfo(const int Num,const vector<string> &Attr,const vector<unsigned int> &t,const vector<bool> &IsUni,const vector<bool> &HavInd,const vector<string> &IndName,const int PrimaryKey)
 {
 	SetAttrNum(Num);
@@ -581,12 +611,15 @@ int main()
 	string IndexName[2] = {"NameIndex","AgeIndex"};
 	bool IsUnique[2] = {true,true};
 	int PrimaryKey = 0;
+    //设置信息
     vector<string> Attr(Attribute, Attribute + 2);
     vector<unsigned int> t(type, type + 2);
     vector<bool> HavInd(HaveIndex, HaveIndex + 2);
     vector<bool> IsUni(IsUnique, IsUnique + 2);
     vector<string> IndName(IndexName, IndexName + 2);
     s.SetAttributeInfo(AttrNum,Attr,t,IsUni,HavInd,IndName,PrimaryKey);
+    //也可以传入数组
+    //s.SetAttributeInfo(AttrNum,Attribute,type,IsUnique,HaveIndex,IndexName,PrimaryKey);
 	s.AddTableInfo();
 	//插入信息例子2
 	s.SetTableName("student");
