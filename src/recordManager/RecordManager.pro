@@ -1,18 +1,16 @@
-TEMPLATE += lib
-QT       -= gui
-
 include(../../MiniSQL.pri)
 
-TARGET = BufferManager
-
+TARGET = RecordManager
 
 DESTDIR = ../../
 
 HEADERS += \
-    RecordManager.h
+    RecordManager.h \
+    record.h
 
 SOURCES += \
-    RecordManager.cpp
+    RecordManager.cpp \
+    record.cpp
 
 OTHER_FILES += \
     README.md

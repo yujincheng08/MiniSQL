@@ -1,0 +1,24 @@
+#ifndef RECORDMANAGER_H
+#define RECORDMANAGER_H
+
+#include <QObject>
+#include "../bufferManager/File.h"
+#include "record.h"
+class RecordManager : public QObject
+{
+    Q_OBJECT
+public:
+    using Record = 
+    explicit RecordManager(QObject *parent = 0);
+    static  void CreateTable(std::string tableName);
+    static  void DropTable(std::string tableName);
+    static  void DeleteRecords(std::vector<File::pos_type> positions);
+    static  File::pos_type InsertRecords(Record records);
+    static  std::vector<Record> queryRecords(std::vector<Perdicator> conditions);
+
+signals:
+
+public slots:
+};
+
+#endif // RECORDMANAGER_H
