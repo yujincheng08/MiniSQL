@@ -90,4 +90,7 @@ fabric.properties
 # QtCreator user file
 *.pro.user
 
+# Auto save file
+*.autosave
+
 # End of https://www.gitignore.io/api/clion
