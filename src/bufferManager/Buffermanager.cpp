@@ -3,7 +3,7 @@
 #include "WriteThread.h"
 #include "BufferList.h"
 using namespace std;
-size_t BufferManager::MaxBuffer = 10;//200000;
+size_t BufferManager::MaxBuffer = 200000;
 BufferManager &BufferManager::bufferManager()
 {
     static BufferManager bm;

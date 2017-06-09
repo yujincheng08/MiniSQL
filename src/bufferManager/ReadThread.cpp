@@ -1,6 +1,5 @@
 #include "ReadThread.h"
 #include "BufferManager.h"
-#include <iostream>
 void ReadThread::run()
 {
     while(true)
@@ -14,7 +13,6 @@ void ReadThread::run()
         {
             Buffer * buff = bm.buff(file, pos);
             file->Insert(buff);
-            std::cout<<"read"<<std::endl;
         }
         else
             break;

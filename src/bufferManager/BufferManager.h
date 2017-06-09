@@ -38,6 +38,7 @@ public:
     static size_t blockSize();
     static const size_t &maxBuffer();
     static void setMaxBuffer(const size_t &max);
+    static size_t bufferSize();
 };
 
 inline size_t BufferManager::blockSize()
@@ -53,6 +54,11 @@ inline const size_t &BufferManager::maxBuffer()
 inline void BufferManager::setMaxBuffer(const size_t &max)
 {
     MaxBuffer = max;
+}
+
+inline size_t BufferManager::bufferSize()
+{
+    return Buffer::bufferSize();
 }
 
 #endif

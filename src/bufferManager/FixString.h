@@ -8,6 +8,7 @@ class FixString
 {
     std::size_t Size;
     char *String;
+    int cmp(const FixString &b) const;
 public:
     FixString(const std::size_t &size);
     FixString(const char *const &string);
@@ -15,7 +16,6 @@ public:
     FixString(const std::string &string);
     FixString(const QString& string);
     FixString(const FixString& string);
-    int cmp(const FixString &b) const;
     const std::size_t &size() const;
     void resize(std::size_t size);
     bool operator ==(const FixString &string) const;
@@ -29,10 +29,13 @@ public:
     char &operator [](const std::size_t &index);
     const char *operator +(const std::ptrdiff_t &offset) const;
     char *operator +(const std::ptrdiff_t &offset);
+    const char *operator -(const std::ptrdiff_t &offset) const;
+    char *operator -(const std::ptrdiff_t &offset);
     const char *begin() const;
     char *begin();
     const char *end() const;
     char *end();
+    std::string toString() const;
     ~FixString();
     friend std::ostream &operator <<(std::ostream &out, const FixString &string);
 };
@@ -157,6 +160,16 @@ inline const char *FixString::operator +(const std::ptrdiff_t &offset) const
     return String + offset;
 }
 
+inline char *FixString::operator -(const std::ptrdiff_t &offset)
+{
+    return String - offset;
+}
+
+inline const char *FixString::operator -(const std::ptrdiff_t &offset) const
+{
+    return String - offset;
+}
+
 inline char *FixString::begin()
 {
     return String;
@@ -170,6 +183,11 @@ inline const char *FixString::begin() const
 inline char *FixString::end()
 {
     return String + Size;
+}
+
+std::string FixString::toString() const
+{
+    return std::string(String, String + Size + 1);
 }
 
 inline FixString::~FixString()

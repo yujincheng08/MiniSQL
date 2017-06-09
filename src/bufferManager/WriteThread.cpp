@@ -1,5 +1,4 @@
 #include "WriteThread.h"
-#include <iostream>
 void WriteThread::run()
 {
     while(!WriteList.empty())
@@ -11,6 +10,5 @@ void WriteThread::run()
         WriteList.pop_front();
         Mutex.unlock();
     }
-    std::cout<<"Writing done."<<std::endl;
     quit();
 }

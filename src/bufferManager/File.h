@@ -50,10 +50,10 @@ public slots:
 signals:
     //void flushed();
 public:
-    const pos_type &tellg();
-    const pos_type &tellp();
-    const pos_type &telle();
-    bool eof();
+    auto tellg() const -> const pos_type &;
+    auto tellp() const -> const pos_type &;
+    auto telle() const -> const pos_type &;
+    bool eof() const;
     void seekg(const pos_type &pos);
     void seekp(const pos_type &pos);
     void resize(const pos_type &pos);
@@ -98,12 +98,6 @@ inline void File::put(const FixString &item, const pos_type &pos)
     buff->Dirty = true;
     memcpy(buff->Buff+ offset,item.begin(), item.size());
     buff->Mutex.unlock();
-//    Buffer *buff = GetBuffer(pos, item.size());
-//    size_t offset = GetOffset(pos, item.size());
-//    buff->Mutex.lock();
-//    buff->Dirty = true;
-//    memcpy(buff->Buff+ offset,item.begin(),item.size());
-//    buff->Mutex.unlock();
 }
 
 inline File &File::operator>>(FixString &target)
@@ -209,23 +203,23 @@ inline void File::reset()
             delete i.second;
 }
 
-inline const File::pos_type &File::tellg()
+inline auto File::tellg() const -> const pos_type &
 {
     return ReadCursor;
 }
 
-inline const File::pos_type &File::tellp()
+inline auto File::tellp() const  -> const pos_type &
 {
     return WriteCursor;
 }
 
-inline const File::pos_type &File::telle()
+inline auto File::telle() const -> const pos_type &
 {
     return FileSize;
 }
 
 
-inline bool File::eof()
+inline bool File::eof() const
 {
     return ReadCursor>=FileSize;
 }
