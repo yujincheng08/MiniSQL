@@ -20,8 +20,7 @@ SOURCES += \
     File.cpp \
     WriteThread.cpp \
     ReadThread.cpp \
-    BufferListItem.cpp \
-    FixString.cpp
+    BufferListItem.cpp
 
 OTHER_FILES += \
     README.md

@@ -24,7 +24,6 @@ private:
     size_t Size;
     bool Dirty = false;
     bool InList = false;
-
     std::mutex Mutex;
 private:
     static QString partition();
