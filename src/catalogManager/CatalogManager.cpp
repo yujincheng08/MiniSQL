@@ -18,16 +18,6 @@ void CreateDatabase(const char* DB)
 	cout<<"Query OK!\n";
 }
 
-catalogManager::catalogManager(string DBName, string TableName):
-Database(DBName),TableName(TableName)
-{
-    fin.open(Database);
-}
-
-catalogManager::~catalogManager()
-{
-	fin.close();
-}
 
 void catalogManager::Clear()
 {
@@ -42,7 +32,7 @@ void catalogManager::Clear()
 	RecordLength = 0;
 }
 
-bool catalogManager::DropIndex(string Table,string Index)
+bool catalogManager::DropIndex(const string &Table,const string &Index)
 {
 	//查找是否有表 
 	if(FindTableName(Table) == false)
@@ -163,7 +153,7 @@ bool catalogManager::FindTableName()
 	return false;
 }
 
-bool catalogManager::FindTableName(string Name)
+bool catalogManager::FindTableName(const string Name)
 {
 	string tmp,Table;
 	fin.seekg(0,ios::beg);
@@ -179,6 +169,16 @@ bool catalogManager::FindTableName(string Name)
 
 bool catalogManager::GetTableInfo()
 {
+
+    Attribute.clear();
+    type.clear();
+    IsUnique.clear();
+    HaveIndex.clear();
+    IndexName.clear();
+    AttrNum = 0;
+    PriIndex = -1;
+    RecordLength = 0;
+
 	if(FindTableName() == false)
 	{
 		cout<<"No such table!"<<endl;
@@ -212,8 +212,17 @@ bool catalogManager::GetTableInfo()
 	return true;
 }
 
-bool catalogManager::GetTableInfo(string Name)
+bool catalogManager::GetTableInfo(const string &Name)
 {
+    Attribute.clear();
+    type.clear();
+    IsUnique.clear();
+    HaveIndex.clear();
+    IndexName.clear();
+    AttrNum = 0;
+    PriIndex = -1;
+    RecordLength = 0;
+
 	SetTableName(Name);
     if(FindTableName() == false)
     {
@@ -270,67 +279,8 @@ void catalogManager::PrintInfo()
 	}
 }
 
-void catalogManager::SetTableName(string Name)
-{
-	TableName = Name;
-}
 
-void catalogManager::SetRecordLength(int length)
-{
-	RecordLength = length;
-}
-
-void catalogManager::SetAttrNum(int Num)
-{
-	AttrNum = Num;
-}
-
-void catalogManager::SetPriIndex(int PrimaryKey)
-{
-	PriIndex = PrimaryKey;
-}
-
-void catalogManager::SetAttribute(const vector<string> &Attr)
-{
-    Attribute.clear();
-	for(int i = 0; i < AttrNum; i++)
-        Attribute.push_back(Attr[i]);
-}
-
-void catalogManager::SetType(const vector<unsigned int> &t)
-{
-    type.clear();
-	for(int i = 0; i < AttrNum; i++)
-        type.push_back(t[i]);
-}
-
-void catalogManager::SetIsUnique(const vector<bool> &IsUni)
-{
-    IsUnique.clear();
-	for(int i = 0; i < AttrNum; i++)
-        IsUnique.push_back(IsUni[i]);
-}
-
-void catalogManager::SetHaveIndex(const vector<bool> &HavInd)
-{
-    HaveIndex.clear();
-	for(int i = 0; i < AttrNum; i++)
-        HaveIndex.push_back(HavInd[i]);
-}
-
-void catalogManager::SetIndexName(const vector<string> &IndName)
-{
-    IndexName.clear();
-    for(int i = 0; i < AttrNum; i++)
-    {
-        if(HaveIndex[i])
-            IndexName.push_back(IndName[i]);
-        else
-            IndexName.push_back("\0");
-    }
-}
-
-void catalogManager::SetAttributeInfo(int Num,const vector<string> &Attr,const vector<unsigned int> &t,const vector<bool> &IsUni,const vector<bool> &HavInd,const vector<string> &IndName,int PrimaryKey)
+void catalogManager::SetAttributeInfo(const int Num,const vector<string> &Attr,const vector<unsigned int> &t,const vector<bool> &IsUni,const vector<bool> &HavInd,const vector<string> &IndName,const int PrimaryKey)
 {
 	SetAttrNum(Num);
 	SetAttribute(Attr);
@@ -339,9 +289,18 @@ void catalogManager::SetAttributeInfo(int Num,const vector<string> &Attr,const v
 	SetHaveIndex(HavInd);
 	SetIndexName(IndName);
 	SetPriIndex(PrimaryKey);
+    int RLen = 0;
+    for(int i = 0; i < Num; i++)
+    {
+        if(t[i] == 256 || t[i] == 257)
+            RLen += 4;
+        else
+            RLen += t[i];
+    }
+    SetRecordLength(RLen);
 }
 
-bool catalogManager::AddTableInfo(string Str)
+bool catalogManager::AddTableInfo(const string Str)
 {
 	fin.seekg(0,ios::beg);
 	string Name = TableNameFromStr(Str);
@@ -386,7 +345,7 @@ bool catalogManager::AddTableInfo()
 	return true;
 } 
 
-int catalogManager::FindAttributeIndex(string AttrName)
+int catalogManager::FindAttributeIndex(const string &AttrName)
 {
 	for(int i = 0; i < AttrNum; i++)
 	{
@@ -396,7 +355,7 @@ int catalogManager::FindAttributeIndex(string AttrName)
 	return -1;
 }
 
-int catalogManager::FindIndexAccordingToIndexName(string Index)
+int catalogManager::FindIndexAccordingToIndexName(const string &Index)
 {
 	for(int i = 0; i < AttrNum; i++)
 	{
@@ -407,7 +366,7 @@ int catalogManager::FindIndexAccordingToIndexName(string Index)
 	return -1;
 }
 
-bool catalogManager::DropTable(string Name)
+bool catalogManager::DropTable(const string &Name)
 {
 	if(FindTableName(Name) == false)
 	{
@@ -472,45 +431,6 @@ bool catalogManager::DropTable()
 }
 
 
-string catalogManager::GetPrimaryKey()
-{
-	for(int i = 0; i < AttrNum; i++)
-	{
-		if(i == PriIndex)
-			return Attribute[i];
-	}
-    return string();
-}
-
-bool catalogManager::GetIsUnique(int i)
-{
-	return IsUnique[i];
-}
-int catalogManager::GetType(int i)
-{
-	return type[i];
-}
-bool catalogManager::GetHaveIndex(int i)
-{
-	return HaveIndex[i];
-}
-string catalogManager::GetIndexName(int i)
-{
-	return IndexName[i];
-}
-int catalogManager::GetRecordLength()
-{
-	return RecordLength;
-}
-int catalogManager::GetAttrNum()
-{
-	return AttrNum;
-}
-int catalogManager::GetPriIndex()
-{
-	return PriIndex;
-}
-
 void catalogManager::DropDatabase()
 {
     remove(Database.c_str());
@@ -529,39 +449,157 @@ string catalogManager::TableNameFromStr(const string &Str)
 	return tmp;
 }
 
+inline catalogManager::catalogManager(string DBName)
+    :catalogManager(DBName,string())
+{}
+
+inline catalogManager::catalogManager(string DBName, string TableName):
+Database(DBName),TableName(TableName)
+{
+    fin.open(Database);
+}
+
+inline catalogManager::~catalogManager()
+{
+    fin.close();
+}
+
+inline void catalogManager::SetTableName(const string &Name)
+{
+    TableName = Name;
+}
+
+inline void catalogManager::SetRecordLength(const int length)
+{
+    RecordLength = length;
+}
+
+inline void catalogManager::SetAttrNum(const int Num)
+{
+    AttrNum = Num;
+}
+
+inline void catalogManager::SetPriIndex(const int PrimaryKey)
+{
+    PriIndex = PrimaryKey;
+}
+
+inline void catalogManager::SetAttribute(const vector<string> &Attr)
+{
+    Attribute.clear();
+    for(int i = 0; i < AttrNum; i++)
+        Attribute.push_back(Attr[i]);
+}
+
+inline void catalogManager::SetType(const vector<unsigned int> &t)
+{
+    type.clear();
+    for(int i = 0; i < AttrNum; i++)
+        type.push_back(t[i]);
+}
+
+inline void catalogManager::SetIsUnique(const vector<bool> &IsUni)
+{
+    IsUnique.clear();
+    for(int i = 0; i < AttrNum; i++)
+        IsUnique.push_back(IsUni[i]);
+}
+
+inline void catalogManager::SetHaveIndex(const vector<bool> &HavInd)
+{
+    HaveIndex.clear();
+    for(int i = 0; i < AttrNum; i++)
+        HaveIndex.push_back(HavInd[i]);
+}
+
+inline void catalogManager::SetIndexName(const vector<string> &IndName)
+{
+    IndexName.clear();
+    for(int i = 0; i < AttrNum; i++)
+    {
+        if(HaveIndex[i])
+            IndexName.push_back(IndName[i]);
+        else
+            IndexName.push_back("\0");
+    }
+}
+
+inline string catalogManager::GetPrimaryKey()
+{
+    for(int i = 0; i < AttrNum; i++)
+    {
+        if(i == PriIndex)
+            return Attribute[i];
+    }
+    return string();
+}
+
+inline bool catalogManager::GetIsUnique(const int i)
+{
+    return IsUnique[i];
+}
+
+inline int catalogManager::GetType(const int i)
+{
+    return type[i];
+}
+
+inline bool catalogManager::GetHaveIndex(const int i)
+{
+    return HaveIndex[i];
+}
+
+inline string catalogManager::GetIndexName(const int i)
+{
+    return IndexName[i];
+}
+
+inline int catalogManager::GetRecordLength()
+{
+    return RecordLength;
+}
+
+inline int catalogManager::GetAttrNum()
+{
+    return AttrNum;
+}
+
+inline int catalogManager::GetPriIndex()
+{
+    return PriIndex;
+}
+
 int main()
 {
-	CreateDatabase("a.txt");
+    //CreateDatabase("a.txt");
 	catalogManager s("a.txt","Teacher");
-	//插入信息例子1
-	int AttrNum = 2;
+    //插入信息例子1
+    int AttrNum = 2;
 	string Attribute[2] = {"Name","Age"};
     unsigned int type[2] = {12,256};
 	bool HaveIndex[2] = {true,true};
 	string IndexName[2] = {"NameIndex","AgeIndex"};
 	bool IsUnique[2] = {true,true};
 	int PrimaryKey = 0;
-	int RecordLen = 16; 
     vector<string> Attr(Attribute, Attribute + 2);
     vector<unsigned int> t(type, type + 2);
     vector<bool> HavInd(HaveIndex, HaveIndex + 2);
     vector<bool> IsUni(IsUnique, IsUnique + 2);
     vector<string> IndName(IndexName, IndexName + 2);
     s.SetAttributeInfo(AttrNum,Attr,t,IsUni,HavInd,IndName,PrimaryKey);
-	s.SetRecordLength(RecordLen);
 	s.AddTableInfo();
 	//插入信息例子2
 	s.SetTableName("student");
 	s.AddTableInfo();
-	//获取表信息1 
+    //获取表信息1
 	s.GetTableInfo();
 	s.PrintInfo();
-	//获取表信息2
+    //获取表信息2
 	s.GetTableInfo("Teacher");
 	s.PrintInfo();
-	//删除index
+    //删除index
 	s.DropIndex("Teacher","AgeIndex");
 	s.SetTableName("Teacher");
 	s.PrintInfo();
-	 
+
 }
