@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <fstream>
+#include <vector>
 
 class catalogManager : public QObject
 {
@@ -16,11 +17,16 @@ private:
     string TableName;//目前找到的表名字
     int RecordLength = 0;//每条记录的长度
     int AttrNum = 0;//表属性个数
-    string* Attribute = nullptr;//表的属性
-    unsigned int* type = nullptr;//表属性的类型
-    bool* IsUnique = nullptr;//判断是否unique
-    bool* HaveIndex = nullptr;//判断是否有索引
-    string* IndexName = nullptr;//索引名字
+    std::vector<string> Attribute;
+    //string* Attribute = nullptr;//表的属性
+    std::vector<unsigned int> type;
+    //unsigned int* type = nullptr;//表属性的类型
+    std::vector<bool> IsUnique;
+    //bool* IsUnique = nullptr;//判断是否unique
+    std::vector<bool> HaveIndex;
+    //bool* HaveIndex = nullptr;//判断是否有索引
+    std::vector<string> IndexName;
+    //string* IndexName = nullptr;//索引名字
     int PriIndex;//主键编号
 
     //判断catalogManager中是否存在表TableName
@@ -29,11 +35,11 @@ private:
     bool FindTableName(string Name);
     //设置类的属性
     void SetAttrNum(int Num);
-    void SetAttribute(string* Attr);
-    void SetType(const unsigned int *t);
-    void SetIsUnique(bool* IsUni);
-    void SetHaveIndex(bool* HavInd);
-    void SetIndexName(const string *IndName);
+    void SetAttribute(const std::vector<string> &Attr);
+    void SetType(const std::vector<unsigned int> &t);
+    void SetIsUnique(const std::vector<bool> &IsUni);
+    void SetHaveIndex(const std::vector<bool> &HavInd);
+    void SetIndexName(const std::vector<string> &IndName);
     void SetPriIndex(int PrimaryKey);
     string TableNameFromStr(const string &Str);
 
@@ -78,7 +84,7 @@ public:
     //设置RecordLength
     void SetRecordLength(int length);
     //设置Attribute等信息
-    void SetAttributeInfo(int num,string* Attr,unsigned int *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey);
+    void SetAttributeInfo(int num,const std::vector<string> &Attr,const std::vector<unsigned int> &t,const std::vector<bool> &IsUni,const std::vector<bool> &HavInd,const std::vector<string> &IndName,int PrimaryKey);
     /***********************************************/
 
 
