@@ -4,7 +4,7 @@ QT       -= gui
 include(../../MiniSQL.pri)
 
 TARGET = BufferManager
-TEMPLATE = lib
+
 
 DESTDIR = ../../
 
@@ -19,4 +19,10 @@ OTHER_FILES += \
 
 CONFIG(test) {
     DEFINES += TEST
+    TEMPLATE = lib
+    SOURCES += \
+        test.cpp
+}
+else{
+    TEMPLATE = app
 }
