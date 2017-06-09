@@ -185,7 +185,7 @@ inline char *FixString::end()
     return String + Size;
 }
 
-std::string FixString::toString() const
+inline std::string FixString::toString() const
 {
     return std::string(String, String + Size + 1);
 }
