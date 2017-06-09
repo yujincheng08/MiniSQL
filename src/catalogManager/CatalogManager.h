@@ -17,7 +17,7 @@ private:
     int RecordLength = 0;//每条记录的长度
     int AttrNum = 0;//表属性个数
     string* Attribute = nullptr;//表的属性
-    string* type = nullptr;//表属性的类型
+    unsigned int* type = nullptr;//表属性的类型
     bool* IsUnique = nullptr;//判断是否unique
     bool* HaveIndex = nullptr;//判断是否有索引
     string* IndexName = nullptr;//索引名字
@@ -30,7 +30,7 @@ private:
     //设置类的属性
     void SetAttrNum(int Num);
     void SetAttribute(string* Attr);
-    void SetType(const string *t);
+    void SetType(const unsigned int *t);
     void SetIsUnique(bool* IsUni);
     void SetHaveIndex(bool* HavInd);
     void SetIndexName(const string *IndName);
@@ -78,7 +78,7 @@ public:
     //设置RecordLength
     void SetRecordLength(int length);
     //设置Attribute等信息
-    void SetAttributeInfo(int num,string* Attr,string *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey);
+    void SetAttributeInfo(int num,string* Attr,unsigned int *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey);
     /***********************************************/
 
 
@@ -90,7 +90,7 @@ public:
     int FindIndexAccordingToIndexName(string Index);
     //根据数组下标得到相应数据，数组下标可以用FindAttribute函数得到
     bool GetIsUnique(int i);
-    string GetType(int i);
+    int GetType(int i);
     bool GetHaveIndex(int i);
     string GetIndexName(int i);
     int GetRecordLength();
