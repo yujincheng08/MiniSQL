@@ -108,7 +108,7 @@ string toString() const;
 
 1. Adjust element size according to block size. Avoid to read one element but accessing two block.
 2. T above the definition of `File` *can only be* inner type and compound type or `FixString`. Neither nor pointers.
-3. Both `get()`, `peek()` and `operator>>` get a constant reference of the target and have to write back to the buffer. It's useful if you only read the value. But writing seems costly. Notably, `operator>>` seems to be more efficient.
+3. Both `get()`, `peek()` and `operator>>` get a constant reference of the target and have to write back to the buffer. It's useful if you only read the value. But writing seems costly.
 4. Buffer overwrites data after cursor, not insert into cursor. If you are going to delete or inserting something, **use lazy deletion and free space link**.
 5. `Pointer` seems dummy and has been eliminated.
 6. 怕自己表达不清楚，中文说明一下字节对齐的事儿。
