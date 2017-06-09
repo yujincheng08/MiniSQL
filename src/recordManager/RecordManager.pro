@@ -1,22 +1,25 @@
-TEMPLATE += lib
-QT       -= gui
-
 include(../../MiniSQL.pri)
 
-TARGET = BufferManager
-TEMPLATE = lib
+TARGET = RecordManager
 
 DESTDIR = ../../
 
 HEADERS += \
-    RecordManager.h
+    RecordManager.h \
+    record.h
 
 SOURCES += \
-    RecordManager.cpp
+    RecordManager.cpp \
+    record.cpp
 
 OTHER_FILES += \
     README.md
 
 CONFIG(test) {
-    DEFINES += TEST
+TEMPLATE = app
+SOURCES += \
+    test.cpp
+}
+else{
+TEMPLATE = lib
 }
