@@ -78,6 +78,7 @@ public:
     //设置TableName
     void SetTableName(const string &Name);
     //设置Attribute等信息
+    void catalogManager::SetAttributeInfo(const int Num,const string* Attr,const unsigned int* t,const bool* IsUni,const bool* HavInd,const string* IndName,const int PrimaryKey);
     void SetAttributeInfo(const int num,const std::vector<string> &Attr,const std::vector<unsigned int> &t,const std::vector<bool> &IsUni,const std::vector<bool> &HavInd,const std::vector<string> &IndName,const int PrimaryKey);
     /***********************************************/
 
