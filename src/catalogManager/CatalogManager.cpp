@@ -208,7 +208,7 @@ bool catalogManager::GetTableInfo()
 	fin>>RecordLength;
 	fin>>AttrNum;
 	Attribute = new string[AttrNum];
-	type = new string[AttrNum];
+	type = new unsigned int[AttrNum];
 	IsUnique = new bool[AttrNum];
 	HaveIndex = new bool[AttrNum];
 	IndexName = new string[AttrNum]; 
@@ -233,7 +233,7 @@ bool catalogManager::GetTableInfo(string Name)
 	fin>>RecordLength;
 	fin>>AttrNum;
 	Attribute = new string[AttrNum];
-	type = new string[AttrNum];
+	type = new unsigned int[AttrNum];
 	IsUnique = new bool[AttrNum];
 	HaveIndex = new bool[AttrNum];
 	IndexName = new string[AttrNum]; 
@@ -296,9 +296,9 @@ void catalogManager::SetAttribute(string* Attr)
         Attribute[i] = Attr[i];
 }
 
-void catalogManager::SetType(const string* t)
+void catalogManager::SetType(const unsigned int* t)
 {
-	type = new string[AttrNum];
+	type = new unsigned int[AttrNum];
 	for(int i = 0; i < AttrNum; i++)
         type[i] = t[i];
 }
@@ -329,7 +329,7 @@ void catalogManager::SetIndexName(const string *IndName)
             IndexName[i] = IndName[i];
 }
 
-void catalogManager::SetAttributeInfo(int Num,string* Attr,string *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey)
+void catalogManager::SetAttributeInfo(int Num,string* Attr,unsigned int *t,bool* IsUni,bool* HavInd,string *IndName,int PrimaryKey)
 {
 	SetAttrNum(Num);
 	SetAttribute(Attr);
@@ -485,7 +485,7 @@ bool catalogManager::GetIsUnique(int i)
 {
 	return IsUnique[i];
 }
-string catalogManager::GetType(int i)
+int catalogManager::GetType(int i)
 {
 	return type[i];
 }
