@@ -40,7 +40,7 @@ private:
     bool Exist(const pos_type &pos);
     bool IsEnd(const pos_type &pos);
     size_t Convert(const pos_type &pos);
-    Buffer *GetBuffer(const size_t &pos, const pos_type &offset);
+    Buffer *GetBuffer(const size_t &pos, const size_t &offset);
     //pos_type GetOffset(const pos_type &pos, const pos_type &size = 0U);
     pos_type GetPos(const pos_type &pos, const pos_type &size = 0U);
     pos_type NextPos(const pos_type &pos, const pos_type &size);

@@ -8,7 +8,7 @@ File::File(const string &fileName)
     BlockCount = Convert(FileSize);
 }
 
-Buffer *File::GetBuffer(const size_t &block, const pos_type &offset)
+Buffer *File::GetBuffer(const size_t &block, const size_t &offset)
 {
     Buffer *buffer;
     Mutex.lock();
@@ -62,7 +62,7 @@ void File::resize(const pos_type &pos)
     Mutex.lock();
     if(newBlock<BlockCount)
     {
-        for(pos_type i = newBlock; i<=BlockCount;++i)
+        for(size_t i = newBlock; i<=BlockCount;++i)
         {
             auto iter = Buffers.find(newBlock);
             if(iter!=Buffers.end())
