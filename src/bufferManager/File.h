@@ -129,21 +129,21 @@ auto File::get(const pos_type &pos, const size_t &size) -> const isFixString<T>
     return FixString(buff->Buff+offset, size);
 }
 
-template<typename T, typename = File::Valid<T>>
+template<typename T, typename>
 File &File::operator<<(const T &source)
 {
     put(source);
     return *this;
 }
 
-template<typename T, typename = File::Valid<T>>
+template<typename T, typename>
 File &File::operator>>(T &target)
 {
     target = get<T>();
     return *this;
 }
 
-template<typename T, typename = File::Valid<T>>
+template<typename T, typename>
 void File::put(const T &item)
 {
     auto next = NextPos(WriteCursor, sizeof(T));
@@ -151,7 +151,7 @@ void File::put(const T &item)
     WriteCursor = next;
 }
 
-template<typename T, typename = File::Valid<T>>
+template<typename T, typename>
 void File::put(const T &item, const pos_type &pos)
 {
     auto start = GetPos(pos, sizeof(T));
