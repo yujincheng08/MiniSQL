@@ -20,7 +20,8 @@ const pos_type &telle(); //Return the max cursor position: end position.
 bool eof(); //If the reading touch the end of file.
 void seekg(const pos_type &pos); //Move the reading cursor to pos.
 void seekp(const pos_type &pos); //Move the writing cursor to pos.
-void resize(const pos_type &pos); //Resize file. Simply truncate it.
+void resize(const pos_type &pos); //Resize file. Simply truncate it. It will change the file's size immediately, without necessity to flush. 
+void remove(); //Lazy delete the file, simply resize(0);
 const T &get<T>(); //Get provided type reference.
 const T &get<T>(const pos_type &pos); //Get provided type reference at pos, but not changing the cursor.
 const T &peek<T>(); //Get the provided type without moving the cursor.

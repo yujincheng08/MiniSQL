@@ -56,22 +56,21 @@ File::~File()
     Stream.close();
 }
 
-void File::resize(const pos_type &pos)
+void File::resize(const size_t &pos)
 {
     size_t newBlock = Convert(pos);
     Mutex.lock();
     if(newBlock<BlockCount)
-    {
-        for(size_t i = newBlock; i<=BlockCount;++i)
+        for(size_t i = BlockCount; i>newBlock;--i)
         {
-            auto iter = Buffers.find(newBlock);
+            auto iter = Buffers.find(i);
             if(iter!=Buffers.end())
-            {
                 delete iter->second;
-                Buffers.erase(iter);
-            }
         }
-    }
+    auto iter = Buffers.find(newBlock);
+    if(iter!= Buffers.end())
+        iter->second->changeSize(GetPos(pos) % Buffer::bufferSize());
+    Stream.resize(pos);
     Mutex.unlock();
     BlockCount = newBlock;
     FileSize = pos;

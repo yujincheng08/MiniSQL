@@ -56,7 +56,8 @@ public:
     bool eof() const;
     void seekg(const pos_type &pos);
     void seekp(const pos_type &pos);
-    void resize(const pos_type &pos);
+    void resize(const size_t &pos);
+    void remove();
     template<typename T>
     auto get() -> const Valid<T> &;
     template<typename T>
@@ -237,6 +238,11 @@ inline void File::seekp(const File::pos_type &pos)
     if(pos>=FileSize)
         resize(pos);
     WriteCursor = pos;
+}
+
+inline void File::remove()
+{
+    resize(0);
 }
 
 inline void File::Release(const pos_type &pos)
