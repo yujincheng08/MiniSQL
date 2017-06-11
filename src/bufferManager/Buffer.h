@@ -2,7 +2,7 @@
 #define BUFFER_H
 
 #include <QIODevice>
-#include <BufferListItem.h>
+#include "BufferListItem.h"
 #include <mutex>
 #include <cstring>
 //Buffer of a file block

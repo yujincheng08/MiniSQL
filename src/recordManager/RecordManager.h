@@ -3,18 +3,29 @@
 
 #include <QObject>
 #include "../bufferManager/File.h"
+#include "../bufferManager/BufferManager.h"
+#include "../interpreter/Column.h"
 
 class RecordManager : public QObject
 {
     Q_OBJECT
+    friend int main(int argc, char *argv[]);
 public:
-    explicit RecordManager(QObject *parent = 0);
-    static  bool CreateTable(std::string tableName);
-    static  bool DropTable(std::string tableName);
-    static  bool DeleteRecords(std::vector<File::pos_type> positions);
-    static  bool InsertRecords(std::vector<Record> records);
-    static  std::vector<Record> queryRecords(std::vector<Perdicator> conditions);
-
+    using Record = std::vector<Column>;
+    static File &OpenTableFile(const std::string &tableName);
+    // check if the table already exits before calling this
+    static  void CreateTable(const std::string &tableName);
+    // check if the table already exits before calling this
+    static  void DropTable(const std::string &tableName);
+    //
+    static  bool DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions);
+    static std::pair<File::pos_type, File::pos_type> InsertRecord(const std::string &tableName, File::pos_type lastWritePos, File::pos_type firstInvalidPos, Record record);
+    static  std::vector<Record> queryRecordsByOffsets(const std::string &tableName, std::vector<File::pos_type> offsets,  RecordManager::Record templateRecord);
+    static  std::vector<File::pos_type> queryRecordsOffsets(const std::string &tableName, int recordSize);
+private:
+    static Record makeTestRecord();
+    static int getColumnSize(const Column &col);
+    static int getRecordSize(const Record &record);
 signals:
 
 public slots:
