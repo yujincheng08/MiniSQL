@@ -5,7 +5,6 @@ class BufferList;
 class BufferListItem
 {
     friend class BufferList;
-    friend class BufferManager;
     static BufferList * const List;
     BufferListItem *Prev = nullptr;
     BufferListItem *Next = nullptr;

@@ -19,15 +19,8 @@ BufferManager::~BufferManager()
 {
     readThread->terminate();
     readThread->wait();
-    BufferListItem *i = dynamic_cast<Buffer *>(list->head);
-    Buffer* j;
-    while(i)
-    {
-        j = dynamic_cast<Buffer *>(i);
-        if(j->Dirty)
-            queueBuff(j);
-        i= i->Next;
-    }
+    for(auto &i : Files)
+        i.second->flush();
     writeThread->wait();
     for(auto &i : Files)
         delete i.second;
