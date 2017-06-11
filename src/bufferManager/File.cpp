@@ -49,8 +49,8 @@ File::pos_type File::GetPos(const pos_type &pos, const pos_type &size)
 
 File::~File()
 {
-    for(auto &i : Buffers)
-        delete i.second;
+    while(Buffers.size()>0)
+        delete Buffers.begin()->second;
 }
 
 void File::resize(const size_t &pos)
