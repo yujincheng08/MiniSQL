@@ -31,7 +31,6 @@ private:
     void preRead(File *file, const Buffer::pos_type &pos);
     void queueBuff(Buffer * const buffer);
     explicit BufferManager();
-    void wait();
     bool full();
 public:
     static File &open(const std::string &fileName);
@@ -39,6 +38,7 @@ public:
     static const size_t &maxBuffer();
     static void setMaxBuffer(const size_t &max);
     static size_t bufferSize();
+    virtual ~BufferManager() override;
 };
 
 inline size_t BufferManager::blockSize()

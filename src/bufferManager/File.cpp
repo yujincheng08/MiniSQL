@@ -1,10 +1,9 @@
 #include "File.h"
 #include "BufferManager.h"
 
-File::File(const string &fileName)
-    :Stream(fileName.c_str()),FileSize(Stream.size())
+File::File(QFile &stream)
+    :Stream(stream),FileSize(Stream.size())
 {
-    Stream.open(QFile::ReadWrite|QFile::Unbuffered);
     BlockCount = Convert(FileSize);
 }
 
@@ -50,10 +49,8 @@ File::pos_type File::GetPos(const pos_type &pos, const pos_type &size)
 
 File::~File()
 {
-    BufferManager::bufferManager().wait();
     for(auto &i : Buffers)
         delete i.second;
-    Stream.close();
 }
 
 void File::resize(const size_t &pos)
