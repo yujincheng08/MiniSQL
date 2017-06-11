@@ -1,0 +1,12 @@
+INPUT(
+./debug\Buffer.o
+./debug\BufferManager.o
+./debug\File.o
+./debug\WriteThread.o
+./debug\ReadThread.o
+./debug\BufferListItem.o
+./debug\moc_BufferManager.o
+./debug\moc_File.o
+./debug\moc_WriteThread.o
+./debug\moc_ReadThread.o
+);
