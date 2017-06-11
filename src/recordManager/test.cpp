@@ -1,4 +1,5 @@
 #include "RecordManager.h"
+#include <QCoreApplication>
 int main(int argc, char *argv[]) {
     std::string tableName("test");
 //    auto Record = RecordManager::makeTestRecord();
@@ -8,8 +9,7 @@ int main(int argc, char *argv[]) {
 //        RecordManager::InsertRecord(tableName, Record);
 //        RecordManager::FlushTableFile(tableName);
 //    }
-
-
+    QCoreApplication app(argc, argv);
     auto &file = BufferManager::open(tableName);
     File::pos_type a = 0xffffffff, b = 1234, c, d;
     int e = 90; float f = 2.34; FixString g(std::string("1234"));
@@ -21,5 +21,5 @@ int main(int argc, char *argv[]) {
     file.seekg(0);
     file >> c >> d;
 
-    return 0;
+    return app.exec();
 }
