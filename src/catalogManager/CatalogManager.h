@@ -23,7 +23,6 @@ private:
     std::vector<bool> HaveIndex;//判断是否有索引
     std::vector<string> IndexName;//索引名字
     int PriIndex;//主键编号
-
     //判断catalogManager中是否存在表TableName
     bool FindTableName();
     //判断catalogManager中是否存在名字为Name的表
@@ -69,13 +68,15 @@ public:
     bool DropTable(const string &Name);
     //在catalog中删除表Table中的名为Index的索引
     bool DropIndex(const string &Table,const string &Index);
+    //在Table表的Attr属性上创建名字为Index的索引
+    bool CreateIndex(const string& Table,const string& Attr, const string& Index);
     /***********************************************/
 
 
 
     //Set类函数，用于设置类内的信息
     /***********************************************/
-    //设置TableName
+    //设置TableName，会清空除了名字以外的其他内容
     void SetTableName(const string &Name);
     //设置Attribute等信息
     void SetAttributeInfo(const int Num,const string* Attr,const unsigned int* t,const bool* IsUni,const bool* HavInd,const string* IndName,const int PrimaryKey);
