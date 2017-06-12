@@ -1,25 +1,45 @@
 #include "RecordManager.h"
 #include <QCoreApplication>
+
+void testInsert(const std::string &tableName) {
+        auto Record = RecordManager::makeTestRecord();
+        RecordManager::DropTable(tableName);
+        RecordManager::CreateTable(tableName);
+        for (int i = 0; i < 10; i++) {
+            RecordManager::InsertRecord(tableName, Record);
+        }
+        RecordManager::FlushTableFile(tableName);
+}
+
+void testWriteFile(const std::string &tableName) {
+        RecordManager::DropTable(tableName);
+        RecordManager::CreateTable(tableName);
+        auto &file = BufferManager::open(tableName + ".tbl");
+        File::pos_type lastWritePos, firstInvalidPos, maxPos, nextPos = 120;
+        file.seekg(0);
+        file >> lastWritePos >> firstInvalidPos >> maxPos;
+
+        // for test
+        file.seekg(0);
+        file >> lastWritePos >> firstInvalidPos >> maxPos;
+        // write lastWrite to file
+        file.seekp(0);
+        // should only change lastWritePos
+        file << nextPos;
+        // for test
+        file.seekg(0);
+        file >> lastWritePos >> firstInvalidPos >> maxPos;
+        file.seekg(8);
+        file >> firstInvalidPos;
+
+}
+
 int main(int argc, char *argv[]) {
     std::string tableName("test");
-//    auto Record = RecordManager::makeTestRecord();
-//    RecordManager::DropTable(tableName);
-//    RecordManager::CreateTable(tableName);
-//    for (int i = 0; i < 10000; i++) {
-//        RecordManager::InsertRecord(tableName, Record);
-//        RecordManager::FlushTableFile(tableName);
-//    }
     QCoreApplication app(argc, argv);
-    auto &file = BufferManager::open(tableName);
-    File::pos_type a = 0xffffffff, b = 1234, c, d;
-    int e = 90; float f = 2.34; FixString g(std::string("1234"));
-    file.seekp(0);
-    file << a << b << e << f << g;
-    file.flush();
-    auto t = file.tellp();
-//    std::cout<< t <<"\n";
-    file.seekg(0);
-    file >> c >> d;
 
+  //  testWriteFile(tableName);
+    testWriteFile(tableName);
+//    testInsert(tableName);
     return app.exec();
 }
