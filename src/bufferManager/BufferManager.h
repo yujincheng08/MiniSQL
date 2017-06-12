@@ -18,6 +18,7 @@ class BufferManager : public QObject
     using string = std::string;
     friend class File;
     friend class ReadThread;
+    friend class WriteThread;
 private:
     ReadThread *readThread = nullptr;
     WriteThread *writeThread = nullptr;
@@ -30,6 +31,7 @@ private:
     Buffer *buff(File *file, const Buffer::pos_type &pos, const Buffer::pos_type &size = Buffer::bufferSize());
     void preRead(File *file, const Buffer::pos_type &pos);
     void queueBuff(Buffer * const buffer);
+    void writeBuffer(Buffer * const buffer);
     explicit BufferManager();
     bool full();
 public:
@@ -40,6 +42,15 @@ public:
     static size_t bufferSize();
     virtual ~BufferManager() override;
 };
+
+inline void BufferManager::writeBuffer(Buffer * const buffer)
+{
+    Mutex.lock();
+    buffer->write();
+    buffer->Dirty = false;
+    buffer->InList = false;
+    Mutex.unlock();
+}
 
 inline size_t BufferManager::blockSize()
 {
