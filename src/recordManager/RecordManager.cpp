@@ -15,8 +15,11 @@ void RecordManager::CreateTable(const std::string &tableName) {
     // last write record, first invalid
     file << invalid << invalid;
     invalid  = 0;
-    // end of valid part
+    // max addr valid reford
     file << invalid;
+    invalid = 0xffffffff;
+    file << invalid;
+    // lastWritePos, firstInvalidPos, maxPos, firstValidPos
     // if both invalid it's initail empty state
     file.flush();
 }
@@ -33,36 +36,21 @@ bool RecordManager::DeleteRecords(const std::string &tableName, std::vector<File
 
 void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     auto &file = RecordManager::OpenTableFile(tableName);
-    File::pos_type lastWritePos, firstInvalidPos, maxPos;
-    file.seekg(0);
-    file >> lastWritePos >> firstInvalidPos >> maxPos;
+    File::pos_type lastWritePos, firstInvalidPos, maxPos, firstValidPos;
+    auto metaData = RecordManager::getMetaData(tableName);
+    lastWritePos = std::get<0>(metaData);
+    firstInvalidPos = std::get<1>(metaData);
+    maxPos = std::get<2>(metaData);
+    firstValidPos = std::get<3>(metaData);
     File::pos_type nextPos;
     if (firstInvalidPos == 0xffffffff) {
         if (lastWritePos == 0xffffffff) {
-            // empty initial
-
+            // empty initial just write at here
+            firstValidPos = file.tellg();
         } else {
+            // no invalid postion now, use maxPos
             // seek to the next write position
-            file.seekg(lastWritePos);
-            bool valid;
-            File::pos_type n;
-            file >> valid >> n;
-            // seek to end
-            for (auto &column : record) {
-                auto type = column.type();
-                auto &rawData = *(column.name());
-                if (type == Column::Int) {
-                    int data = std::stoi(rawData);
-                    file >> data;
-                } else if (type == Column::Float) {
-                    float data = std::stof(rawData);
-                    file >> data;
-                } else if (type <= 1 && type < Column::Int) {
-                    FixString data(RecordManager::getColumnSize(column));
-                     file >> data;
-                } else {
-                }
-            }
+            RecordManager::getRecordByOffset(file, record, maxPos);
         }
         nextPos = file.tellg();
     } else {
@@ -70,11 +58,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         bool valid;
         file.seekg(firstInvalidPos);
         file >> valid >> firstInvalidPos;
-        file.seekp(0);
-        // will be cover later
-        file << lastWritePos;
-        // write back
-        file << firstInvalidPos;
+        // assert valid = false
     }
 
     if (lastWritePos != 0xffffffff) {
@@ -82,29 +66,13 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         file.seekp(lastWritePos);
         file << true << nextPos;
     }
-    // for test
-    file.seekg(0);
-    file >> lastWritePos >> firstInvalidPos >> maxPos;
+
     // write lastWrite to file
-    file.seekp(0);
-    file << nextPos;
-    // for test
-    file.seekg(0);
-    file >> lastWritePos >> firstInvalidPos >> maxPos;
-    file.seekg(8);
-    file >> firstInvalidPos;
-
-
+    lastWritePos = nextPos;
     // if current > maxPos
     // set maxPos
     if (nextPos > maxPos) {
-        auto t = file.tellp();
-        file.seekg(t);
-        file >> firstInvalidPos;
-        t = file.tellg();
-        auto maxPosAddr = file.tellg();
-        file.seekp(maxPosAddr);
-        file << nextPos;
+        maxPos = nextPos;
     }
 
     file.seekp(nextPos);
@@ -129,15 +97,80 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
             // Undefined should not happen
         }
     }
+    // write back meta data first valid, last write, max pos
+    RecordManager::setMetaData(tableName, std::make_tuple(lastWritePos, firstInvalidPos, maxPos, firstValidPos));
 }
 
 std::vector<RecordManager::Record> RecordManager::queryRecordsByOffsets(const std::string &tableName, std::vector<File::pos_type> offsets, RecordManager::Record templateRecord) {
-
+    std::vector<RecordManager::Record> result;
+    auto &file = RecordManager::OpenTableFile(tableName);
+    for (const auto &offset: offsets) {
+        result.emplace_back(RecordManager::getRecordByOffset(file,  templateRecord, offset));
+    }
+    return result;
 }
 
-std::vector<File::pos_type> RecordManager::queryRecordsOffsets(const std::string &tableName, int recordSize) {
-
+std::vector<File::pos_type> RecordManager::queryRecordsOffsets(const std::string &tableName) {
+    auto metaData = RecordManager::getMetaData(tableName);
+    auto firstValid = std::get<3>(metaData);
+    auto &file = RecordManager::OpenTableFile(tableName);
+    file.seekg(firstValid);
+    bool valid;
+    std::vector<File::pos_type>  result;
+    while(firstValid != 0xffffffff) {
+        result.emplace_back(firstValid);
+        file.seekg(firstValid);
+        file >> valid >> firstValid;
+    }
+    return result;
 }
+
+RecordManager::MetaData RecordManager::getMetaData(const std::string &tableName) {
+    File::pos_type lastWritePos, firstInvalidPos, maxPos, firstValidPos;
+    auto &file = RecordManager::OpenTableFile(tableName);
+    file.seekg(0);
+    file >> lastWritePos >> firstInvalidPos >> maxPos >> firstValidPos;
+    return std::make_tuple(lastWritePos, firstInvalidPos, maxPos, firstValidPos);
+}
+
+ void RecordManager::setMetaData(const std::string &tableName, const MetaData metaData) {
+     auto &file = RecordManager::OpenTableFile(tableName);
+     file.seekp(0);
+     file << std::get<0>(metaData) << std::get<1>(metaData) << std::get<2>(metaData) << std::get<3>(metaData);
+     file.flush();
+ }
+
+RecordManager::Record RecordManager::getRecordByOffset(File &file,Record &record, File::pos_type offset) {
+     file.seekg(offset);
+     bool valid;
+     File::pos_type n;
+     file >> valid >> n;
+     Record result;
+     for (auto &column : record) {
+         auto type = column.type();
+         Column newColumn;
+         std::string encodedString;
+         if (type == Column::Int) {
+             int data;
+             file >> data;
+             encodedString = std::to_string(data);
+         } else if (type == Column::Float) {
+             float data;
+             file >> data;
+             encodedString = std::to_string(data);
+         } else if (1 <= type && type < Column::Int) {
+             FixString data(RecordManager::getColumnSize(column));
+              file >> data;
+              encodedString = data.toString();
+         } else {
+         }
+         newColumn.Name = std::make_shared<std::string>(encodedString);
+         newColumn.TableName = column.TableName;
+         newColumn.ColumnType = column.ColumnType;
+         result.emplace_back(newColumn);
+     }
+     return result;
+ }
 
 RecordManager::Record RecordManager::makeTestRecord() {
     Column intCol;
@@ -148,7 +181,7 @@ RecordManager::Record RecordManager::makeTestRecord() {
     floatCol.Name = std::make_shared<std::string>("3.141592");
     Column charCol;
     charCol.ColumnType = 7;
-    charCol.Name = std::make_shared<std::string>("1234567");
+    charCol.Name = std::make_shared<std::string>("12345678");
     Record record = {intCol, floatCol, charCol};
     return record;
 }
