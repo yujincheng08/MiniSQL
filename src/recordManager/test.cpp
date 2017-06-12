@@ -5,7 +5,7 @@ void testInsert(const std::string &tableName) {
         auto Record = RecordManager::makeTestRecord();
         RecordManager::DropTable(tableName);
         RecordManager::CreateTable(tableName);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             RecordManager::InsertRecord(tableName, Record);
         }
         RecordManager::FlushTableFile(tableName);
@@ -23,26 +23,12 @@ void testWriteFile(const std::string &tableName) {
         RecordManager::DropTable(tableName);
         RecordManager::CreateTable(tableName);
         auto &file = BufferManager::open(tableName + ".tbl");
-        File::pos_type lastWritePos, firstInvalidPos, maxPos, nextPos = 120;
-        file.seekg(0);
-        // 0xfffffff, 0xfffffff, 0
-        file >> lastWritePos >> firstInvalidPos >> maxPos;
 
-        // for test
-        file.seekg(0);
-        // 0xfffffff, 0xfffffff, 0
-        file >> lastWritePos >> firstInvalidPos >> maxPos;
-        // write lastWrite to file
+        //auto record = RecordManager::makeTestRecord();
         file.seekp(0);
-        // should only change lastWritePos
-        file << nextPos;
-        // for test
-        file.seekg(0);
-        // 120, 0 <- bug, 0
-        file >> lastWritePos >> firstInvalidPos >> maxPos;
-        file.seekg(8);
-        // 120 <- bug
-        file >> firstInvalidPos;
+        for (int i = 0; i < 400; i++) {
+
+        }
 
 }
 
