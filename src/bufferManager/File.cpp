@@ -32,7 +32,7 @@ Buffer *File::GetBuffer(const size_t &block, const size_t &offset)
     {
         //resize(newBlock * Buffer::bufferSize() + offset);
         buffer->changeSize(offset);
-        FileSize = BlockCount*Buffer::bufferSize() + offset;
+        FileSize = block*Buffer::bufferSize() + offset;
         BlockCount = block;
     }
     return buffer;

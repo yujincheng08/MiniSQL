@@ -19,7 +19,7 @@ CONFIG(test) {
     TEMPLATE = app
     SOURCES += \
         test.cpp
-   win32:LIBS += "C:\Users\KitmanLai\Code\MiniSQL\libBufferManager.a"
+   win32:LIBS += -L../../ -lbufferManager
 }
 else{
     TEMPLATE = lib

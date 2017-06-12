@@ -36,10 +36,7 @@ Buffer *BufferManager::buff(File *file, const Buffer::pos_type &pos, const Buffe
         {
             auto last = list->last();
             if(last->removeable())
-            {
-                last->deleting = true;
                 delete last;
-            }
             else
                 break;
         }
