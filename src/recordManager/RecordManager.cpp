@@ -12,8 +12,11 @@ void RecordManager::CreateTable(const std::string &tableName) {
     File &file = RecordManager::OpenTableFile(tableName);
     file.seekp(0);
     File::pos_type invalid = 0xffffffff;
-    // last write record and first invalid
+    // last write record, first invalid
     file << invalid << invalid;
+    invalid  = 0;
+    // end of valid part
+    file << invalid;
     // if both invalid it's initail empty state
     file.flush();
 }
@@ -30,9 +33,9 @@ bool RecordManager::DeleteRecords(const std::string &tableName, std::vector<File
 
 void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     auto &file = RecordManager::OpenTableFile(tableName);
-    File::pos_type lastWritePos, firstInvalidPos;
+    File::pos_type lastWritePos, firstInvalidPos, maxPos;
     file.seekg(0);
-    file >> lastWritePos >> firstInvalidPos;
+    file >> lastWritePos >> firstInvalidPos >> maxPos;
     File::pos_type nextPos;
     if (firstInvalidPos == 0xffffffff) {
         if (lastWritePos == 0xffffffff) {
@@ -41,6 +44,9 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         } else {
             // seek to the next write position
             file.seekg(lastWritePos);
+            bool valid;
+            File::pos_type n;
+            file >> valid >> n;
             // seek to end
             for (auto &column : record) {
                 auto type = column.type();
@@ -58,7 +64,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
                 }
             }
         }
-        nextPos = file.tellg() + 1;
+        nextPos = file.tellg();
     } else {
         nextPos = firstInvalidPos;
         bool valid;
@@ -76,10 +82,31 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         file.seekp(lastWritePos);
         file << true << nextPos;
     }
-
+    // for test
+    file.seekg(0);
+    file >> lastWritePos >> firstInvalidPos >> maxPos;
     // write lastWrite to file
     file.seekp(0);
     file << nextPos;
+    // for test
+    file.seekg(0);
+    file >> lastWritePos >> firstInvalidPos >> maxPos;
+    file.seekg(8);
+    file >> firstInvalidPos;
+
+
+    // if current > maxPos
+    // set maxPos
+    if (nextPos > maxPos) {
+        auto t = file.tellp();
+        file.seekg(t);
+        file >> firstInvalidPos;
+        t = file.tellg();
+        auto maxPosAddr = file.tellg();
+        file.seekp(maxPosAddr);
+        file << nextPos;
+    }
+
     file.seekp(nextPos);
     // valid
     // means end of valid list
