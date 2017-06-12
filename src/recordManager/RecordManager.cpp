@@ -148,18 +148,17 @@ RecordManager::Record RecordManager::getRecordByOffset(File &file,Record &record
      Record result;
      for (auto &column : record) {
          auto type = column.type();
-         auto &rawData = *(column.name());
          Column newColumn;
          std::string encodedString;
          if (type == Column::Int) {
-             int data = std::stoi(rawData);
+             int data;
              file >> data;
              encodedString = std::to_string(data);
          } else if (type == Column::Float) {
-             float data = std::stof(rawData);
+             float data;
              file >> data;
              encodedString = std::to_string(data);
-         } else if (type <= 1 && type < Column::Int) {
+         } else if (1 <= type && type < Column::Int) {
              FixString data(RecordManager::getColumnSize(column));
               file >> data;
               encodedString = data.toString();
