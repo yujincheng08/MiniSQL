@@ -10,6 +10,7 @@ class RecordManager : public QObject
 {
     Q_OBJECT
     friend int main(int argc, char *argv[]);
+    friend void testInsert(const std::string &tableName);
 public:
     using Record = std::vector<Column>;
     constexpr static File::pos_type INVALID_POS = 0xffffffff;

@@ -84,7 +84,8 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     // valid
     // means end of valid list
     File::pos_type invalid = 0xffffffff;
-    file << true << invalid;
+    bool valid = true;
+    file << valid << invalid;
     for (auto &column : record) {
         auto type = column.type();
         auto &rawData = *(column.name());
