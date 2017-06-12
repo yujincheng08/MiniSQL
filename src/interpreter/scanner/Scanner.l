@@ -16,7 +16,7 @@ float			return FLOAT_TYPE;
 char			return CHAR_TYPE;
 -?[[:digit:]]+		return INTEGER;
 \.                      return DOT;
--?[[:digit:]]?\.[[:digit:]]+ return FLOAT;
+-?[[:digit:]]+\.[[:digit:]]+ return FLOAT;
 \(			return LEFTPARENTHESIS;
 \)			return RIGHTPARENTHESIS;
 ,			return COMMA;
