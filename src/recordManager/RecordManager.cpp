@@ -89,7 +89,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         } else if (type == Column::Float) {
             file << std::stof(rawData);
         } else if (1 <= type && type < Column::Int) {
-            file << FixString(rawData);
+            file << FixString(rawData.c_str(), RecordManager::getColumnSize(column));
         } else {
             // Undefined should not happen
         }
@@ -177,7 +177,7 @@ RecordManager::Record RecordManager::makeTestRecord() {
     floatCol.ColumnType = Column::Float;
     floatCol.Name = std::make_shared<std::string>("3.141592");
     Column charCol;
-    charCol.ColumnType = 8;
+    charCol.ColumnType = 20;
     charCol.Name = std::make_shared<std::string>("12345678");
     Record record = {floatCol, charCol, intCol};
     return record;
