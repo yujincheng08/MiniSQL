@@ -36,8 +36,6 @@ inline void WriteThread::enQueue(Buffer * const &buffer)
         buffer->InList = true;
     }
     Mutex.unlock();
-    buffer->Mutex.lock();
-    buffer->Mutex.unlock();
     if(!isRunning())
         start();
 }
