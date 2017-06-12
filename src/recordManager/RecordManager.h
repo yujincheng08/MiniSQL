@@ -13,6 +13,7 @@ class RecordManager : public QObject
     friend void testInsert(const std::string &tableName);
 public:
     using Record = std::vector<Column>;
+    using MetaData = std::tuple<File::pos_type, File::pos_type, File::pos_type, File::pos_type>;
     constexpr static File::pos_type INVALID_POS = 0xffffffff;
     static File &OpenTableFile(const std::string &tableName);
     static  void FlushTableFile(const std::string &tableName);
@@ -24,8 +25,12 @@ public:
     static  bool DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions);
     static  void InsertRecord(const std::string &tableNam, Record record);
     static  std::vector<Record> queryRecordsByOffsets(const std::string &tableName, std::vector<File::pos_type> offsets,  RecordManager::Record templateRecord);
-    static  std::vector<File::pos_type> queryRecordsOffsets(const std::string &tableName, int recordSize);
+    static  std::vector<File::pos_type> queryRecordsOffsets(const std::string &tableName);
 private:
+    // lastWritePos, firstInvalidPos, maxPos, firstValidPos
+    static MetaData getMetaData(const std::string &tableName);
+    static void setMetaData(const std::string &tableName, const MetaData metaData);
+    static RecordManager::Record getRecordByOffset(File &file,Record &templateRecord, File::pos_type offset);
     static Record makeTestRecord();
     static int getColumnSize(const Column &col);
     static int getRecordSize(const Record &record);
