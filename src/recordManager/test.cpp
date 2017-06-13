@@ -5,7 +5,7 @@ void testInsert(const std::string &tableName) {
         auto Record = RecordManager::makeTestRecord();
         RecordManager::DropTable(tableName);
         RecordManager::CreateTable(tableName);
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 100; i++) {
             RecordManager::InsertRecord(tableName, Record);
         }
         RecordManager::FlushTableFile(tableName);
@@ -14,9 +14,10 @@ void testInsert(const std::string &tableName) {
         auto metaData = RecordManager::getMetaData(tableName);
         for (auto &record: records) {
             for(auto &column: record) {
-                std::cout << *column.name() << "\n";
+                std::cout << (*column.name()).c_str() << "\n";
             }
         }
+        std::cout << "done\n" ;
 }
 
 void testWriteFile(const std::string &tableName) {
