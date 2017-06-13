@@ -38,18 +38,19 @@ void RecordManager::DeleteRecords(const std::string &tableName, std::vector<File
     for (auto &offset : positions) {
         if (offset == lastValid) {
             // delete this from tail
-            bool valid;
             File::pos_type previousValid;
             file.seekg(offset);
-            file >> valid >> previousValid;
+            file.get<bool>();
+            file >> previousValid;
             lastValid = previousValid;
         }
         if (offset == firstValid) {
             // delete this from head
-            bool valid;
             File::pos_type nextValid;
             file.seekg(offset);
-            file >> valid >> nextValid >> nextValid;
+            file.get<bool>();
+            file.get<File::pos_type>();
+            file >> nextValid;
             firstValid = nextValid;
         }
 
@@ -57,17 +58,16 @@ void RecordManager::DeleteRecords(const std::string &tableName, std::vector<File
         file.seekg(offset);
         file.get<bool>();
         file >> previousOfNext >> nextOfPrevious;
-        bool valid;
-        File::pos_type tmp;
         if (previousOfNext != 0xffffffff) {
             file.seekg(previousOfNext);
-            file >> valid >> tmp;
+            file.get<bool>();
+            file.get<File::pos_type>();
             file.seekp(file.tellg());
             file << nextOfPrevious;
         }
         if (nextOfPrevious != 0xffffffff) {
             file.seekg(nextOfPrevious);
-            file >> valid;
+            file.get<bool>();
             file.seekp(file.tellg());
             file << previousOfNext;
         }
@@ -98,9 +98,9 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         nextPos = file.tellg();
     } else {
         nextPos = firstInvalidPos;
-        bool valid;
         file.seekg(firstInvalidPos);
-        file >> valid >> firstInvalidPos;
+        file.get<bool>();
+        file >> firstInvalidPos;
         // assert valid = false
     }
 
@@ -168,12 +168,13 @@ std::vector<File::pos_type> RecordManager::queryRecordsOffsets(const std::string
     auto firstValid = std::get<3>(metaData);
     auto &file = RecordManager::OpenTableFile(tableName);
     file.seekg(firstValid);
-    bool valid;
     std::vector<File::pos_type>  result;
     while(firstValid != 0xffffffff) {
         result.emplace_back(firstValid);
         file.seekg(firstValid);
-        file >> valid >> firstValid >> firstValid;
+        file.get<bool>();
+        file.get<File::pos_type>();
+        file >> firstValid;
     }
     return result;
 }
@@ -194,9 +195,10 @@ RecordManager::MetaData RecordManager::getMetaData(const std::string &tableName)
 
 RecordManager::Record RecordManager::getRecordByOffset(File &file,Record &record, File::pos_type offset) {
      file.seekg(offset);
-     bool valid;
-     File::pos_type n;
-     file >> valid >> n >> n;
+     file.get<bool>();
+     file.get<File::pos_type>();
+     file.get<File::pos_type>();
+
      Record result;
      for (auto &column : record) {
          auto type = column.type();
@@ -221,7 +223,6 @@ RecordManager::Record RecordManager::getRecordByOffset(File &file,Record &record
          newColumn.ColumnType = column.ColumnType;
          result.emplace_back(newColumn);
      }
-     auto test = file.tellg();
      return result;
  }
 

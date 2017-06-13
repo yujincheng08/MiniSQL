@@ -18,7 +18,7 @@ void testInsert(const std::string &tableName) {
                 std::cout << (*column.name()).c_str() << "\n";
             }
         }
-        RecordManager::DeleteRecords(tableName, {offsets[2]});
+        RecordManager::DeleteRecords(tableName, offsets);
         std::cout << "deleted, remaining: \n";
         offsets = RecordManager::queryRecordsOffsets(tableName);
         records = RecordManager::queryRecordsByOffsets(tableName, offsets, Record);
