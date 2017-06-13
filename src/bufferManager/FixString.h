@@ -187,15 +187,7 @@ inline char *FixString::end()
 
 inline std::string FixString::toString() const
 {
-<<<<<<< HEAD
     return std::string(String, String + Size);
-=======
-    std::string result;
-    for(auto &i: *this)
-        if(i) result += i;
-        else break;
-    return result;
->>>>>>> adc0b783302d7db4a73ce4cfa4c6d48950e7e8f8
 }
 
 inline FixString::~FixString()
