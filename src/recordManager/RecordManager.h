@@ -22,7 +22,7 @@ public:
     // check if the table already exits before calling this
     static  void DropTable(const std::string &tableName);
     //
-    static  bool DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions);
+    static  void DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions);
     static  void InsertRecord(const std::string &tableNam, Record record);
     static  std::vector<Record> queryRecordsByOffsets(const std::string &tableName, std::vector<File::pos_type> offsets,  RecordManager::Record templateRecord);
     static  std::vector<File::pos_type> queryRecordsOffsets(const std::string &tableName);

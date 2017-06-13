@@ -5,13 +5,35 @@ void testInsert(const std::string &tableName) {
         auto Record = RecordManager::makeTestRecord();
         RecordManager::DropTable(tableName);
         RecordManager::CreateTable(tableName);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 3; i++) {
             RecordManager::InsertRecord(tableName, Record);
         }
         RecordManager::FlushTableFile(tableName);
-        auto offset= RecordManager::queryRecordsOffsets(tableName);
-        auto records = RecordManager::queryRecordsByOffsets(tableName, offset, Record);
+        auto offsets = RecordManager::queryRecordsOffsets(tableName);
+        auto records = RecordManager::queryRecordsByOffsets(tableName, offsets, Record);
         auto metaData = RecordManager::getMetaData(tableName);
+        for (auto &record: records) {
+            for(auto &column: record) {
+                std::cout << (*column.name()).c_str() << "\n";
+            }
+        }
+        RecordManager::DeleteRecords(tableName, {offsets[2]});
+        std::cout << "deleted, remaining: \n";
+        offsets = RecordManager::queryRecordsOffsets(tableName);
+        records = RecordManager::queryRecordsByOffsets(tableName, offsets, Record);
+        metaData = RecordManager::getMetaData(tableName);
+        for (auto &record: records) {
+            for(auto &column: record) {
+                std::cout << (*column.name()).c_str() << "\n";
+            }
+        }
+        std::cout << "re insert \n";
+        for (int i = 0; i < 5; i++) {
+            RecordManager::InsertRecord(tableName, Record);
+        }
+        offsets = RecordManager::queryRecordsOffsets(tableName);
+        records = RecordManager::queryRecordsByOffsets(tableName, offsets, Record);
+        metaData = RecordManager::getMetaData(tableName);
         for (auto &record: records) {
             for(auto &column: record) {
                 std::cout << (*column.name()).c_str() << "\n";

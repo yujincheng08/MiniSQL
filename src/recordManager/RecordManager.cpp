@@ -21,7 +21,6 @@ void RecordManager::CreateTable(const std::string &tableName) {
     file << invalid;
     // lastWritePos, firstInvalidPos, maxPos, firstValidPos
     // if both invalid it's initail empty state
-    file.flush();
 }
 
 void RecordManager::DropTable(const std::string &tableName) {
@@ -30,8 +29,49 @@ void RecordManager::DropTable(const std::string &tableName) {
     file.remove();
 }
 
-bool RecordManager::DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions) {
+void RecordManager::DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions) {
+    auto metaData = RecordManager::getMetaData(tableName);
+    auto &lastValid = std::get<0>(metaData);
+    auto &firstInvalid = std::get<1>(metaData);
+    auto &firstValid = std::get<3>(metaData);
     File &file = RecordManager::OpenTableFile(tableName);
+    for (auto &offset : positions) {
+        if (offset == lastValid) {
+            // delete this from tail
+            bool valid;
+            File::pos_type previousValid;
+            file.seekg(offset);
+            file >> valid >> previousValid;
+            lastValid = previousValid;
+            if (previousValid != 0xffffffff) {
+                File::pos_type nextOfPrevious;
+                file.seekg(previousValid);
+                file >> valid >> nextOfPrevious;
+                file.seekp(file.tellg());
+                nextOfPrevious = 0xffffffff;
+                file  << nextOfPrevious;
+            }
+        }
+        if (offset == firstValid) {
+            // delete this from head
+            bool valid;
+            File::pos_type nextValid;
+            file.seekg(offset);
+            file >> valid >> nextValid >> nextValid;
+            firstValid = nextValid;
+            if (nextValid != 0xffffffff) {
+                File::pos_type previousOfNext = 0xffffffff;
+                file.seekg(nextValid);
+                file >> valid;
+                file.seekp(file.tellg());
+                file << previousOfNext;
+            }
+        }
+        file.seekp(offset);
+        file << false << firstInvalid;
+        firstInvalid = offset;
+    }
+    RecordManager::setMetaData(tableName, metaData);
 }
 
 void RecordManager::InsertRecord(const std::string &tableName, Record record) {
@@ -63,12 +103,15 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
 
     if (lastWritePos != 0xffffffff) {
         // link this to last
-        file.seekp(lastWritePos);
-        file << true << nextPos;
+        file.seekg(lastWritePos);
+        bool valid;
+        File::pos_type tmp;
+        file >> valid >> tmp;
+        file.seekp(file.tellg());
+        file << nextPos;
     }
 
-    // write lastWrite to file
-    lastWritePos = nextPos;
+
     // if current > maxPos
     // set maxPos
     if (nextPos > maxPos) {
@@ -79,8 +122,17 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     // valid
     // means end of valid list
     File::pos_type invalid = 0xffffffff;
+    // structure of each record:
+    // if record valid
+    // valid: bool, previous: pos_type, next: pos_type, [record]
+    // invalid
+    // valid: bool, next:pos_type
+    // valid list is double list to make random insertion and deletion easier
+    // invalid list is single list because we only insert or delete in head
     bool valid = true;
-    file << valid << invalid;
+    file << valid << lastWritePos;
+    file << invalid;
+
     for (auto &column : record) {
         auto type = column.type();
         auto &rawData = *(column.name());
@@ -94,7 +146,12 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
             // Undefined should not happen
         }
     }
-    // write back meta data first valid, last write, max pos
+    // write lastWrite to file
+    lastWritePos = nextPos;
+    if (firstValidPos == 0xffffffff) {
+        firstValidPos  = nextPos;
+    }
+    // write back meta data first valid, last write, max pos, firstValidPos
     RecordManager::setMetaData(tableName, std::make_tuple(lastWritePos, firstInvalidPos, maxPos, firstValidPos));
 }
 
@@ -117,7 +174,7 @@ std::vector<File::pos_type> RecordManager::queryRecordsOffsets(const std::string
     while(firstValid != 0xffffffff) {
         result.emplace_back(firstValid);
         file.seekg(firstValid);
-        file >> valid >> firstValid;
+        file >> valid >> firstValid >> firstValid;
     }
     return result;
 }
@@ -134,14 +191,13 @@ RecordManager::MetaData RecordManager::getMetaData(const std::string &tableName)
      auto &file = RecordManager::OpenTableFile(tableName);
      file.seekp(0);
      file << std::get<0>(metaData) << std::get<1>(metaData) << std::get<2>(metaData) << std::get<3>(metaData);
-     file.flush();
  }
 
 RecordManager::Record RecordManager::getRecordByOffset(File &file,Record &record, File::pos_type offset) {
      file.seekg(offset);
      bool valid;
      File::pos_type n;
-     file >> valid >> n;
+     file >> valid >> n >> n;
      Record result;
      for (auto &column : record) {
          auto type = column.type();
@@ -177,9 +233,9 @@ RecordManager::Record RecordManager::makeTestRecord() {
     floatCol.ColumnType = Column::Float;
     floatCol.Name = std::make_shared<std::string>("3.141592");
     Column charCol;
-    charCol.ColumnType = 20;
-    charCol.Name = std::make_shared<std::string>("12345678");
-    Record record = {floatCol, charCol, intCol};
+    charCol.ColumnType = 8;
+    charCol.Name = std::make_shared<std::string>("123456789");
+    Record record = { charCol, floatCol,intCol};
     return record;
 }
 
