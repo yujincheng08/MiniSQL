@@ -31,7 +31,7 @@ private:
     static MetaData getMetaData(const std::string &tableName);
     static void setMetaData(const std::string &tableName, const MetaData metaData);
     static RecordManager::Record getRecordByOffset(File &file,Record &templateRecord, File::pos_type offset);
-    static Record makeTestRecord();
+    static Record makeTestRecord(int id);
     static int getColumnSize(const Column &col);
     static int getRecordSize(const Record &record);
 signals:

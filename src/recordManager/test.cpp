@@ -2,10 +2,11 @@
 #include <QCoreApplication>
 
 void testInsert(const std::string &tableName) {
-        auto Record = RecordManager::makeTestRecord();
         RecordManager::DropTable(tableName);
         RecordManager::CreateTable(tableName);
-        for (int i = 0; i < 3; i++) {
+        auto Record = RecordManager::makeTestRecord(666);
+        for (int i = 0; i < 5; i++) {
+            auto Record = RecordManager::makeTestRecord(i);
             RecordManager::InsertRecord(tableName, Record);
         }
         RecordManager::FlushTableFile(tableName);
@@ -29,6 +30,7 @@ void testInsert(const std::string &tableName) {
         }
         std::cout << "re insert \n";
         for (int i = 0; i < 5; i++) {
+            auto Record = RecordManager::makeTestRecord(i);
             RecordManager::InsertRecord(tableName, Record);
         }
         offsets = RecordManager::queryRecordsOffsets(tableName);
@@ -43,24 +45,25 @@ void testInsert(const std::string &tableName) {
 }
 
 void testWriteFile(const std::string &tableName) {
-        RecordManager::DropTable(tableName);
-        RecordManager::CreateTable(tableName);
+       // RecordManager::DropTable(tableName);
+       // RecordManager::CreateTable(tableName);
         auto &file = BufferManager::open(tableName + ".tbl");
 
         //auto record = RecordManager::makeTestRecord();
-        file.seekp(0);
-        for (int i = 0; i < 400; i++) {
-
-        }
-
+        File::pos_type a = 0xFFFFFFFF, b= 456, c, d;
+        file.seekp(98);
+        file << a << b;
+        file.flush();
+        file.seekg(98);
+        file >> a >> b;
 }
 
 int main(int argc, char *argv[]) {
     std::string tableName("test");
     QCoreApplication app(argc, argv);
 
-  //  testWriteFile(tableName);
+     testInsert(tableName);
+    //testWriteFile(tableName);
 //    testWriteFile(tableName);
-    testInsert(tableName);
     return app.exec();
 }
