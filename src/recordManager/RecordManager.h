@@ -14,7 +14,7 @@ class RecordManager : public QObject
 public:
     using Record = std::vector<Column>;
     using MetaData = std::tuple<File::pos_type, File::pos_type, File::pos_type, File::pos_type>;
-    constexpr static File::pos_type INVALID_POS = 0xffffffff;
+    static constexpr File::pos_type INVALID_POS = 0xffffffff;
     static File &OpenTableFile(const std::string &tableName);
     static  void FlushTableFile(const std::string &tableName);
     // check if the table already exits before calling this
@@ -34,6 +34,8 @@ private:
     static Record makeTestRecord(int id);
     static int getColumnSize(const Column &col);
     static int getRecordSize(const Record &record);
+    static void seekToPreviousFiled(File &file, File::pos_type begin);
+    static void seekToRecordData(File &file, File::pos_type);
 signals:
 
 public slots:

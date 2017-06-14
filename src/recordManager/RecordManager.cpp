@@ -1,5 +1,7 @@
 #include "RecordManager.h"
 
+constexpr File::pos_type RecordManager::INVALID_POS;
+
 File &RecordManager::OpenTableFile(const std::string &tableName) {
     return BufferManager::open(tableName + ".tbl");
 }
@@ -11,14 +13,10 @@ void RecordManager::FlushTableFile(const std::string &tableName) {
 void RecordManager::CreateTable(const std::string &tableName) {
     File &file = RecordManager::OpenTableFile(tableName);
     file.seekp(0);
-    File::pos_type invalid = 0xffffffff;
     // last write record, first invalid
-    file << invalid << invalid;
-    invalid  = 0;
-    // max addr valid reford
-    file << invalid;
-    invalid = 0xffffffff;
-    file << invalid;
+    file << RecordManager::INVALID_POS << RecordManager::INVALID_POS;
+    file.put<File::pos_type>(0);
+    file << RecordManager::INVALID_POS;
     // lastWritePos, firstInvalidPos, maxPos, firstValidPos
     // if both invalid it's initail empty state
 }
@@ -58,14 +56,14 @@ void RecordManager::DeleteRecords(const std::string &tableName, std::vector<File
         file.seekg(offset);
         file.get<bool>();
         file >> previousOfNext >> nextOfPrevious;
-        if (previousOfNext != 0xffffffff) {
+        if (previousOfNext != RecordManager::INVALID_POS) {
             file.seekg(previousOfNext);
             file.get<bool>();
             file.get<File::pos_type>();
             file.seekp(file.tellg());
             file << nextOfPrevious;
         }
-        if (nextOfPrevious != 0xffffffff) {
+        if (nextOfPrevious != RecordManager::INVALID_POS) {
             file.seekg(nextOfPrevious);
             file.get<bool>();
             file.seekp(file.tellg());
@@ -86,8 +84,8 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     auto &maxPos = std::get<2>(metaData);
     auto &firstValidPos = std::get<3>(metaData);
     File::pos_type nextPos;
-    if (firstInvalidPos == 0xffffffff) {
-        if (lastWritePos == 0xffffffff) {
+    if (firstInvalidPos == RecordManager::INVALID_POS) {
+        if (lastWritePos == RecordManager::INVALID_POS) {
             // empty initial just write at here
             firstValidPos = file.tellg();
         } else {
@@ -104,7 +102,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
         // assert valid = false
     }
 
-    if (lastWritePos != 0xffffffff) {
+    if (lastWritePos != RecordManager::INVALID_POS) {
         // link this to last
         file.seekg(lastWritePos);
         bool valid;
@@ -117,7 +115,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     file.seekp(nextPos);
     // valid
     // means end of valid list
-    File::pos_type invalid = 0xffffffff;
+
     // structure of each record:
     // if record valid
     // valid: bool, previous: pos_type, next: pos_type, [record]
@@ -127,7 +125,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     // invalid list is single list because we only insert or delete in head
     bool valid = true;
     file << valid << lastWritePos;
-    file << invalid;
+    file << RecordManager::INVALID_POS;
 
     for (auto &column : record) {
         auto type = column.type();
@@ -144,7 +142,7 @@ void RecordManager::InsertRecord(const std::string &tableName, Record record) {
     }
     // write lastWrite to file
     lastWritePos = nextPos;
-    if (firstValidPos == 0xffffffff) {
+    if (firstValidPos == RecordManager::INVALID_POS) {
         firstValidPos  = nextPos;
     }
     if (nextPos > maxPos) {
@@ -169,7 +167,7 @@ std::vector<File::pos_type> RecordManager::queryRecordsOffsets(const std::string
     auto &file = RecordManager::OpenTableFile(tableName);
     file.seekg(firstValid);
     std::vector<File::pos_type>  result;
-    while(firstValid != 0xffffffff) {
+    while(firstValid != RecordManager::INVALID_POS) {
         result.emplace_back(firstValid);
         file.seekg(firstValid);
         file.get<bool>();
