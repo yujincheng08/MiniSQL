@@ -1,5 +1,8 @@
 #include "RecordManager.h"
 #include <QCoreApplication>
+#include "../bufferManager/File.h"
+#include "../bufferManager/BufferManager.h"
+#include "../interpreter/Column.h"
 
 void testInsert(const std::string &tableName) {
         RecordManager::DropTable(tableName);
@@ -55,7 +58,7 @@ void testWriteFile(const std::string &tableName) {
         file << a << b;
         file.flush();
         file.seekg(98);
-        file >> a >> b;
+        file >> c >> d;
 }
 
 int main(int argc, char *argv[]) {

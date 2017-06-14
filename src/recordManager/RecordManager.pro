@@ -19,7 +19,7 @@ CONFIG(test) {
     TEMPLATE = app
     SOURCES += \
         test.cpp
-   win32:LIBS += -L../../ -lbufferManager
+   LIBS += -L../../ -lbufferManager
 }
 else{
     TEMPLATE = lib

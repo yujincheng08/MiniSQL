@@ -1,44 +1,48 @@
 #ifndef RECORDMANAGER_H
 #define RECORDMANAGER_H
 
-#include <QObject>
-#include "../bufferManager/File.h"
-#include "../bufferManager/BufferManager.h"
-#include "../interpreter/Column.h"
+#include <vector>
+#include <string>
 
-class RecordManager : public QObject
+class File;
+class Column;
+
+class RecordManager
 {
-    Q_OBJECT
     friend int main(int argc, char *argv[]);
     friend void testInsert(const std::string &tableName);
 public:
-    using Record = std::vector<Column>;
-    using MetaData = std::tuple<File::pos_type, File::pos_type, File::pos_type, File::pos_type>;
-    static constexpr File::pos_type INVALID_POS = 0xffffffff;
-    static File &OpenTableFile(const std::string &tableName);
-    static  void FlushTableFile(const std::string &tableName);
+    template<typename T>
+    using vector = std::vector<T>;
+    using Record = vector<Column>;
+    using pos_type = std::streamoff;
+    using MetaData = std::tuple<pos_type, pos_type, pos_type, pos_type>;
+    using string  = std::string;
+    constexpr static pos_type INVALID_POS = 0xffffffff;
+    static File &OpenTableFile(const string &tableName);
+    static void FlushTableFile(const string &tableName);
     // check if the table already exits before calling this
-    static  void CreateTable(const std::string &tableName);
+    static void CreateTable(const string &tableName);
     // check if the table already exits before calling this
-    static  void DropTable(const std::string &tableName);
+    static void DropTable(const string &tableName);
     //
-    static  void DeleteRecords(const std::string &tableName, std::vector<File::pos_type> positions);
-    static  void InsertRecord(const std::string &tableNam, Record record);
-    static  std::vector<Record> queryRecordsByOffsets(const std::string &tableName, std::vector<File::pos_type> offsets,  RecordManager::Record templateRecord);
-    static  std::vector<File::pos_type> queryRecordsOffsets(const std::string &tableName);
+    static void DeleteRecords(const string &tableName, const vector<pos_type> &positions);
+    static void InsertRecord(const string &tableNam, const Record &record);
+    static vector<Record> queryRecordsByOffsets(const string &tableName, const vector<pos_type> &offsets,  const Record &templateRecord);
+    static vector<pos_type> queryRecordsOffsets(const string &tableName);
 private:
     // lastWritePos, firstInvalidPos, maxPos, firstValidPos
-    static MetaData getMetaData(const std::string &tableName);
-    static void setMetaData(const std::string &tableName, const MetaData metaData);
-    static RecordManager::Record getRecordByOffset(File &file,Record &templateRecord, File::pos_type offset);
+    static MetaData getMetaData(const string &tableName);
+    static void setMetaData(const string &tableName, const MetaData &metaData);
+    static Record getRecordByOffset(File &file, const Record &templateRecord, const pos_type &offset);
+    static size_t getColumnSize(const Column &col);
+    static size_t getRecordSize(const Record &record);
+    static void seekToPreviousFiled(File &file, pos_type begin);
+    static void seekToRecordData(File &file, pos_type);
+#ifdef TEST
     static Record makeTestRecord(int id);
-    static int getColumnSize(const Column &col);
-    static int getRecordSize(const Record &record);
-    static void seekToPreviousFiled(File &file, File::pos_type begin);
-    static void seekToRecordData(File &file, File::pos_type);
-signals:
+#endif
 
-public slots:
 };
 
 #endif // RECORDMANAGER_H
