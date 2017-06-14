@@ -4,6 +4,7 @@
 #include "../interpreter/Column.h"
 
 using namespace std;
+constexpr RecordManager::pos_type RecordManager::INVALID_POS;
 
 File &RecordManager::OpenTableFile(const string &tableName) {
     return BufferManager::open(tableName + ".tbl");
@@ -16,25 +17,21 @@ void RecordManager::FlushTableFile(const string &tableName) {
 void RecordManager::CreateTable(const string &tableName) {
     File &file = OpenTableFile(tableName);
     file.seekp(0);
-    pos_type invalid = 0xffffffff;
     // last write record, first invalid
-    file << invalid << invalid;
-    invalid  = 0;
-    // max addr valid reford
-    file << invalid;
-    invalid = 0xffffffff;
-    file << invalid;
+    file << RecordManager::INVALID_POS << RecordManager::INVALID_POS;
+    file.put<pos_type>(0);
+    file << RecordManager::INVALID_POS;
     // lastWritePos, firstInvalidPos, maxPos, firstValidPos
     // if both invalid it's initail empty state
 }
 
-void RecordManager::DropTable(const std::string &tableName) {
+void RecordManager::DropTable(const string &tableName) {
     // use File class delete method
     auto &file = OpenTableFile(tableName);
     file.remove();
 }
 
-void RecordManager::DeleteRecords(const string &tableName, const vector<File::pos_type> &positions) {
+void RecordManager::DeleteRecords(const string &tableName, const vector<pos_type> &positions) {
     auto metaData = getMetaData(tableName);
     auto &lastValid = get<0>(metaData);
     auto &firstInvalid = get<1>(metaData);
@@ -63,14 +60,14 @@ void RecordManager::DeleteRecords(const string &tableName, const vector<File::po
         file.seekg(offset);
         file.get<bool>();
         file >> previousOfNext >> nextOfPrevious;
-        if (previousOfNext != 0xffffffff) {
+        if (previousOfNext != RecordManager::INVALID_POS) {
             file.seekg(previousOfNext);
             file.get<bool>();
             file.get<pos_type>();
             file.seekp(file.tellg());
             file << nextOfPrevious;
         }
-        if (nextOfPrevious != 0xffffffff) {
+        if (nextOfPrevious != RecordManager::INVALID_POS) {
             file.seekg(nextOfPrevious);
             file.get<bool>();
             file.seekp(file.tellg());
@@ -84,15 +81,15 @@ void RecordManager::DeleteRecords(const string &tableName, const vector<File::po
 }
 
 void RecordManager::InsertRecord(const string &tableName, const Record &record) {
-    auto &file = OpenTableFile(tableName);
-    auto metaData = getMetaData(tableName);
+    auto &file = RecordManager::OpenTableFile(tableName);
+    auto metaData = RecordManager::getMetaData(tableName);
     auto &lastWritePos = get<0>(metaData);
     auto &firstInvalidPos = get<1>(metaData);
     auto &maxPos = get<2>(metaData);
     auto &firstValidPos = get<3>(metaData);
     pos_type nextPos;
-    if (firstInvalidPos == 0xffffffff) {
-        if (lastWritePos == 0xffffffff) {
+    if (firstInvalidPos == RecordManager::INVALID_POS) {
+        if (lastWritePos == RecordManager::INVALID_POS) {
             // empty initial just write at here
             firstValidPos = file.tellg();
         } else {
@@ -109,7 +106,7 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
         // assert valid = false
     }
 
-    if (lastWritePos != 0xffffffff) {
+    if (lastWritePos != RecordManager::INVALID_POS) {
         // link this to last
         file.seekg(lastWritePos);
         bool valid;
@@ -122,7 +119,7 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
     file.seekp(nextPos);
     // valid
     // means end of valid list
-    pos_type invalid = 0xffffffff;
+
     // structure of each record:
     // if record valid
     // valid: bool, previous: pos_type, next: pos_type, [record]
@@ -130,9 +127,8 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
     // valid: bool, next:pos_type
     // valid list is double list to make random insertion and deletion easier
     // invalid list is single list because we only insert or delete in head
-    bool valid = true;
-    file << valid << lastWritePos;
-    file << invalid;
+    file << true << lastWritePos;
+    file << RecordManager::INVALID_POS;
 
     for (auto &column : record) {
         auto type = column.type();
@@ -140,7 +136,7 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
         if (type == Column::Int) {
             file << stoi(rawData);
         } else if (type == Column::Float) {
-            file << stof(rawData);
+            file << stod(rawData);
         } else if (1 <= type && type < Column::Int) {
             file << FixString(rawData.c_str(), getColumnSize(column));
         } else {
@@ -149,7 +145,7 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
     }
     // write lastWrite to file
     lastWritePos = nextPos;
-    if (firstValidPos == 0xffffffff) {
+    if (firstValidPos == RecordManager::INVALID_POS) {
         firstValidPos  = nextPos;
     }
     if (nextPos > maxPos) {
@@ -174,7 +170,7 @@ auto RecordManager::queryRecordsOffsets(const string &tableName) -> vector<pos_t
     auto &file = OpenTableFile(tableName);
     file.seekg(firstValid);
     vector<pos_type>  result;
-    while(firstValid != 0xffffffff) {
+    while(firstValid != RecordManager::INVALID_POS) {
         result.emplace_back(firstValid);
         file.seekg(firstValid);
         file.get<bool>();
@@ -192,7 +188,7 @@ auto RecordManager::getMetaData(const string &tableName) -> MetaData {
     return make_tuple(lastWritePos, firstInvalidPos, maxPos, firstValidPos);
 }
 
- void RecordManager::setMetaData(const std::string &tableName, const MetaData &metaData) {
+ void RecordManager::setMetaData(const string &tableName, const MetaData &metaData) {
      auto &file = OpenTableFile(tableName);
      file.seekp(0);
      file << get<0>(metaData) << get<1>(metaData) << get<2>(metaData) << get<3>(metaData);

@@ -37,9 +37,12 @@ private:
     static Record getRecordByOffset(File &file, const Record &templateRecord, const pos_type &offset);
     static size_t getColumnSize(const Column &col);
     static size_t getRecordSize(const Record &record);
+    static void seekToPreviousFiled(File &file, pos_type begin);
+    static void seekToRecordData(File &file, pos_type);
 #ifdef TEST
     static Record makeTestRecord(int id);
 #endif
+
 };
 
 #endif // RECORDMANAGER_H
