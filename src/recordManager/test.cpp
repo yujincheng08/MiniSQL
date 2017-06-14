@@ -1,6 +1,5 @@
 #include "RecordManager.h"
 #include <QCoreApplication>
-#include <iostream>
 #include "../bufferManager/File.h"
 #include "../bufferManager/BufferManager.h"
 #include "../interpreter/Column.h"

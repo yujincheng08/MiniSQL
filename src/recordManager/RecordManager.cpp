@@ -250,7 +250,7 @@ size_t RecordManager::getColumnSize(const Column& col) {
      else if(col.type() == Column::Float)
          return sizeof(double);
      else if(col.type()<=255)
-         return col.type();
+         return col.type() * sizeof(char);
      else
          return 0U;
  }
