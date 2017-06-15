@@ -22,14 +22,12 @@ SOURCES += \
     ReadThread.cpp \
     BufferListItem.cpp
 
+TEMPLATE = lib
+
 OTHER_FILES += \
     README.md
-TEMPLATE = lib
-#CONFIG(test) {
-#TEMPLATE = app
-#SOURCES += \
-#    test.cpp
-#}
-#else{
-#TEMPLATE = lib
-#}
+CONFIG(test) {
+TEMPLATE = app
+SOURCES += \
+    test.cpp
+}

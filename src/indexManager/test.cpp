@@ -1,6 +1,6 @@
-#include "File.h"
-#include "BufferManager.h"
-#include "../BpTree.h"
+#include "../bufferManager/File.h"
+#include "../bufferManager/BufferManager.h"
+#include "BpTree.h"
 #include <QCoreApplication>
 #include <random>
 int main(int argc, char *argv[])

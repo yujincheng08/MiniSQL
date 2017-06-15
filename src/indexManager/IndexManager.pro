@@ -1,28 +1,12 @@
-QT += core
-QT -= gui
+include(../../MiniSQL.pri)
 
-CONFIG += c++11
+TARGET = BufferManager
 
-TARGET = IndexManager
-CONFIG += console
-CONFIG -= app_bundle
-
-TEMPLATE = app
-
-SOURCES += \
-    src/BufferManager/Buffer.cpp \
-    src/BufferManager/BufferListItem.cpp \
-    src/BufferManager/Buffermanager.cpp \
-    src/BufferManager/File.cpp \
-    src/BufferManager/ReadThread.cpp \
-    src/BufferManager/test.cpp \
-    src/BufferManager/WriteThread.cpp
-
+DESTDIR = ../../
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -30,12 +14,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
-    src/BpTree.h \
-    src/BufferManager/Buffer.h \
-    src/BufferManager/BufferList.h \
-    src/BufferManager/BufferListItem.h \
-    src/BufferManager/BufferManager.h \
-    src/BufferManager/File.h \
-    src/BufferManager/FixString.h \
-    src/BufferManager/ReadThread.h \
-    src/BufferManager/WriteThread.h
+    BpTree.h \
+
+CONFIG(test) {
+TEMPLATE = app
+SOURCES += \
+    test.cpp
+}
+else{
+TEMPLATE = lib
+}

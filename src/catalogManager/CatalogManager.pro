@@ -1,10 +1,8 @@
-TEMPLATE += lib
-QT       -= gui
-
 include(../../MiniSQL.pri)
 
-TARGET = BufferManager
-# TEMPLATE = lib
+TEMPLATE = lib
+
+TARGET = CatalogManager
 
 DESTDIR = ../../
 
@@ -18,4 +16,5 @@ OTHER_FILES += \
     README.md
 
 CONFIG(test) {
+    TEMPLATE = app
 }

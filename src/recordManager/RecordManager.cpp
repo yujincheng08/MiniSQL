@@ -227,6 +227,7 @@ auto RecordManager::getRecordByOffset(File &file,const Record &record, const pos
      return result;
  }
 
+#ifdef TEST
 auto RecordManager::makeTestRecord(int id) -> Record {
     Column intCol;
     intCol.ColumnType = Column::Int;
@@ -239,6 +240,7 @@ auto RecordManager::makeTestRecord(int id) -> Record {
     charCol.Name = make_shared<string>("123456789");
     return {intCol, charCol, floatCol};
 }
+#endif
 
 size_t RecordManager::getColumnSize(const Column& col) {
      if (col.type() == Column::Int)

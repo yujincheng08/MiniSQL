@@ -6,27 +6,29 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "BufferManager/BufferManager.h"
-#include "BufferManager/File.h"
-using std::string;
-using std::vector;
-typedef long long pos_type;
-const int N = 7;
+#include "../BufferManager/BufferManager.h"
+#include "../BufferManager/File.h"
+
 
 template<class T>
 class bpTree
 {
+    using string = std::string;
+    template<typename K>
+    using vector = std::vector<K>;
+    using pos_type = File::pos_type;
+    constexpr static int N = 7;
 public:
 	struct node
 	{
-		int no;                         //▒╛╜┌╡у╡─╩¤╛▌╕Ў╩¤
-		int isLeaf;                     //╥╢╜┌╡у╡─▒ъ╓╛
-		pos_type dataPos[N];            //╥╢╜┌╡у┤ц╖┼╫▌╧Є╡╪╓╖
-		T key[N];                       //┤ц╖┼╣╪╝№╫╓
-		node* childNode[N + 1];             //╖╟╥╢╜┌╡у┤ц╖┼╫▌╧Є╡╪╓╖           
-		node* fatherNode;               //┤ц╖┼╕╕╜┌╡у╡╪╓╖
-		node* nextNode;                 //╜┌╡у┤ц╖┼║с╧Є╡╪╓╖
-		node* brother;                  //╔╛│¤╩▒╙├╡╜╡─╨╓╡▄╜┌╡у
+		int no;                         //цЬмшКВчВ╣чЪДцХ░цНоф╕кцХ░
+		int isLeaf;                     //хП╢шКВчВ╣чЪДцаЗх┐Ч
+        pos_type dataPos[N];            //хП╢шКВчВ╣хнШцФ╛ч║╡хРСхЬ░хЭА
+		T key[N];                       //хнШцФ╛хЕ│щФохнЧ
+		node* childNode[N + 1];             //щЭЮхП╢шКВчВ╣хнШцФ╛ч║╡хРСхЬ░хЭА           
+		node* fatherNode;               //хнШцФ╛чИ╢шКВчВ╣хЬ░хЭА
+		node* nextNode;                 //шКВчВ╣хнШцФ╛цикхРСхЬ░хЭА
+		node* brother;                  //хИащЩдцЧ╢чФихИ░чЪДхЕДх╝ЯшКВчВ╣
 
 		node()
 		{
@@ -47,9 +49,9 @@ public:
 
 	struct tnode
 	{
-		int no;                     //▒╛╜┌╡у╡─╩¤╛▌╕Ў╩¤
-		pos_type dataPos[N];         //╥╢╜┌╡у┤ц╖┼╫▌╧Є╡╪╓╖
-		T key[N];                   //┤ц╖┼╣╪╝№╫╓
+		int no;                     //цЬмшКВчВ╣чЪДцХ░цНоф╕кцХ░
+		pos_type dataPos[N];         //хП╢шКВчВ╣хнШцФ╛ч║╡хРСхЬ░хЭА
+		T key[N];                   //хнШцФ╛хЕ│щФохнЧ
 	};
 
 	//constructor 
@@ -57,48 +59,50 @@ public:
 	~bpTree();
 
 	//others
-	bool Isleaf(node* & node) const;                      //╝ь▓т╩╟╖ё╥╢╜┌╡у
-	bool Isroot(node* & nodeposition) const;        //╝ь▓т╩╟╖ё╕∙╜с╡у
-	void findLeaf(const T & the_key);                   //╥╢╜с╡у▓щ╒╥║п╩¤
+	bool Isleaf(node* & node) const;                      //цгАц╡ЛцШпхРжхП╢шКВчВ╣
+	bool Isroot(node* & nodeposition) const;        //цгАц╡ЛцШпхРжца╣ч╗УчВ╣
+	void findLeaf(const T & the_key);                   //хП╢ч╗УчВ╣цЯецЙ╛хЗ╜цХ░
 
     pos_type Eqsearch(const T & key);
 
-	void Insert_node(const T &, const pos_type &);            //╩¤╛▌▓х╚ы
-	void Resize_leaf();                             //╖╓┴╤╥╢╜┌╡у
-	void Resize_nleaf();                            //╖╓┴╤╖╟╥╢╜┌╡у
+	void Insert_node(const T &, const pos_type &);            //цХ░цНоцПТхЕе
+	void Resize_leaf();                             //хИЖшгВхП╢шКВчВ╣
+	void Resize_nleaf();                            //хИЖшгВщЭЮхП╢шКВчВ╣
 
-    bool Del_data(const T & ckey);                        //╔╛│¤
+    bool Del_data(const T & ckey);                        //хИащЩд
     void del(const T & k);                                //
-	void Merge();                                   //╔╛│¤╓╨╡ў╒√║╧▓в
+	void Merge();                                   //хИащЩдф╕нш░ГцХ┤хРИх╣╢
     void MergeLeaf();
 
 	template <typename It> int compare(const It &, const It &);
 
-    void Index(const string &);                   //╜и┴в╦ў╥¤╬─╝■
-    void Buildtree(const string &);               //╜и┴вbгл╩ў
+    void Index(const string &);                   //х╗║члЛч┤вх╝ХцЦЗф╗╢
+    void Buildtree(const string &);               //х╗║члЛbя╝ЛцаС
+#ifdef TEST
     void Show();
+#endif
 
 private:
 	node* headNode;
-	node* treeRoot;                               //╩╡└¤╡─╕∙╜с╡у
+	node* treeRoot;                               //хоЮф╛ЛчЪДца╣ч╗УчВ╣
 	node* posNode;
-	int totalData;                                    //╝╟┬╝╩¤╛▌╡─╫▄╩¤
-	bool opFlag;                                     //▒ъ╓╛╩╟╖ё▓┘╫ў╣¤
+	int totalData;                                    //шо░х╜ХцХ░цНочЪДцА╗цХ░
+	bool opFlag;                                     //цаЗх┐ЧцШпхРжцУНф╜Ьш┐З
 };
 
 
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгн─г░х└р╡─│╔╘▒║п╩¤╔∙├ўгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НцибцЭ┐ч▒╗чЪДцИРхСШхЗ╜цХ░хг░цШОя╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 
-//гнгнгнгнгнгнгнгнгнгнгн╣╣╘ь║п╩¤гнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НцЮДщАахЗ╜цХ░я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 bpTree<T>::bpTree()
@@ -109,9 +113,9 @@ bpTree<T>::bpTree()
 	headNode->isLeaf = 1;
 	treeRoot = headNode;
     posNode = headNode;
-};
+}
 
-//гнгнгнгнгнгнгнгнгнгнгн╬Ў╣╣║п╩¤гнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НцЮРцЮДхЗ╜цХ░я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 bpTree<T>::~bpTree()
@@ -141,11 +145,11 @@ bpTree<T>::~bpTree()
 }
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгн─г░х└р╡─╞ф╦√│╔╘▒║п╩¤гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НцибцЭ┐ч▒╗чЪДхЕ╢ф╗ЦцИРхСШхЗ╜цХ░я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
-//гнгнгнгнгнгнгнгнгнгнгнгн┤ж└э▒╚╜╧┤є╨бгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхдДчРЖцпФш╛Гхдзх░Пя╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 template <class T>
 template <typename It>
 int bpTree<T>::compare(const It & a, const It & b)
@@ -155,7 +159,7 @@ int bpTree<T>::compare(const It & a, const It & b)
 	else                return -1;
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн╕∙╜┌╡у┼╨╢╧гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Нца╣шКВчВ╣хИдцЦня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 bool bpTree<T>::Isroot(node* & nodeposition) const
@@ -166,7 +170,7 @@ bool bpTree<T>::Isroot(node* & nodeposition) const
 		return 0;
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн╥╢╜┌╡у┼╨╢╧гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхП╢шКВчВ╣хИдцЦня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 bool bpTree<T>::Isleaf(node* & cnode) const
@@ -177,7 +181,7 @@ bool bpTree<T>::Isleaf(node* & cnode) const
 		return true;
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгн╤░╒╥╥╢╜┌╡угнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Нхп╗цЙ╛хП╢шКВчВ╣я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 void bpTree<T>::findLeaf(const T & the_key)
@@ -185,27 +189,27 @@ void bpTree<T>::findLeaf(const T & the_key)
 	int i;
 	posNode = treeRoot;
 
-	while (Isleaf(posNode) == 0)                     //╗╣├╗╡╜╥╢╜┌╡у╘Є╝╠╨°╧Є╧┬╒╥╡╜╥╢╜┌╡у╛═╓╨╓╣
+	while (Isleaf(posNode) == 0)                     //ш┐Шц▓бхИ░хП╢шКВчВ╣хИЩч╗зч╗нхРСф╕ЛцЙ╛хИ░хП╢шКВчВ╣х░▒ф╕нцнв
 	{
-		for (i = 0; i < posNode->no; i++)              //╘┌╕ў▓у╜┌╡у╓╨╤░╒╥╧р╙ж╡─╬╗╓├             
-			if (compare(the_key, posNode->key[i]) == -1)//╒╥╡╜║є╠°│Ў╤н╗╖
+		for (i = 0; i < posNode->no; i++)              //хЬихРДх▒ВшКВчВ╣ф╕нхп╗цЙ╛чЫ╕х║ФчЪДф╜Нч╜о             
+			if (compare(the_key, posNode->key[i]) == -1)//цЙ╛хИ░хРОш╖│хЗ║х╛кчОп
 				break;
         posNode = posNode->childNode[i];
 	}
 }
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгн╤░╒╥╧р╡╚╡─╓╡гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Нхп╗цЙ╛чЫ╕чнЙчЪДхА╝я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 
 template<class T>
-pos_type bpTree<T>::Eqsearch(const T & ckey)
+auto bpTree<T>::Eqsearch(const T & ckey) -> pos_type
 {
     bool f = false;
     pos_type pos;
 
     findLeaf(ckey);
-    for (int i = 0; i < posNode->no; i++)              //╒╥╡╜╘┌╜┌╡у╓╨╡─╬╗╓├
+    for (int i = 0; i < posNode->no; i++)              //цЙ╛хИ░хЬишКВчВ╣ф╕нчЪДф╜Нч╜о
 	{
 		if (compare(ckey, posNode->key[i]) == 0)
 		{
@@ -218,7 +222,7 @@ pos_type bpTree<T>::Eqsearch(const T & ckey)
         return -1;
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн╩¤╛▌▓х╚ы║п╩¤гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НцХ░цНоцПТхЕехЗ╜цХ░я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 void bpTree<T>::Insert_node(const T & key, const pos_type & n)
@@ -226,18 +230,18 @@ void bpTree<T>::Insert_node(const T & key, const pos_type & n)
 	findLeaf(key);
 	bool f = false;
 
-	if (totalData == 0)                                       //╡▒╩¤╛▌▒╗╔╛═ъ╩▒╡─╟щ┐Ў           
+	if (totalData == 0)                                       //х╜УцХ░цНошвлхИахоМцЧ╢чЪДцГЕхЖ╡           
 	{
 		treeRoot->key[0] = key;
 		treeRoot->dataPos[0] = n;
 		treeRoot->no = 1;
 		totalData = 1;
 	}
-	else                                                //╗╣╙╨╩¤╛▌
+	else                                                //ш┐ШцЬЙцХ░цНо
 	{
-		for (int i = 0; i < posNode->no; i++)          //▓х╚ы╩¤╛▌▒╚╫ю┤є╓╡╨бгм╒╥╡╜╘┌╥╢╜┌╡у╓╨╡─╬╗╓├
+		for (int i = 0; i < posNode->no; i++)          //цПТхЕецХ░цНоцпФцЬАхдзхА╝х░Пя╝МцЙ╛хИ░хЬихП╢шКВчВ╣ф╕нчЪДф╜Нч╜о
 		{
-			if (compare(key, posNode->key[i]) == -1)   //╒╥╡╜║єгм║є├ц╡─╩¤╛▌║є╥╞
+			if (compare(key, posNode->key[i]) == -1)   //цЙ╛хИ░хРОя╝МхРОщЭвчЪДцХ░цНохРОчз╗
 			{
 				for (int j = posNode->no; j > i; j--)
 				{
@@ -250,14 +254,14 @@ void bpTree<T>::Insert_node(const T & key, const pos_type & n)
 				break;
 			}
 		}
-		if (f == false)                                     //╩¤╛▌▒╚╫ю┤є╓╡┤єгм╓▒╜╙▓х╡╜╫ю║є
+		if (f == false)                                     //цХ░цНоцпФцЬАхдзхА╝хдзя╝МчЫ┤цОецПТхИ░цЬАхРО
 		{
 			posNode->key[posNode->no] = key;
 			posNode->dataPos[posNode->no] = n;
 		}
-		if (posNode->no < N - 1)                           //╜┌╡у╬┤┬·гм╜┌╡у╡─╩¤╛▌╕Ў╩¤гл1║є═╦│Ў
+		if (posNode->no < N - 1)                           //шКВчВ╣цЬкц╗бя╝МшКВчВ╣чЪДцХ░цНоф╕кцХ░я╝Л1хРОщААхЗ║
 			posNode->no += 1;
-		else                                                //╜┌╡у╥╤┬·гм╜°╨╨╜┌╡у╖╓┴╤       
+		else                                                //шКВчВ╣х╖▓ц╗бя╝Мш┐ЫшбМшКВчВ╣хИЖшгВ       
 			Resize_leaf();
 		totalData++;
 	}
@@ -265,20 +269,20 @@ void bpTree<T>::Insert_node(const T & key, const pos_type & n)
 }
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгн╖╓┴╤╥╢╜┌╡угнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхИЖшгВхП╢шКВчВ╣я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 template<class T>
 void bpTree<T>::Resize_leaf()
 {
 	node* new_node = new node;
 
-	//╖╓╬к┴╜╕Ў╥╢╜┌╡у
+	//хИЖф╕║ф╕дф╕кхП╢шКВчВ╣
 	for (int i = N / 2; i < N; i++)
 	{
 		new_node->key[i - N / 2] = posNode->key[i];
 		new_node->dataPos[i - N / 2] = posNode->dataPos[i];
 	}
 
-	//┤ж└э║с╧Є┴м╜╙╝░╞ф╦√╩¤╓╡
+	//хдДчРЖцикхРСш┐ЮцОехПКхЕ╢ф╗ЦцХ░хА╝
     if (posNode->nextNode != nullptr)
 	{
         if (posNode->nextNode->nextNode != nullptr)
@@ -305,14 +309,14 @@ void bpTree<T>::Resize_leaf()
 	new_node->no = N - N / 2;
 	new_node->fatherNode = posNode->fatherNode;
 
-	for (int i = N / 2; i < N; i++)     //╩¤╛▌╕┤╬╗
+	for (int i = N / 2; i < N; i++)     //цХ░цНохдНф╜Н
 	{
         posNode->key[i] = 0;
 		posNode->dataPos[i] = 0;
 	}
-	// ╜╙╧┬└┤┤ж└э╞ф╔╧╥╗▓у╡─╖╟╥╢╜┌╡у╡─╓╡║═║в╫╙╓╕╒ы
+	// цОеф╕ЛцЭехдДчРЖхЕ╢ф╕Кф╕Ах▒ВчЪДщЭЮхП╢шКВчВ╣чЪДхА╝хТМхнйхнРцМЗщТИ
 	
-	// ╫╘╝║╩╟╕∙╜с╡у╡─╟щ┐Ў
+	// шЗкх╖▒цШпца╣ч╗УчВ╣чЪДцГЕхЖ╡
 	int i = 0;
 	if (Isroot(posNode) == 1)
 	{
@@ -324,46 +328,46 @@ void bpTree<T>::Resize_leaf()
 		posNode->fatherNode = new_node->fatherNode = root;
 		treeRoot = root;
 	}
-	//╖╟╕∙╜с╡у╡─╟щ┐Ў
+	//щЭЮца╣ч╗УчВ╣чЪДцГЕхЖ╡
 	else
 	{
 		node* po = posNode->fatherNode;
 		for (i = 0; i < po->no; i++)
-		{// ╒╥╡╜╕╕╜┌╡у╓╕╧Є╨┬╥╢╜┌╡у╡─╓╕╒ы
+		{// цЙ╛хИ░чИ╢шКВчВ╣цМЗхРСцЦ░хП╢шКВчВ╣чЪДцМЗщТИ
 			if (compare(new_node->key[0], po->key[i]) == -1)
 				break;
 		}
-		// ║є├ц╡─╦ў╥¤╝№╓╡║═║в╫╙╓╕╒ы╢╝║є╥╞гм╬к╨┬╜┌╡у╠┌│Ў╬╗╓├
+		// хРОщЭвчЪДч┤вх╝ХщФохА╝хТМхнйхнРцМЗщТИщГ╜хРОчз╗я╝Мф╕║цЦ░шКВчВ╣шЕ╛хЗ║ф╜Нч╜о
 		for (int j = po->no; j > i + 1; j--)
 			po->key[j] = po->key[j - 1];
 
 		for (int j = po->no + 1; j > i + 1; j--)
 			po->childNode[j] = po->childNode[j - 1];
-		// ╚├i + 1┤ж╓╕╒ы╓╕╧Є╨┬╡─╜┌╡у
+		// шойi + 1хдДцМЗщТИцМЗхРСцЦ░чЪДшКВчВ╣
 		po->key[i] = new_node->key[0];
 		po->childNode[i] = posNode;
 		po->childNode[i + 1] = new_node;
 
-		//╕╕╜┌╡у╩¤╛▌╬┤┬·гмno╩¤╝╙╥╗
+		//чИ╢шКВчВ╣цХ░цНоцЬкц╗бя╝МnoцХ░хКаф╕А
 		if (posNode->fatherNode->no < N - 1)
 			posNode->fatherNode->no++;
 
-		//╕╕╜┌╡у╩¤╛▌╥╤┬·
+		//чИ╢шКВчВ╣цХ░цНох╖▓ц╗б
 		else
 		{
 			posNode = posNode->fatherNode;
-			Resize_nleaf();//╖╓┴╤╖╟╥╢╜┌╡уги╔ц╝░╡▌╣щгй
+			Resize_nleaf();//хИЖшгВщЭЮхП╢шКВчВ╣я╝Иц╢ЙхПКщАТх╜Тя╝Й
 		}
 	}
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгн╖╓┴╤╖╟╥╢╜┌╡угнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхИЖшгВщЭЮхП╢шКВчВ╣я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 template<class T>
 void bpTree<T>::Resize_nleaf()
 {
 	node* new_node = new node;
 
-	//░╤╜┌╡у╖╓┐к
+	//цККшКВчВ╣хИЖх╝А
 	for (int i = (N + 1) / 2; i < N; i++)
 	{
 		new_node->key[i - (N + 1) / 2] = posNode->key[i];
@@ -371,7 +375,7 @@ void bpTree<T>::Resize_nleaf()
 	}
 	new_node->childNode[N / 2] = posNode->childNode[N];
 
-	//┤ж└э║с╧Є┴м╜╙╬╩╠т╝░╞ф╦√╩¤╓╡
+	//хдДчРЖцикхРСш┐ЮцОещЧощвШхПКхЕ╢ф╗ЦцХ░хА╝
 
     if (posNode->nextNode != nullptr)
 	{
@@ -399,19 +403,19 @@ void bpTree<T>::Resize_nleaf()
 	new_node->fatherNode = posNode->fatherNode;
 
 
-	for ( int i = 0; i < N - (N - 1) / 2; i++) //╥╞╢п║є╕┤╬╗
+	for ( int i = 0; i < N - (N - 1) / 2; i++) //чз╗хКихРОхдНф╜Н
 	{
         posNode->key[N - 1 - i] = 0;
 		posNode->childNode[N - i] = nullptr;
 	}
 
 	for (int x = 0; x < new_node->no + 1; x++)                         
-	{//░╤╨┬╜┌╡у╡─╫╙╜┌╡у╡─╕╕╜┌╡у╕─╣¤└┤
+	{//цККцЦ░шКВчВ╣чЪДхнРшКВчВ╣чЪДчИ╢шКВчВ╣цФ╣ш┐ЗцЭе
 		new_node->childNode[x]->fatherNode = new_node;
 	}
 
-	//╕∙╛▌╫╘╝║╩╟▓╗╩╟╕∙╜с╡у
-	if (Isroot(posNode) == 1)          //╩╟╕∙╜с╡у╟щ┐Ў
+	//ца╣цНошЗкх╖▒цШпф╕НцШпца╣ч╗УчВ╣
+	if (Isroot(posNode) == 1)          //цШпца╣ч╗УчВ╣цГЕхЖ╡
 	{
 		node* root = new node;
 		node* pos = new_node;
@@ -425,22 +429,22 @@ void bpTree<T>::Resize_nleaf()
 		treeRoot = root;
 	}
 
-	else   //╖╟╕∙╜с╡у╡─╟щ┐Ў
+	else   //щЭЮца╣ч╗УчВ╣чЪДцГЕхЖ╡
 	{
         int i;
 		node* po = posNode->fatherNode;
 		for (i = 0; i < po->no; i++)
-		{// ╒╥╡╜╕╕╜┌╡у╓╕╧Є╨┬╥╢╜┌╡у╡─╓╕╒ы
+		{// цЙ╛хИ░чИ╢шКВчВ╣цМЗхРСцЦ░хП╢шКВчВ╣чЪДцМЗщТИ
 			if (compare(new_node->key[0], po->key[i]) == -1)
 				break;
 		}
-		// ║є├ц╡─╦ў╥¤╝№╓╡║═║в╫╙╓╕╒ы╢╝║є╥╞гм╬к╨┬╜┌╡у╠┌│Ў╬╗╓├
+		// хРОщЭвчЪДч┤вх╝ХщФохА╝хТМхнйхнРцМЗщТИщГ╜хРОчз╗я╝Мф╕║цЦ░шКВчВ╣шЕ╛хЗ║ф╜Нч╜о
 		for (int j = po->no; j > i + 1; j--)
 			po->key[j] = po->key[j - 1];
 
 		for (int j = po->no + 1; j > i + 1; j--)
 			po->childNode[j] = po->childNode[j - 1];
-		// ╚├i + 1┤ж╓╕╒ы╓╕╧Є╨┬╡─╜┌╡у
+		// шойi + 1хдДцМЗщТИцМЗхРСцЦ░чЪДшКВчВ╣
 		node* pos = new_node;
 		while (Isleaf(pos) != 1)
 			pos = pos->childNode[0];
@@ -448,21 +452,21 @@ void bpTree<T>::Resize_nleaf()
 		po->childNode[i] = posNode;
 		po->childNode[i + 1] = new_node;
 
-		//╕╕╜┌╡у╩¤╛▌╬┤┬·гмno╩¤╝╙╥╗
+		//чИ╢шКВчВ╣цХ░цНоцЬкц╗бя╝МnoцХ░хКаф╕А
 		if (posNode->fatherNode->no < N - 1)
 			posNode->fatherNode->no++;
 
-		//╕╕╜┌╡у╩¤╛▌╥╤┬·
+		//чИ╢шКВчВ╣цХ░цНох╖▓ц╗б
 		else
 		{
 			posNode = posNode->fatherNode;
-			Resize_nleaf();//╖╓┴╤╖╟╥╢╜┌╡уги╔ц╝░╡▌╣щгй
+			Resize_nleaf();//хИЖшгВщЭЮхП╢шКВчВ╣я╝Иц╢ЙхПКщАТх╜Тя╝Й
 		}
 	}
 }
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгн╔╛│¤╥╢╜┌╡у╩¤╛▌гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхИащЩдхП╢шКВчВ╣цХ░цНоя╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 
 template<class T>
@@ -470,15 +474,15 @@ bool bpTree<T>::Del_data(const T & ckey)
 {
 	bool f = false;
 
-	findLeaf(ckey);                                   //╦∙╘┌╡─╥╢╜┌╡у
-	for (int i = 0; i < posNode->no; i++)              //╒╥╡╜╘┌╜┌╡у╓╨╡─╬╗╓├
+	findLeaf(ckey);                                   //цЙАхЬичЪДхП╢шКВчВ╣
+	for (int i = 0; i < posNode->no; i++)              //цЙ╛хИ░хЬишКВчВ╣ф╕нчЪДф╜Нч╜о
 	{
 		if (compare(ckey, posNode->key[i]) == 0)
 		{
 			f = true; break;
 		}
 	}
-    if (f == true)    //╩¤╛▌┤ц╘┌
+    if (f == true)    //цХ░цНохнШхЬи
     {
         del(ckey);
         opFlag = true;
@@ -488,19 +492,19 @@ bool bpTree<T>::Del_data(const T & ckey)
 }
 
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн╔╛│¤гнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхИащЩдя╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 
 template<class T>
 void bpTree<T>::del(const T & k)
 {
 	int i;
-	for (i = 0; i < posNode->no; i++)          //╒╥╡╜╘┌╜┌╡у╓╨╡─╬╗╓├
+	for (i = 0; i < posNode->no; i++)          //цЙ╛хИ░хЬишКВчВ╣ф╕нчЪДф╜Нч╜о
 	{
 		if (compare(k, posNode->key[i]) == 0)break;
 	}
 
-	if (Isroot(posNode) == 1)                    //╕∙╜с╡у╟щ┐Ў
+	if (Isroot(posNode) == 1)                    //ца╣ч╗УчВ╣цГЕхЖ╡
 	{	
         for (; i < posNode->no - 1; i++)
         {
@@ -512,7 +516,7 @@ void bpTree<T>::del(const T & k)
         posNode->no--;
         totalData--;
 	}
-    else                                         //╥╢╜┌╡у╖╟╕∙╜с╡у
+    else                                         //хП╢шКВчВ╣щЭЮца╣ч╗УчВ╣
     {
         for (; i<posNode->no - 1; i++)
         {
@@ -524,28 +528,28 @@ void bpTree<T>::del(const T & k)
         totalData--;
 		posNode->no--;
 
-		if (posNode->no < N / 2)                   //╨ш╥к╡ў╒√╡─
+		if (posNode->no < N / 2)                   //щЬАшжБш░ГцХ┤чЪД
             MergeLeaf();
 	}
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн║╧▓вleaf╜┌╡угнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхРИх╣╢leafшКВчВ╣я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 void bpTree<T>::MergeLeaf()
 {
     node* brother = posNode->brother;
     int i;
-    if (brother->no < N - posNode->no)           //┴╜╜┌╡у┐╔╥╘║╧▓в
+    if (brother->no < N - posNode->no)           //ф╕дшКВчВ╣хПпф╗ехРИх╣╢
     {
-        if (posNode->nextNode != nullptr)         //▓╗╩╟╫ю╙╥▒▀╡─╜┌╡у
+        if (posNode->nextNode != nullptr)         //ф╕НцШпцЬАхП│ш╛╣чЪДшКВчВ╣
         {
             for (i = posNode->no; i < posNode->no + brother->no; i++)
             {
                 posNode->key[i] = brother->key[i - posNode->no];
                 posNode->dataPos[i] = brother->dataPos[i - posNode->no];
             }
-            //┤ж└э║╧▓в║є╜┌╡у╡─╞ф╦√╩¤╓╡
+            //хдДчРЖхРИх╣╢хРОшКВчВ╣чЪДхЕ╢ф╗ЦцХ░хА╝
 
             // no
             posNode->no += brother->no;
@@ -565,7 +569,7 @@ void bpTree<T>::MergeLeaf()
 
             posNode->nextNode = brother->nextNode;
 
-            //╓╪╓├╔╧╝╢╜┌╡у╓╨╡─╩¤╓╡
+            //щЗНч╜оф╕Кч║зшКВчВ╣ф╕нчЪДцХ░хА╝
 
             node* tp = brother->fatherNode;
 
@@ -600,26 +604,26 @@ void bpTree<T>::MergeLeaf()
 
             posNode = tp;
             posNode->no--;
-            if (posNode->no < (N + 1) / 2 - 1)   //╨ш╥к╡ў╒√╡─
+            if (posNode->no < (N + 1) / 2 - 1)   //щЬАшжБш░ГцХ┤чЪД
             {
                 Merge();
             }
         }
-        else                                     //╫ю╙╥▒▀╡─╜┌╡у
+        else                                     //цЬАхП│ш╛╣чЪДшКВчВ╣
         {
-            //║╧▓в
+            //хРИх╣╢
             for (i = brother->no; i < brother->no + posNode->no; i++)
             {
                 brother->key[i] = posNode->key[i - brother->no];
                 brother->dataPos[i] = posNode->dataPos[i - brother->no];
             }
 
-            //║╧▓в║є╞ф╦√╩¤╛▌┤ж└э
+            //хРИх╣╢хРОхЕ╢ф╗ЦцХ░цНохдДчРЖ
             brother->no += posNode->no;
             brother->nextNode = nullptr;
             brother->brother = brother->fatherNode->childNode[brother->fatherNode->no - 2];
 
-            //╠ц╗╗╔╧╝╢╜┌╡у╓╨╡─╩¤╛▌
+            //цЫ┐цНвф╕Кч║зшКВчВ╣ф╕нчЪДцХ░цНо
             node* tp = brother->fatherNode;
             tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
@@ -628,17 +632,17 @@ void bpTree<T>::MergeLeaf()
             posNode = tp;
 
             posNode->no--;
-            if (posNode->no < (N + 1) / 2 - 1)   //╨ш╥к╡ў╒√╡─
+            if (posNode->no < (N + 1) / 2 - 1)   //щЬАшжБш░ГцХ┤чЪД
             {
                 Merge();
             }
         }
     }
-    else                                          //┴╜╜┌╡у▓╗┐╔╥╘║╧▓в
+    else                                          //ф╕дшКВчВ╣ф╕НхПпф╗ехРИх╣╢
     {
-        if (posNode->nextNode != nullptr)            //▓╗╩╟╫ю╙╥▒▀╡─╜┌╡у
+        if (posNode->nextNode != nullptr)            //ф╕НцШпцЬАхП│ш╛╣чЪДшКВчВ╣
         {
-            //╡ў╒√┴╜╕Ў╜┌╡у╡─╩¤╛▌╕Ў╩¤
+            //ш░ГцХ┤ф╕дф╕кшКВчВ╣чЪДцХ░цНоф╕кцХ░
 
             int w = posNode->no;
             posNode->key[w] = brother->key[0];
@@ -647,7 +651,7 @@ void bpTree<T>::MergeLeaf()
             posNode->no++;
             brother->no--;
 
-            //╩¤╛▌╟░╥╞
+            //цХ░цНохЙНчз╗
 
             for (i = 0; i < brother->no; i++)
             {
@@ -655,14 +659,14 @@ void bpTree<T>::MergeLeaf()
                 brother->dataPos[i] = brother->dataPos[i + 1];
             }
 
-            //╩¤╛▌╫к╥╞║є┐╒╬╗┴у
+            //цХ░цНош╜мчз╗хРОчй║ф╜НщЫ╢
             brother->dataPos[i] = 0;
             brother->key[i] = 0;
         }
-        else             //╫ю╙╥▒▀╡─╜┌╡у
+        else             //цЬАхП│ш╛╣чЪДшКВчВ╣
         {
-            //╡ў╒√╩¤╛▌╕Ў╩¤
-            for (i = posNode->no; i>0; i--)         //╩¤╛▌║є╥╞
+            //ш░ГцХ┤цХ░цНоф╕кцХ░
+            for (i = posNode->no; i>0; i--)         //цХ░цНохРОчз╗
             {
                 posNode->key[i] = posNode->key[i - 1];
                 posNode->dataPos[i] = posNode->dataPos[i - 1];
@@ -673,14 +677,14 @@ void bpTree<T>::MergeLeaf()
             brother->no--;
             posNode->no++;
 
-            //╩¤╛▌╫к╥╞║є┐╒╬╗╕╢┴у
+            //цХ░цНош╜мчз╗хРОчй║ф╜Нф╗ШщЫ╢
             brother->dataPos[brother->no] = 0;
             brother->key[brother->no] = 0;
         }
     }
 }
 
-//гнгнгнгнгнгнгнгнгнгнгнгнгнгнгн║╧▓вnon-leaf╜┌╡угнгнгнгнгнгнгнгнгнгнгнгнгнгнгнгн
+//я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝НхРИх╣╢non-leafшКВчВ╣я╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Ня╝Н
 
 template<class T>
 void bpTree<T>::Merge()
@@ -698,9 +702,9 @@ void bpTree<T>::Merge()
             posNode->fatherNode = nullptr;
         }
     }
-    else if (brother->no < N - 1 - posNode->no)   //┴╜╜┌╡у┐╔╥╘║╧▓в
+    else if (brother->no < N - 1 - posNode->no)   //ф╕дшКВчВ╣хПпф╗ехРИх╣╢
     {
-        if (posNode->nextNode != nullptr)         //▓╗╩╟╫ю╙╥▒▀╡─╜┌╡у
+        if (posNode->nextNode != nullptr)         //ф╕НцШпцЬАхП│ш╛╣чЪДшКВчВ╣
 		{
             for (i = posNode->no; i < posNode->no + brother->no; i++)
             {
@@ -716,7 +720,7 @@ void bpTree<T>::Merge()
             while(Isleaf(temp) != 1)
                 temp = temp->childNode[0];
             posNode->key[posNode->no] = temp->key[0];
-            //┤ж└э║╧▓в║є╜┌╡у╡─╞ф╦√╩¤╓╡
+            //хдДчРЖхРИх╣╢хРОшКВчВ╣чЪДхЕ╢ф╗ЦцХ░хА╝
             // no
             posNode->no += brother->no + 1;
 
@@ -735,7 +739,7 @@ void bpTree<T>::Merge()
 
 			posNode->nextNode = brother->nextNode;
 
-			//╓╪╓├╔╧╝╢╜┌╡у╓╨╡─╩¤╓╡
+			//щЗНч╜оф╕Кч║зшКВчВ╣ф╕нчЪДцХ░хА╝
 
             node* tp = brother->fatherNode;
 
@@ -770,14 +774,14 @@ void bpTree<T>::Merge()
 
             posNode = tp;
             posNode->no--;
-            if (posNode->no < (N + 1) / 2 - 1)   //╨ш╥к╡ў╒√╡─
+            if (posNode->no < (N + 1) / 2 - 1)   //щЬАшжБш░ГцХ┤чЪД
             {
                 Merge();
             }
 		}
-        else                 //╫ю╙╥▒▀╡─╜┌╡у
+        else                 //цЬАхП│ш╛╣чЪДшКВчВ╣
 		{
-            //║╧▓в
+            //хРИх╣╢
             for (i = brother->no; i < brother->no + posNode->no; i++)
             {
                 brother->key[i + 1] = posNode->key[i - brother->no];
@@ -792,12 +796,12 @@ void bpTree<T>::Merge()
                 temp = temp->childNode[0];
             brother->key[brother->no] = temp->key[0];
 
-            //║╧▓в║є╞ф╦√╩¤╛▌┤ж└э
+            //хРИх╣╢хРОхЕ╢ф╗ЦцХ░цНохдДчРЖ
             brother->no += posNode->no + 1;
             brother->nextNode = nullptr;
             brother->brother = brother->fatherNode->childNode[brother->fatherNode->no - 2];
 
-            //╠ц╗╗╔╧╝╢╜┌╡у╓╨╡─╩¤╛▌
+            //цЫ┐цНвф╕Кч║зшКВчВ╣ф╕нчЪДцХ░цНо
             node* tp = brother->fatherNode;
             tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
@@ -806,17 +810,17 @@ void bpTree<T>::Merge()
             posNode = tp;
 
             posNode->no--;
-            if (posNode->no < (N + 1) / 2 - 1)   //╨ш╥к╡ў╒√╡─
+            if (posNode->no < (N + 1) / 2 - 1)   //щЬАшжБш░ГцХ┤чЪД
             {
                 Merge();
             }
 		}
 	}
-    else                                          //┴╜╜┌╡у▓╗┐╔╥╘║╧▓в
+    else                                          //ф╕дшКВчВ╣ф╕НхПпф╗ехРИх╣╢
 	{
-        if (posNode->nextNode != nullptr)            //▓╗╩╟╫ю╙╥▒▀╡─╜┌╡у
+        if (posNode->nextNode != nullptr)            //ф╕НцШпцЬАхП│ш╛╣чЪДшКВчВ╣
 		{
-			//╡ў╒√┴╜╕Ў╜┌╡у╡─╩¤╛▌╕Ў╩¤
+			//ш░ГцХ┤ф╕дф╕кшКВчВ╣чЪДцХ░цНоф╕кцХ░
 			int w = posNode->no;
 
             posNode->childNode[w + 1] = brother->childNode[0];
@@ -830,20 +834,20 @@ void bpTree<T>::Merge()
 			posNode->no++;
 			brother->no--;
 
-			//╩¤╛▌╟░╥╞
+			//цХ░цНохЙНчз╗
             for (i = 0; i < brother->no + 1; i++)
 			{
 				brother->key[i] = brother->key[i + 1];
                 brother->childNode[i] = brother->childNode[i + 1];
 			}
-			//╩¤╛▌╫к╥╞║є┐╒╬╗╕╢┴у
+			//цХ░цНош╜мчз╗хРОчй║ф╜Нф╗ШщЫ╢
             brother->childNode[i] = nullptr;
             brother->key[i - 1] = 0;
 		}
-        else           //╫ю╙╥▒▀╡─╜┌╡у
+        else           //цЬАхП│ш╛╣чЪДшКВчВ╣
 		{
-			//╡ў╒√╩¤╛▌╕Ў╩¤
-            for (i = posNode->no; i > 0; i--)              //╩¤╛▌║є╥╞
+			//ш░ГцХ┤цХ░цНоф╕кцХ░
+            for (i = posNode->no; i > 0; i--)              //цХ░цНохРОчз╗
 			{
 				posNode->key[i] = posNode->key[i - 1];
                 posNode->childNode[i + 1] = posNode->childNode[i];
@@ -862,7 +866,7 @@ void bpTree<T>::Merge()
 			brother->no--;
 			posNode->no++;
 
-			//╩¤╛▌╫к╥╞║є┐╒╬╗╕╢┴у
+			//цХ░цНош╜мчз╗хРОчй║ф╜Нф╗ШщЫ╢
             brother->childNode[brother->no + 1] = nullptr;
             brother->key[brother->no] = 0;
 		}
@@ -870,7 +874,7 @@ void bpTree<T>::Merge()
 }
 
 template<class T>
-void bpTree<T>::Index(const string & indexName)               //╜и┴в╦ў╥¤╬─╝■
+void bpTree<T>::Index(const string & indexName)               //х╗║члЛч┤вх╝ХцЦЗф╗╢
 {
     File &file = BufferManager::open(indexName);
 
@@ -897,7 +901,7 @@ void bpTree<T>::Index(const string & indexName)               //╜и┴в╦ў╥¤╬─╝■
 }
 
 template<class T>
-void bpTree<T>::Buildtree(const string & indexName)           //┤╙╦ў╥¤╬─╝■╓╨╡╝│Ў╜и┴вb+╩ў
+void bpTree<T>::Buildtree(const string & indexName)           //ф╗Оч┤вх╝ХцЦЗф╗╢ф╕нхп╝хЗ║х╗║члЛb+цаС
 {
     File &file = BufferManager::open(indexName);
 
@@ -907,11 +911,11 @@ void bpTree<T>::Buildtree(const string & indexName)           //┤╙╦ў╥¤╬─╝■╓╨╡╝│Ў
     int i, num;
     file.seekg(0);
     file >> total;
-    std::cout << "Hi! " << total << std::endl;
+    //std::cout << "Hi! " << total << std::endl;
 
     for (i = 0; i < total; i++)
     {
-        std::cout << "time " << i << std::endl;
+        //std::cout << "time " << i << std::endl;
         file >> num;
         for (int j = 0; j < num; j++)
         {
@@ -922,6 +926,7 @@ void bpTree<T>::Buildtree(const string & indexName)           //┤╙╦ў╥¤╬─╝■╓╨╡╝│Ў
     }
 }
 
+#ifdef TEST
 template<class T>
 void bpTree<T>::Show()
 {
@@ -983,5 +988,6 @@ void bpTree<T>::Show()
     else
         std::cout<<"no data is exist";
 }
+#endif
 
-#endif BPTREE_H_
+#endif //BPTREE_H_
