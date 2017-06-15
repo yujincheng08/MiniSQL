@@ -1,7 +1,6 @@
 QT     -= gui
-CONFIG += c++14
 CONFIG += test
-CONFIG += console c++17
+CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG(test) {
     DEFINES += TEST
