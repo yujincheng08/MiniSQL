@@ -1,7 +1,6 @@
-TEMPLATE += lib
-QT       -= gui
+include(../../MiniSQL.pri)
 
-TARGET = BufferManager
+TARGET = API
 TEMPLATE = lib
 
 DESTDIR = ../../
