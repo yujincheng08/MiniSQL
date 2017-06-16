@@ -1,8 +1,8 @@
-#include "../bufferManager/File.h"
-#include "../bufferManager/BufferManager.h"
 #include "BpTree.h"
 #include <QCoreApplication>
 #include <random>
+#include <iostream>
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc,argv);
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     for(int i = 0 ; i != 10; i++)
        A.Del_data(i);
-    std::cout << A.Eqsearch(20) << std::endl <<std::endl;
+    //std::cout << A.Eqsearch(20) << std::endl <<std::endl;
     /*
     A.Insert_node(9, 127);
     A.Insert_node(5, 127);

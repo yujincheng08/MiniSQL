@@ -1,9 +1,6 @@
-#pragma once
-
 #ifndef BPTREE_H_
 #define BPTREE_H_
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include "../BufferManager/BufferManager.h"
@@ -14,16 +11,16 @@ template<class T>
 class bpTree
 {
     using string = std::string;
-    template<typename K>
-    using vector = std::vector<K>;
-    using pos_type = File::pos_type;
+    template<typename K>		
+    using vector = std::vector<K>;		
+    using pos_type = File::pos_type;		
     constexpr static int N = 7;
 public:
 	struct node
 	{
 		int no;                         //本节点的数据个数
 		int isLeaf;                     //叶节点的标志
-        pos_type dataPos[N];            //叶节点存放纵向地址
+		pos_type dataPos[N];            //叶节点存放纵向地址
 		T key[N];                       //存放关键字
 		node* childNode[N + 1];             //非叶节点存放纵向地址           
 		node* fatherNode;               //存放父节点地址
@@ -63,7 +60,12 @@ public:
 	bool Isroot(node* & nodeposition) const;        //检测是否根结点
 	void findLeaf(const T & the_key);                   //叶结点查找函数
 
-    pos_type Eqsearch(const T & key);
+    vector<pos_type> Eqsearch(const T & key);
+    vector<pos_type> Neqsearch(const T & key);
+    vector<pos_type> Besearch(const T & key);
+    vector<pos_type> Bsearch(const T & key);
+    vector<pos_type> Ssearch(const T & key);
+    vector<pos_type> Sesearch(const T & key);
 
 	void Insert_node(const T &, const pos_type &);            //数据插入
 	void Resize_leaf();                             //分裂叶节点
@@ -81,7 +83,6 @@ public:
 #ifdef TEST
     void Show();
 #endif
-
 private:
 	node* headNode;
 	node* treeRoot;                               //实例的根结点
@@ -203,24 +204,151 @@ void bpTree<T>::findLeaf(const T & the_key)
 
 
 template<class T>
-auto bpTree<T>::Eqsearch(const T & ckey) -> pos_type
+auto bpTree<T>::Eqsearch(const T & key) -> vector<pos_type>
 {
-    bool f = false;
-    pos_type pos;
+    vector<pos_type> pos;
 
-    findLeaf(ckey);
+    findLeaf(key);
     for (int i = 0; i < posNode->no; i++)              //找到在节点中的位置
 	{
-		if (compare(ckey, posNode->key[i]) == 0)
+        if (compare(key, posNode->key[i]) == 0)
 		{
-            f = true; pos = posNode->dataPos[i]; break;
+            pos.push_back(posNode->dataPos[i]);
+            break;
 		}
 	}
-    if(f == true)
-        return pos;
-    else
-        return -1;
+    return pos;
 }
+
+
+//－－－－－－－－－－－－－－寻找不相等－－－－－－－－－－－－－－－－－
+
+
+template<class T>
+auto bpTree<T>::Neqsearch(const T & key) -> vector<pos_type>
+{
+    vector<pos_type> pos;
+    for(headNode = treeRoot; headNode != nullptr; headNode = headNode->childNode[0])
+        posNode = headNode;
+    for(; posNode != nullptr; posNode = posNode->nextNode)
+    {
+        for(int i = 0; i < posNode->no; i++)
+        {
+            if(posNode->key[i] != key)
+                pos.push_back(posNode->dataPos[i]);
+        }
+    }
+    return pos;
+}
+
+
+//－－－－－－－－－－－－寻找>=－－－－－－－－－－－－－－－－－－－－－－
+
+
+template<class T>
+auto bpTree<T>::Besearch(const T & key) -> vector<pos_type>
+{
+    int i;
+    vector<pos_type> pos;
+    findLeaf(key);
+    for(i = 0; i < posNode->no; i++)				//找到在节点中的位置
+    {
+        if(compare(posNode->key[i], key) >= 0)
+        {
+            break;
+        }
+    }
+    for(; i < posNode->no; i++)
+    {
+        pos.push_back(posNode->dataPos[i]);
+    }
+    for(posNode = posNode->nextNode; posNode != nullptr; posNode = posNode->nextNode)
+    {
+        for(int j = 0; j < posNode->no; j++)
+            pos.push_back(posNode->dataPos[j]);
+    }
+    return pos;
+}
+
+
+//－－－－－－－－－－－－－寻找>－－－－－－－－－－－－－－－－－－－
+
+template<class T>
+auto bpTree<T>::Bsearch(const T & key) -> vector<pos_type>
+{
+    int i;
+    vector<pos_type> pos;
+    findLeaf(key);
+    for(i = 0; i < posNode->no; i++)				//找到在节点中的位置
+    {
+        if(compare(posNode->key[i], key) > 0)
+        {
+            break;
+        }
+    }
+    for(; i < posNode->no; i++)
+    {
+        pos.push_back(posNode->dataPos[i]);
+    }
+    for(posNode = posNode->nextNode; posNode != nullptr; posNode = posNode->nextNode)
+    {
+        for(int j = 0; j < posNode->no; j++)
+            pos.push_back(posNode->dataPos[j]);
+    }
+    return pos;
+}
+
+
+//－－－－－－－－－－－－－－－－寻找<－－－－－－－－－－－－－－－－－
+
+template<class T>
+auto bpTree<T>::Ssearch(const T & key) -> vector<pos_type>
+{
+    vector<pos_type> pos;
+    findLeaf(key);
+    node *tmp = posNode;
+
+    for(headNode = treeRoot; headNode != nullptr; headNode = headNode->childNode[0])
+        posNode = headNode;
+
+    while(posNode != tmp)
+    {
+        for(int i = 0; i < posNode->no; i++)
+            pos.push_back(posNode->dataPos[i]);
+        posNode = posNode->nextNode;
+    }
+
+    for(int i = 0; compare(posNode->key[i], key) < 0; i++)
+        pos.push_back(posNode->dataPos[i]);
+    return pos;
+}
+
+
+//－－－－－－－－－－－－－－－－寻找<=－－－－－－－－－－－－－－－－－
+
+template<class T>
+auto bpTree<T>::Sesearch(const T & key) -> vector<pos_type>
+{
+    vector<pos_type> pos;
+    findLeaf(key);
+    node *tmp = posNode;
+
+    for(headNode = treeRoot; headNode != nullptr; headNode = headNode->childNode[0])
+        posNode = headNode;
+
+    while(posNode != tmp)
+    {
+        for(int i = 0; i < posNode->no; i++)
+            pos.push_back(posNode->dataPos[i]);
+        posNode = posNode->nextNode;
+    }
+
+    for(int i = 0; compare(posNode->key[i], key) <= 0; i++)
+        pos.push_back(posNode->dataPos[i]);
+    return pos;
+}
+
+
 
 //－－－－－－－－－－－－－－－数据插入函数－－－－－－－－－－－－－－－
 
@@ -900,6 +1028,8 @@ void bpTree<T>::Index(const string & indexName)               //建立索引文�
     file.flush();
 }
 
+#ifdef TEST
+#include <iostream>
 template<class T>
 void bpTree<T>::Buildtree(const string & indexName)           //从索引文件中导出建立b+树
 {
@@ -911,11 +1041,11 @@ void bpTree<T>::Buildtree(const string & indexName)           //从索引文件�
     int i, num;
     file.seekg(0);
     file >> total;
-    //std::cout << "Hi! " << total << std::endl;
+    std::cout << "Hi! " << total << std::endl;
 
     for (i = 0; i < total; i++)
     {
-        //std::cout << "time " << i << std::endl;
+        std::cout << "time " << i << std::endl;
         file >> num;
         for (int j = 0; j < num; j++)
         {
@@ -926,10 +1056,11 @@ void bpTree<T>::Buildtree(const string & indexName)           //从索引文件�
     }
 }
 
-#ifdef TEST
 template<class T>
 void bpTree<T>::Show()
 {
+    for (headNode = treeRoot; headNode->isLeaf == 0; headNode = headNode->childNode[0])
+        ;
     node* p=headNode;
     if(p!=nullptr)
     {
