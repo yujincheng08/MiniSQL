@@ -1029,6 +1029,7 @@ void bpTree<T>::Index(const string & indexName)               //建立索引文�
 }
 
 #ifdef TEST
+#include <iostream>
 template<class T>
 void bpTree<T>::Buildtree(const string & indexName)           //从索引文件中导出建立b+树
 {
