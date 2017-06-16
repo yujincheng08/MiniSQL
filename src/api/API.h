@@ -99,7 +99,7 @@ inline void API::createIndex(const Action& action)
 {
     assert(action.actionType() == Action::CreateIndex && action.columns()->size() == 1);
     auto column = *action.columns()->begin();
-    catalog->CreateIndex(*action.indexName(), *column->name(), *action.indexName());
+    catalog->CreateIndex(presentName, *column->name(), *action.indexName());
     //@@##bpTree->Index()
 }
 
