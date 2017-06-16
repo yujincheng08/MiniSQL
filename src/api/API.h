@@ -80,13 +80,13 @@ private:
     RecordManager::Record getTemplateRecord();
     vector<pos_type> queryByCondition(const Action& action);
     vector<pos_type> checkTuples(const ptr<list<Predication>>,const vector<pos_type>&,const vector<Record>&);
-    auto API::queryByIndex(ptr<list<ptr<const Condition>>>);
-    API::ptr<API::list<Predication>> optimization(ptr<const Condition>);
+    auto queryByIndex(ptr<list<ptr<const Condition>>>);
+    ptr<API::list<Predication>> optimization(ptr<const Condition>);
     void postOrderTrav(ptr<const Condition> cNode, ptr<list<Predication>>);
     bool consistent(Condition::Type, int, int);
     bool consistent(Condition::Type, float,float);
     bool consistent(Condition::Type, string,string);
-    inline void API::flushTable();
+    inline void flushTable();
 };
 
 inline void API::dropIndex(const Action& action)
@@ -286,4 +286,4 @@ inline bool API::consistent(Condition::Type operand, string leftValue, string ri
     }
 }
 
-#endif  API_H
+#endif  //API_H

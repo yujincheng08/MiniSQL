@@ -499,19 +499,19 @@ void API::displaySelect(const vector<string>& attrNames,const vector<RecordManag
         list<string> messages;
         vector<size_t> columnWidth;//he length of each attribute
         columnWidth.reserve(attrNum);
-        for (int i = 0; i < attrNum; i++) {
+        for (size_t i = 0U; i < attrNum; i++) {
             columnWidth.push_back((attrNames)[i].size());
         }
         for (auto record : tuples) {
             //ptr<vector<string>> line = std::make_shared<vector<string>>();
-            for (int i = 0; i < attrNum; i++) {
+            for (size_t i = 0U; i < attrNum; i++) {
                 if (record[i].name()->size() > columnWidth[i]) {
                     columnWidth[i] = record[i].name()->size();
                 }
             }
         }
         string title = "| ";
-        for (int i = 0; i != attrNum; i++) {
+        for (size_t i = 0; i != attrNum; i++) {
             //@@##
             title += attrNames[i] + string(columnWidth[i]
                                            - attrNames[i].size(), ' ') + " | ";
@@ -525,7 +525,7 @@ void API::displaySelect(const vector<string>& attrNames,const vector<RecordManag
         messages.push_back(ceiling);
         for (auto record : tuples) {
             string message = "| ";//left side bar
-            for (int i = 0; i != attrNum; i++) {
+            for (size_t i = 0; i != attrNum; i++) {
                 //@@##
                 message += *record[i].name() + string(columnWidth[i]
                                                       - record[i].name()->size(), ' ') + " | ";
