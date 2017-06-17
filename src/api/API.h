@@ -93,8 +93,8 @@ private:
 
 inline void API::dropIndex(const Action& action)
 {
-    auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
-    auto type = catalog->GetType(index);
+    //auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
+    //auto type = catalog->GetType(index);
     catalog->DropIndex(presentName, *action.indexName());
     //drop tree
     //@@## call IndexManager
@@ -145,7 +145,7 @@ inline void API::flushTable()
     }
 }
 
-inline bool isChar(Column::Type type)
+inline bool isChar(const Column::Type &type)
 {
     return type < 256U && type > 0U;
 }

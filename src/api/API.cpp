@@ -136,20 +136,20 @@ void API::createTable(const Action& action)
             if (priName.size()>0 && *(columnp->name()) == priName) {
                 primaryKey = (int)Attr.size() - 1;//@@##
                 HavInd.push_back(true);
-                IndName.push_back(priName + string("_index"));//@@##
+                IndName.push_back(priName + "_index");//@@##
                 if(isChar(columnp->type())){
                     bpTree<string> tree;
-                    tree.Index(priName + string("_index"));
+                    tree.Index(priName + "_index");
                     displayMsg(string("Create index file"));
                 }
                 else if(columnp->type() == Column::Float){
                     bpTree<float> tree;
-                    tree.Index(priName + string("_index"));
+                    tree.Index(priName + "_index");
                     displayMsg(string("Create index file"));
                 }
                 else if(columnp->type() == Column::Int){
                     bpTree<int> tree;
-                    tree.Index(priName + string("_index"));
+                    tree.Index(priName + "_index");
                     displayMsg(string("Create index file"));
                 }
             }
@@ -206,129 +206,111 @@ void API::select(const Action& action)
 
 void API::insertTuple(const Action& action)
 {
-    assert(action.actionType() == Action::Insert);
-    int attrNum = catalog->GetAttrNum();
+    if(action.actionType() != Action::Insert)
+        displayMsg("Inner error");
+    size_t attrNum = catalog->GetAttrNum();
     size_t coNum = action.columns()->size();
-    if (coNum < attrNum) {
-        displayMsg(string("Too few values"));
+    if (coNum < attrNum)
+    {
+        displayMsg("Too few values");
+        return;
     }
-    else if (coNum > attrNum) {
-        displayMsg(string("Too many values"));
+    if (coNum > attrNum)
+    {
+        displayMsg("Too many values");
+        return;
+    }
+    vector<Column> tuple;
+    tuple.reserve(coNum);
+    size_t i = 0;
+    for (auto iter = action.columns()->begin();
+         iter != action.columns()->end(); ++iter, ++i)
+    {
+        if ((*iter)->type() != catalog->GetType(i))
+        {
+            displayMsg("Error insertion type.");
+            return;
+        }
+    }
+    i = 0;
+    for (auto iter = action.columns()->begin();
+         iter != action.columns()->end(); iter++, i++)
+    {
+        if (catalog->GetIsUnique(i))
+        {
+            auto test = std::make_shared<list<Predication>>();
+            Predication predicator;
+            //New a Condition object
+            auto condNode = new Condition;
+            condNode->Op = Condition::Equal;
+            Column Value1;
+            Value1.Name = std::make_shared<string>(attrName[i]);
+            Value1.ColumnType = Column::Undefined;
+            Condition FirstOperand, SecondOperand;
+            //The first operand is from catalog
+            FirstOperand.Op = Condition::Node;
+            FirstOperand.Value = std::make_shared<Column>(Value1);
+            //The second operand is from user
+            SecondOperand.Op = Condition::Node;
+            SecondOperand.Value = std::make_shared<Column>(tuple[i]);
+            condNode->FirstOperand = std::make_shared<Condition>(FirstOperand);
+            condNode->SecondOperand = std::make_shared<Condition>(SecondOperand);
+            //Set the predicator
+            predicator.condNode = ptr<Condition>(condNode);
+            predicator.haveIndex = catalog->GetHaveIndex(i);
+            test->push_back(predicator);
+            testSet.push_back(test);
+            hasUnique = true;
+        }
+    }
+    if (hasUnique)
+    {
+        auto offsets = RecordManager::queryRecordsOffsets(presentName);
+        if(offsets.size() != 0){
+            auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
+            for (auto &test : testSet) {
+                auto resOffsets = checkTuples(test, offsets, records);
+                if (resOffsets.size() != 0) {
+                    displayMsg(string("Violate unique"));
+                    return;
+                }
+            }
+        }
+    }
+    if(violate){
+        displayMsg(string("Violate unique"));
+    }
+    else if(!varified){
+        displayMsg(string("Insert failed"));
     }
     else {
-        bool varified = true;
-        bool violate = false;
-        vector<Column> tuple;
-        tuple.reserve(coNum);
-        int i = 0;
-        for (list<ptr<const Column>>::const_iterator iter = action.columns()->begin();
-             iter != action.columns()->end(); iter++, i++) {
-            Column column;
-            if ((*iter)->type() == catalog->GetType(i)) {
-                column = **iter;
-                tuple.push_back(column);
-            }
-            //Change the type from interpreter to type from catalog
-            else if (convertible((*iter)->type(), catalog->GetType(i))) {
-                //Column column;
-                if (isChar((*iter)->type())) {
-                    size_t blank = catalog->GetType(i) - (*iter)->type();
-                    column.Name = std::make_shared<string>(*(*iter)->name() + string(blank, ' '));
-                }
-                else {
-                    column.Name = (*iter)->Name;
-                }
-                column.ColumnType = catalog->GetType(i);
-                tuple.push_back(column);
-            }
-            else {
-                displayMsg(getTypeName((*iter)->type()) +
-                           string(" cannot be converted to ") +
-                           getTypeName(catalog->GetType(i)));
-                varified = false;
-                break;
-            }
-        }
-        if (varified) {
-            bool hasUnique = false;
-            vector<ptr<list<Predication>>> testSet;
-            vector<string> attrName = catalog->GetAttrName();
-            //Create a testSet
-            i = 0;
-            for (list<ptr<const Column>>::const_iterator iter = action.columns()->begin();
-                 iter != action.columns()->end(); iter++, i++) {
-                if (catalog->GetIsUnique(i)) {
-                    auto test = std::make_shared<list<Predication>>();
-                    Predication predicator;
-                    //New a Condition object
-                    auto condNode = new Condition;
-                    condNode->Op = Condition::Equal;
-                    Column Value1;
-                    Value1.Name = std::make_shared<string>(attrName[i]);
-                    Value1.ColumnType = Column::Undefined;
-                    Condition FirstOperand, SecondOperand;
-                    //The first operand is from catalog
-                    FirstOperand.Op = Condition::Node;
-                    FirstOperand.Value = std::make_shared<Column>(Value1);
-                    //The second operand is from user
-                    SecondOperand.Op = Condition::Node;
-                    SecondOperand.Value = std::make_shared<Column>(tuple[i]);
-                    condNode->FirstOperand = std::make_shared<Condition>(FirstOperand);
-                    condNode->SecondOperand = std::make_shared<Condition>(SecondOperand);
-                    //Set the predicator
-                    predicator.condNode = ptr<Condition>(condNode);
-                    predicator.haveIndex = catalog->GetHaveIndex(i);
-                    test->push_back(predicator);
-                    testSet.push_back(test);
-                    hasUnique = true;
-                }
-            }
-            if (hasUnique) {
-                auto offsets = RecordManager::queryRecordsOffsets(presentName);
-                if(offsets.size() != 0){
-                    auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
-                    for (auto test : testSet) {
-                        auto resOffsets = checkTuples(test, offsets, records);
-                        if (resOffsets.size() != 0) {
-                            violate = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if(violate){
-            displayMsg(string("Violate unique"));
-        }
-        else if(!varified){
-            displayMsg(string("Insert failed"));
-        }
-        else {
-            RecordManager::InsertRecord(presentName, tuple);
-            displayMsg(string("Insert one tuple successfully"));
+        pos_type pos = RecordManager::InsertRecord(presentName, tuple);
+        displayMsg(string("Insert one tuple successfully"));
 
-            for (size_t i = 0U; i < attrNum; i++) {
-                if (catalog->GetHaveIndex(i)) {
-                    string name = catalog->GetIndexName(i);
-                    auto type = catalog->GetType(i);
-                    if (isChar(type)) {
-                        bpTree<string> tree;
-                        tree.Buildtree(name);
-                        tree.Insert_node(*tuple[i].name(), pos);
-                        tree.Index(name);
-                    }
-                    else if (type == Column::Int) {
-                        bpTree<int> tree;
-                        tree.Buildtree(name);
-                        tree.Insert_node(std::stoi(*tuple[i].name()), pos);
-                        tree.Index(name);
-                    }
-                    else if (type == Column::Float) {
-                        bpTree<float> tree;
-                        tree.Buildtree(name);
-                        tree.Insert_node(std::stof(*tuple[i].name()), pos);
-                        tree.Index(name);
-                    }
+        for (size_t i = 0U; i < attrNum; i++)
+        {
+            if (catalog->GetHaveIndex(i))
+            {
+                string name = catalog->GetIndexName(i);
+                auto type = catalog->GetType(i);
+                if (isChar(type))
+                {
+                    bpTree<string> tree;
+                    tree.Buildtree(name);
+                    tree.Insert_node(*tuple[i].name(), pos);
+                    tree.Index(name);
+                }
+                else if (type == Column::Int) {
+                    bpTree<int> tree;
+                    tree.Buildtree(name);
+                    tree.Insert_node(std::stoi(*tuple[i].name()), pos);
+                    tree.Index(name);
+                }
+                else if (type == Column::Float) {
+                    bpTree<float> tree;
+                    tree.Buildtree(name);
+                    tree.Insert_node(std::stof(*tuple[i].name()), pos);
+                    tree.Index(name);
                 }
             }
         }
@@ -525,8 +507,8 @@ void API::postOrderTrav(const ptr<const Condition> cNode,
             int index = catalog->FindAttributeIndex(*(operand2->value()->name()));
             haveIndex2 = catalog->GetHaveIndex(index);
         }
-        bool haveIndex = haveIndex1 && operand2->value()->type() != Column::Undefined ||
-                haveIndex2 && operand1->value()->type() != Column::Undefined;//@@##May change
+        bool haveIndex = (haveIndex1 && operand2->value()->type() != Column::Undefined) ||
+                (haveIndex2 && operand1->value()->type() != Column::Undefined);//@@##May change
         Predication preNode(haveIndex, cNode);
         if (preNode.haveIndex) {
             preOrder->push_front(preNode);
@@ -645,7 +627,7 @@ void API::displaySelect(const vector<string>& attrNames,const vector<RecordManag
         vector<int> indices;
         columnWidth.reserve(attrNum);
         indices.reserve(attrNum);
-        for (int i = 0; i < attrNum; i++) {
+        for (size_t i = 0; i < attrNum; i++) {
             columnWidth.push_back((attrNames)[i].size());
         }
         for (auto record : tuples) {
@@ -767,19 +749,19 @@ bool API::checkSyn(ptr <const Condition> c_root)
     } while (!conditionStack.empty());
     return ret;
 }
-RecordManager::Record API::getTemplateRecord()
-{
-    assert(catalog != nullptr);
-    RecordManager::Record templateRecord;
-    int attrNum = catalog->GetAttrNum();
-    templateRecord.reserve(attrNum);
-    for (int i = 0; i < attrNum; i++) {
-        Column column;
-        column.ColumnType = catalog->GetType(i);
-        templateRecord.push_back(column);
-    }
-    return templateRecord;
-}
+//RecordManager::Record API::getTemplateRecord()
+//{
+//    assert(catalog != nullptr);
+//    RecordManager::Record templateRecord;
+//    int attrNum = catalog->GetAttrNum();
+//    templateRecord.reserve(attrNum);
+//    for (int i = 0; i < attrNum; i++) {
+//        Column column;
+//        column.ColumnType = catalog->GetType(i);
+//        templateRecord.push_back(column);
+//    }
+//    return templateRecord;
+//}
 
 
 
