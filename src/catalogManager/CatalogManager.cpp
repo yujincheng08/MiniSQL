@@ -154,7 +154,7 @@ bool catalogManager::FindTableName()
 	return false;
 }
 
-bool catalogManager::FindTableName(const string Name)
+bool catalogManager::FindTableName(const string &Name)
 {
 	string tmp,Table;
 	fin.seekg(0,ios::beg);
@@ -192,7 +192,7 @@ bool catalogManager::GetTableInfo()
     bool IsUni;
     bool HaveInd;
     string IndName;
-	for(int i = 0; i < AttrNum; i++)
+    for(size_t i = 0; i < AttrNum; i++)
 	{
         fin>>Attr>>t>>IsUni>>HaveInd;
         Attribute.push_back(Attr);
@@ -237,7 +237,7 @@ bool catalogManager::GetTableInfo(const string &Name)
     bool IsUni;
     bool HaveInd;
     string IndName;
-    for(int i = 0; i < AttrNum; i++)
+    for(size_t i = 0; i < AttrNum; i++)
     {
         fin>>Attr>>t>>IsUni>>HaveInd;
         Attribute.push_back(Attr);
@@ -362,7 +362,7 @@ bool catalogManager::AddTableInfo()
 	
     ofstream fout(Database,ios::app);
 	fout<<TableName<<" "<<RecordLength<<" "<<AttrNum<<" ";
-	for(int i = 0; i < AttrNum; i++)
+    for(size_t i = 0; i < AttrNum; i++)
 	{
 		fout<<Attribute[i]<<" "<<type[i]<<" "<<IsUnique[i]<<" "<<HaveIndex[i]<<" ";
 		if(HaveIndex[i])
@@ -377,19 +377,17 @@ bool catalogManager::AddTableInfo()
 	return true;
 } 
 
-int catalogManager::FindAttributeIndex(const string &AttrName)
+ssize_t catalogManager::FindAttributeIndex(const string &AttrName)
 {
-	for(int i = 0; i < AttrNum; i++)
-	{
+    for(size_t i = 0; i < AttrNum; i++)
 		if(Attribute[i] == AttrName)
 			return i;
-	}
 	return -1;
 }
 
-int catalogManager::FindIndexAccordingToIndexName(const string &Index)
+ssize_t catalogManager::FindIndexAccordingToIndexName(const string &Index)
 {
-	for(int i = 0; i < AttrNum; i++)
+    for(size_t i = 0; i < AttrNum; i++)
 	{
 		if(HaveIndex[i]) 
 		if(IndexName[i] == Index)

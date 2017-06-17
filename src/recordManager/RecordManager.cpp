@@ -81,7 +81,7 @@ void RecordManager::DeleteRecords(const string &tableName, const vector<pos_type
     setMetaData(tableName, metaData);
 }
 
-RecordManager::pos_type RecordManager::InsertRecord(const string &tableName, const Record &record) {
+auto RecordManager::InsertRecord(const string &tableName, const Record &record) -> RecordManager::pos_type {
     auto &file = RecordManager::OpenTableFile(tableName);
     auto metaData = RecordManager::getMetaData(tableName);
     auto &lastWritePos = get<0>(metaData);
