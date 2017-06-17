@@ -27,7 +27,7 @@ public:
     static void DropTable(const string &tableName);
     //
     static void DeleteRecords(const string &tableName, const vector<pos_type> &positions);
-    static void InsertRecord(const string &tableNam, const Record &record);
+    static pos_type InsertRecord(const string &tableNam, const Record &record);
     static vector<Record> queryRecordsByOffsets(const string &tableName, const vector<pos_type> &offsets,  const Record &templateRecord);
     static vector<pos_type> queryRecordsOffsets(const string &tableName);
 private:

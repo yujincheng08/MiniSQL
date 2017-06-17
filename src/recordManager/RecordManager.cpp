@@ -4,6 +4,7 @@
 #include "../interpreter/Column.h"
 
 using namespace std;
+
 constexpr RecordManager::pos_type RecordManager::INVALID_POS;
 
 File &RecordManager::OpenTableFile(const string &tableName) {
@@ -80,7 +81,7 @@ void RecordManager::DeleteRecords(const string &tableName, const vector<pos_type
     setMetaData(tableName, metaData);
 }
 
-void RecordManager::InsertRecord(const string &tableName, const Record &record) {
+RecordManager::pos_type RecordManager::InsertRecord(const string &tableName, const Record &record) {
     auto &file = RecordManager::OpenTableFile(tableName);
     auto metaData = RecordManager::getMetaData(tableName);
     auto &lastWritePos = get<0>(metaData);
@@ -153,6 +154,7 @@ void RecordManager::InsertRecord(const string &tableName, const Record &record) 
     }
     // write back meta data first valid, last write, max pos, firstValidPos
     setMetaData(tableName, make_tuple(lastWritePos, firstInvalidPos, maxPos, firstValidPos));
+    return lastWritePos;
 }
 
 auto RecordManager::queryRecordsByOffsets(const string &tableName, const vector<pos_type> &offsets, const Record &templateRecord) -> vector<Record> {
@@ -237,7 +239,7 @@ auto RecordManager::makeTestRecord(int id) -> Record {
     Column charCol;
     charCol.ColumnType = 8;
     charCol.Name = make_shared<string>("123456789");
-    return {intCol, charCol, floatCol};
+    return {intCol};
 }
 
 size_t RecordManager::getColumnSize(const Column& col) {
