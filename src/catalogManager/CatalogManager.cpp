@@ -4,7 +4,7 @@
 #include<fstream>
 
 using namespace std;
-
+#ifdef TEST
 void CreateDatabase(const char* DB)
 {
 	ifstream fin(DB);
@@ -18,7 +18,7 @@ void CreateDatabase(const char* DB)
 	cout<<"Query OK!\n";
 }
 
-
+#endif
 void catalogManager::Clear()
 {
     Attribute.clear();
@@ -37,7 +37,7 @@ bool catalogManager::DropIndex(const string &Table,const string &Index)
 	//查找是否有表 
 	if(FindTableName(Table) == false)
 	{
-		cout<<"No such table!"<<endl;
+        error("No such table!");
 		return false;
 	}
 	
@@ -84,7 +84,7 @@ bool catalogManager::DropIndex(const string &Table,const string &Index)
 		delete[] IsUni;
 		delete[] HavInd;
 		delete[] IndName;
-		cout<<"No such index!"<<endl;
+        error("No such index!");
 		return false;
 	}
 	if(i == Pri)
@@ -94,13 +94,13 @@ bool catalogManager::DropIndex(const string &Table,const string &Index)
 		delete[] IsUni;
 		delete[] HavInd;
 		delete[] IndName;
-		cout<<"Cannot delete the index of primary key!"<<endl;
+        error("Cannot delete the index of primary key!");
 		return false;
 	}
 	//修改信息 
 	HavInd[i] = false;
 	
-	ofstream fout("tmp.txt");
+    ofstream fout("tmp.cat");
 	string tmp,Name;
 	fin.seekg(0,ios::beg);
 	while(fin>>Name)
@@ -133,9 +133,9 @@ bool catalogManager::DropIndex(const string &Table,const string &Index)
 	fin.close();
 	fout.close();
     remove(Database.c_str());
-    rename("tmp.txt",Database.c_str());
+    rename("tmp.cat",Database.c_str());
     fin.open(Database);
-	cout<<"Query OK!"<<endl;
+    //cout<<"Query OK!"<<endl;
 	return true;
 }
 
@@ -181,7 +181,7 @@ bool catalogManager::GetTableInfo()
 
 	if(FindTableName() == false)
 	{
-		cout<<"No such table!"<<endl;
+        error("No such table!");
 		return false;
 	}
 	fin>>RecordLength;
@@ -226,7 +226,7 @@ bool catalogManager::GetTableInfo(const string &Name)
 	SetTableName(Name);
     if(FindTableName() == false)
     {
-        cout<<"No such table!"<<endl;
+        error("No such table!");
         return false;
     }
     fin>>RecordLength;
@@ -256,7 +256,7 @@ bool catalogManager::GetTableInfo(const string &Name)
     fin>>PriIndex;
     return true;
 }
-
+#ifdef TEST
 void catalogManager::PrintInfo()
 {
 	if(GetTableInfo() == true)
@@ -278,8 +278,8 @@ void catalogManager::PrintInfo()
 		cout<<"Record length: "<<RecordLength<<endl;
 	}
 }
-
-
+#endif
+/*
 void catalogManager::SetAttributeInfo(const int Num,const string* Attr,const unsigned int* t,const bool* IsUni,const bool* HavInd,const string* IndName,const int PrimaryKey)
 {
     SetAttrNum(Num);
@@ -309,6 +309,7 @@ void catalogManager::SetAttributeInfo(const int Num,const string* Attr,const uns
     }
     SetRecordLength(RLen);
 }
+*/
 
 void catalogManager::SetAttributeInfo(const int Num,const vector<string> &Attr,const vector<unsigned int> &t,const vector<bool> &IsUni,const vector<bool> &HavInd,const vector<string> &IndName,const int PrimaryKey)
 {
@@ -330,22 +331,22 @@ void catalogManager::SetAttributeInfo(const int Num,const vector<string> &Attr,c
     SetRecordLength(RLen);
 }
 
-bool catalogManager::AddTableInfo(const string Str)
+bool catalogManager::AddTableInfo(const string &Str)
 {
 	fin.seekg(0,ios::beg);
 	string Name = TableNameFromStr(Str);
 	if(FindTableName(Name) == true)
 	{
-		cout<<"Table Exists!"<<endl;
+        error("Table Exists!");
 		return false;
 	}
-	ofstream fout("catalogManager.txt",ios::app);
+    ofstream fout("catalogManager.cat",ios::app);
 	fout<<Str<<endl;
 	fout.close();
 	//update fin
 	fin.close();
     fin.open(Database);
-	cout<<"Query OK!"<<endl;
+    //cout<<"Query OK!"<<endl;
 	return true;
 }
 
@@ -371,7 +372,7 @@ bool catalogManager::AddTableInfo()
 	//update fin
 	fin.close();
     fin.open(Database);
-	cout<<"Query OK!"<<endl;
+    //cout<<"Query OK!"<<endl;
 	return true;
 } 
 
@@ -400,10 +401,10 @@ bool catalogManager::DropTable(const string &Name)
 {
 	if(FindTableName(Name) == false)
 	{
-		cout<<"No such table!"<<endl;
+        error("No such table!");
 		return false;
 	}
-	ofstream fout("tmp.txt");
+    ofstream fout("tmp.cat");
 	
 	string tmp,Table;
 	fin.seekg(0,ios::beg);
@@ -422,7 +423,7 @@ bool catalogManager::DropTable(const string &Name)
 	fin.close();
 	fout.close();
     remove(Database.c_str());
-    rename("tmp.txt",Database.c_str());
+    rename("tmp.cat",Database.c_str());
     fin.open(Database);
     error("Query OK!\n");
 	return true;
@@ -432,10 +433,10 @@ bool catalogManager::DropTable()
 {
 	if(FindTableName() == false)
 	{
-		cout<<"No such table!"<<endl;
+        error("No such table!");
 		return false;
 	}
-	ofstream fout("tmp.txt");
+    ofstream fout("tmp.cat");
 	
 	string tmp,Table;
 	fin.seekg(0,ios::beg);
@@ -454,9 +455,9 @@ bool catalogManager::DropTable()
 	fin.close();
 	fout.close();
     remove(Database.c_str());
-    rename("tmp.txt",Database.c_str());
+    rename("tmp.cat",Database.c_str());
     fin.open(Database);
-	cout<<"Query OK"<<endl;
+    //cout<<"Query OK"<<endl;
 	return true;
 }
 bool catalogManager::CreateIndex(const string& Table,const string& Attr, const string& Index)
@@ -464,7 +465,7 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
     //查找是否有表
     if(FindTableName(Table) == false)
     {
-        cout<<"No such table!"<<endl;
+        error("No such table!");
         return false;
     }
 
@@ -497,7 +498,7 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
     int AttrInd = FindAttributeIndex(Attr);
     if(AttrInd == -1)
     {
-        cout<<"Create Index failed! No such Attribute!"<<endl;
+        error("Create Index failed! No such Attribute!");
         delete[] AName;
         delete[] t;
         delete[] IsUni;
@@ -507,7 +508,7 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
     }
     if(HavInd[AttrInd] == true)
     {
-        cout<<"Create Index failed! Index exists!"<<endl;
+        error("Create Index failed! Index exists!");
         delete[] AName;
         delete[] t;
         delete[] IsUni;
@@ -520,7 +521,7 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
     HavInd[AttrInd] = true;
     IndName[AttrInd] = Index;
 
-    ofstream fout("tmp.txt");
+    ofstream fout("tmp.cat");
     string tmp,Name;
     fin.seekg(0,ios::beg);
     while(fin>>Name)
@@ -553,9 +554,9 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
     fin.close();
     fout.close();
     remove(Database.c_str());
-    rename("tmp.txt",Database.c_str());
+    rename("tmp.cat",Database.c_str());
     fin.open(Database);
-    cout<<"Query OK!"<<endl;
+    //cout<<"Query OK!"<<endl;
     return true;
 }
 
@@ -564,7 +565,7 @@ bool catalogManager::CreateIndex(const string& Table,const string& Attr, const s
 void catalogManager::DropDatabase()
 {
     remove(Database.c_str());
-	cout<<"Query OK!\n";
+    //cout<<"Query OK!\n";
 }
 
 string catalogManager::TableNameFromStr(const string &Str)
@@ -579,127 +580,7 @@ string catalogManager::TableNameFromStr(const string &Str)
 	return tmp;
 }
 
-inline catalogManager::catalogManager(string DBName)
-    :catalogManager(DBName,string())
-{}
-
-inline catalogManager::catalogManager(string DBName, string TableName):
-Database(DBName),TableName(TableName)
-{
-    fin.open(Database);
-}
-
-inline catalogManager::~catalogManager()
-{
-    fin.close();
-}
-
-inline void catalogManager::SetTableName(const string &Name)
-{
-    Clear();
-    TableName = Name;
-}
-
-inline void catalogManager::SetRecordLength(const int length)
-{
-    RecordLength = length;
-}
-
-inline void catalogManager::SetAttrNum(const int Num)
-{
-    AttrNum = Num;
-}
-
-inline void catalogManager::SetPriIndex(const int PrimaryKey)
-{
-    PriIndex = PrimaryKey;
-}
-
-inline void catalogManager::SetAttribute(const vector<string> &Attr)
-{
-    Attribute.clear();
-    for(int i = 0; i < AttrNum; i++)
-        Attribute.push_back(Attr[i]);
-}
-
-inline void catalogManager::SetType(const vector<unsigned int> &t)
-{
-    type.clear();
-    for(int i = 0; i < AttrNum; i++)
-        type.push_back(t[i]);
-}
-
-inline void catalogManager::SetIsUnique(const vector<bool> &IsUni)
-{
-    IsUnique.clear();
-    for(int i = 0; i < AttrNum; i++)
-        IsUnique.push_back(IsUni[i]);
-}
-
-inline void catalogManager::SetHaveIndex(const vector<bool> &HavInd)
-{
-    HaveIndex.clear();
-    for(int i = 0; i < AttrNum; i++)
-        HaveIndex.push_back(HavInd[i]);
-}
-
-inline void catalogManager::SetIndexName(const vector<string> &IndName)
-{
-    IndexName.clear();
-    for(int i = 0; i < AttrNum; i++)
-    {
-        if(HaveIndex[i])
-            IndexName.push_back(IndName[i]);
-        else
-            IndexName.push_back("\0");
-    }
-}
-
-inline string catalogManager::GetPrimaryKey()
-{
-    for(int i = 0; i < AttrNum; i++)
-    {
-        if(i == PriIndex)
-            return Attribute[i];
-    }
-    return string();
-}
-
-inline bool catalogManager::GetIsUnique(const int i)
-{
-    return IsUnique[i];
-}
-
-inline int catalogManager::GetType(const int i)
-{
-    return type[i];
-}
-
-inline bool catalogManager::GetHaveIndex(const int i)
-{
-    return HaveIndex[i];
-}
-
-inline string catalogManager::GetIndexName(const int i)
-{
-    return IndexName[i];
-}
-
-inline int catalogManager::GetRecordLength()
-{
-    return RecordLength;
-}
-
-inline int catalogManager::GetAttrNum()
-{
-    return AttrNum;
-}
-
-inline int catalogManager::GetPriIndex()
-{
-    return PriIndex;
-}
-
+#ifdef TEST
 int main()
 {
     //CreateDatabase("a.txt");
@@ -744,3 +625,5 @@ int main()
     s.PrintInfo();
 
 }
+
+#endif

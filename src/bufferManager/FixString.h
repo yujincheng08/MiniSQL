@@ -8,7 +8,7 @@ class FixString
 {
     std::size_t Size;
     char *String;
-    int cmp(const FixString &b) const;
+    ssize_t cmp(const FixString &b) const;
 public:
     FixString(const std::size_t &size);
     FixString(const char *const &string);
@@ -68,10 +68,10 @@ inline FixString::FixString(const FixString &string)
     :FixString(string.String,string.Size)
 {}
 
-inline int FixString::cmp(const FixString &b) const
+inline ssize_t FixString::cmp(const FixString &b) const
 {
     if(Size!=b.Size)
-        return Size -  b.Size;
+        return (ssize_t)Size -  b.Size;
     return strncmp(String, b.String, Size);
 }
 

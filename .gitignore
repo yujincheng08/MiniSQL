@@ -97,3 +97,5 @@ fabric.properties
 
 build-*
 
+*.qmake.stash
+*.tbl

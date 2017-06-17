@@ -1,6 +1,4 @@
 TEMPLATE += lib
-QT       -= gui
-
 CONFIG += warn_off
 
 include(../../MiniSQL.pri)
