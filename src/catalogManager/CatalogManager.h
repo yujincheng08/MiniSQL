@@ -241,5 +241,9 @@ inline int catalogManager::GetPriIndex()
     return PriIndex;
 }
 
+inline auto catalogManager::GetAttrName() -> const vector<string> &
+{
+    return Attribute;
+}
 
 #endif // CATALOGMANAGER_H

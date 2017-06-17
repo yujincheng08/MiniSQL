@@ -19,10 +19,6 @@ void CreateDatabase(const char* DB)
 }
 
 #endif
-vector<string> catalogManager::GetAttrName()
-{
-    return Attribute;
-}
 
 void catalogManager::Clear()
 {

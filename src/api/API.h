@@ -82,8 +82,8 @@ private:
     RecordManager::Record getTemplateRecord();
     vector<pos_type> queryByCondition(const Action& action);
     vector<pos_type> checkTuples(const ptr<list<Predication>>,const vector<pos_type>&,const vector<Record>&);
-    std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition);
-    ptr<API::list<Predication>> optimization(ptr<const Condition>);
+    vector<File::pos_type> queryByIndex(ptr<const Condition> condition);
+    ptr<list<Predication>> optimization(ptr<const Condition>);
     void postOrderTrav(ptr<const Condition> cNode, ptr<list<Predication>>);
     bool consistent(Condition::Type, int, int);
     bool consistent(Condition::Type, float,float);
