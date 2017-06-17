@@ -25,10 +25,6 @@ private:
     vector<bool> HaveIndex;//判断是否有索引
     vector<string> IndexName;//索引名字
     int PriIndex;//主键编号
-    //判断catalogManager中是否存在表TableName
-    bool FindTableName();
-    //判断catalogManager中是否存在名字为Name的表
-    bool FindTableName(const string Name);
     //设置类的属性
     void SetAttrNum(const int Num);
     void SetAttribute(const vector<string> &Attr);
@@ -52,7 +48,10 @@ public:
     void DropDatabase();
     /***********************************************/
 
-
+    //判断catalogManager中是否存在表TableName
+    bool FindTableName();
+    //判断catalogManager中是否存在名字为Name的表
+    bool FindTableName(const string Name);
     /*对catalog文件进行操作的函数*/
     /***********************************************/
     //从catalog中获取TableName的信息，放入到类的变量中
