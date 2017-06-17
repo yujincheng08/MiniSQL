@@ -103,6 +103,8 @@ public:
     int GetRecordLength();
     int GetAttrNum();
     int GetPriIndex();
+    //返回Attribute向量
+    std::vector<string> GetAttrName();
     //返回主键名称
     string GetPrimaryKey();
     /***********************************************/
