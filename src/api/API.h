@@ -58,7 +58,7 @@ private:
     int manipulateCount = 0;
     string presentName;
 public:
-    explicit API(QObject *parent = 0);
+    explicit API(QObject *parent = 0);    
     ~API(){flushTable();}
     void execute(const Action& action);
 signals:
@@ -82,13 +82,13 @@ private:
     RecordManager::Record getTemplateRecord();
     vector<pos_type> queryByCondition(const Action& action);
     vector<pos_type> checkTuples(const ptr<list<Predication>>,const vector<pos_type>&,const vector<Record>&);
-    vector<File::pos_type> queryByIndex(ptr<const Condition> condition);
-    ptr<list<Predication>> optimization(ptr<const Condition>);
+    std::vector<File::pos_type> queryByIndex(ptr<const Condition> condition);
+    ptr<API::list<Predication>> optimization(ptr<const Condition>);
     void postOrderTrav(ptr<const Condition> cNode, ptr<list<Predication>>);
     bool consistent(Condition::Type, int, int);
     bool consistent(Condition::Type, float,float);
     bool consistent(Condition::Type, string,string);
-    inline void flushTable();
+    void flushTable();
 };
 
 inline void API::dropIndex(const Action& action)

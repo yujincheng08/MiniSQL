@@ -1,6 +1,7 @@
 #include "API.h"
 #include "../catalogManager/CatalogManager.h"
 #include "../recordManager/RecordManager.h"
+#include "../bufferManager/FixString.h"
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -136,20 +137,20 @@ void API::createTable(const Action& action)
             if (priName.size()>0 && *(columnp->name()) == priName) {
                 primaryKey = (int)Attr.size() - 1;//@@##
                 HavInd.push_back(true);
-                IndName.push_back(priName + string("_index"));//@@##
+                IndName.push_back(presentName+string("_")+priName + string("_index"));//@@##
                 if(isChar(columnp->type())){
-                    bpTree<string> tree;
-                    tree.Index(priName + string("_index"));
+                    bpTree<FixString> tree;
+                    tree.Index(presentName+string("_")+priName + string("_index"));
                     displayMsg(string("Create index file"));
                 }
                 else if(columnp->type() == Column::Float){
                     bpTree<float> tree;
-                    tree.Index(priName + string("_index"));
+                    tree.Index(presentName+string("_")+priName+string("_index"));
                     displayMsg(string("Create index file"));
                 }
                 else if(columnp->type() == Column::Int){
                     bpTree<int> tree;
-                    tree.Index(priName + string("_index"));
+                    tree.Index(presentName+string("_")+priName+string("_index"));
                     displayMsg(string("Create index file"));
                 }
             }
@@ -207,7 +208,7 @@ void API::select(const Action& action)
 void API::insertTuple(const Action& action)
 {
     assert(action.actionType() == Action::Insert);
-    int attrNum = catalog->GetAttrNum();
+    size_t attrNum = catalog->GetAttrNum();
     size_t coNum = action.columns()->size();
     if (coNum < attrNum) {
         displayMsg(string("Too few values"));
@@ -304,7 +305,7 @@ void API::insertTuple(const Action& action)
             displayMsg(string("Insert failed"));
         }
         else {
-            RecordManager::InsertRecord(presentName, tuple);
+            auto pos = RecordManager::InsertRecord(presentName, tuple);
             displayMsg(string("Insert one tuple successfully"));
 
             for (size_t i = 0U; i < attrNum; i++) {
@@ -312,18 +313,21 @@ void API::insertTuple(const Action& action)
                     string name = catalog->GetIndexName(i);
                     auto type = catalog->GetType(i);
                     if (isChar(type)) {
-                        bpTree<string> tree;
+                        displayMsg(string("Insert fixstring in index"));
+                        bpTree<FixString> tree;
                         tree.Buildtree(name);
-                        tree.Insert_node(*tuple[i].name(), pos);
+                        tree.Insert_node(FixString(*tuple[i].name()), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Int) {
+                        displayMsg(string("Insert int in index"));
                         bpTree<int> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stoi(*tuple[i].name()), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Float) {
+                        displayMsg(string("Insert float in index"));
                         bpTree<float> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stof(*tuple[i].name()), pos);
@@ -339,8 +343,41 @@ void API::deleteTuples(const Action& action)
 {
     assert(action.actionType() == Action::Delete);
     auto offsets = queryByCondition(action);
+    auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
     if(offsets.size() != 0){
-        RecordManager::DeleteRecords(presentName, offsets);
+        auto attrNum = catalog->GetAttrNum();
+        for(size_t i =0U;i<attrNum;i++){
+            if(catalog->GetHaveIndex(i)){
+                auto type = catalog->GetType(i);
+                if(isChar(type)){
+                    bpTree<FixString> tree;
+                    tree.Buildtree(catalog->GetIndexName(i));
+                    for(auto record:records){
+                        tree.Del_data(FixString(*(record[i].name())));
+                    }
+                    tree.Index(catalog->GetIndexName(i));
+                }
+                else if(type == Column::Float){
+                    bpTree<float> tree;
+                    tree.Buildtree(catalog->GetIndexName(i));
+                    for(auto record:records){
+                        float value = std::stof(*(record[i].name()));
+                        tree.Del_data(value);
+                    }
+                    tree.Index(catalog->GetIndexName(i));
+                }
+                else if(type == Column::Int){
+                    bpTree<int> tree;
+                    tree.Buildtree(catalog->GetIndexName(i));
+                    for(auto record:records){
+                        float value = std::stoi(*(record[i].name()));
+                        tree.Del_data(value);
+                    }
+                    tree.Index(catalog->GetIndexName(i));
+                }
+            }
+        }
+        RecordManager::DeleteRecords(presentName, offsets);        
     }
 }
 
@@ -383,19 +420,24 @@ API::vector<API::pos_type> API::checkTuples(
         indexResult = intersection;
         predicator++;
     }
-    vector<pos_type>(offsets);
-    std::copy(indexResult.begin(), indexResult.end(), std::back_inserter(offsets));
-    list<pos_type> offsetList;
-    //Copy to list
-    for (auto pos : offsets) {
-        offsetList.push_back(pos);
-    }
-    list<Record> recordList;
-    for (auto record : records) {
-        recordList.push_back(record);
-    }
     bool nullFlag = false;
-    while (predicator != predicators->end()) {
+    vector<pos_type> offsets;
+    list<Record> recordList;
+    list<pos_type> offsetList;
+    std::copy(indexResult.begin(), indexResult.end(), std::back_inserter(offsets));
+    if(!offsets.empty()){
+        //Copy to list
+        for (auto pos : offsets) {
+            offsetList.push_back(pos);
+        }
+        for (auto record : records) {
+            recordList.push_back(record);
+        }
+    }
+    else{
+        nullFlag = true;
+    }
+    while (!nullFlag && predicator != predicators->end()) {
         //Get type
         Condition::Type opType = predicator->condNode->op();
         //Get operand
@@ -555,8 +597,8 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
     assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
     int index = catalog->FindAttributeIndex(*operand1->value()->name());
     if (isChar(type)) {
-        string value2 = *operand2->value()->name();
-        bpTree<string> tree;
+        auto value2 = FixString(*operand2->value()->name());
+        bpTree<FixString> tree;
         tree.Buildtree(catalog->GetIndexName(index));
         switch (opType)
         {
@@ -567,13 +609,16 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
             offsets = tree.Eqsearch(value2);
             break;
         case Condition::GreaterThan:
-
+            offsets = tree.Bsearch(value2);
             break;
         case Condition::LessThan:
+            offsets = tree.Ssearch(value2);
             break;
         case Condition::LessEqual:
+            offsets = tree.Sesearch(value2);
             break;
         case Condition::GreaterEqual:
+            offsets = tree.Besearch(value2);
             break;
         default:
             break;
@@ -592,19 +637,21 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
             offsets = tree.Eqsearch(value2);
             break;
         case Condition::GreaterThan:
-
+            offsets = tree.Bsearch(value2);
             break;
         case Condition::LessThan:
+            offsets = tree.Ssearch(value2);
             break;
         case Condition::LessEqual:
+            offsets = tree.Sesearch(value2);
             break;
         case Condition::GreaterEqual:
-            break;
+            offsets = tree.Besearch(value2);
         default:
             break;
         }
     }
-    else if (type == Column::Float) {
+    else if (type == Column::Int) {
         int value2 = std::stoi(*operand2->value()->name());
         bpTree<int> tree;
         tree.Buildtree(catalog->GetIndexName(index));
@@ -617,14 +664,16 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
             offsets = tree.Eqsearch(value2);
             break;
         case Condition::GreaterThan:
-
+            offsets = tree.Bsearch(value2);
             break;
         case Condition::LessThan:
+            offsets = tree.Ssearch(value2);
             break;
         case Condition::LessEqual:
+            offsets = tree.Sesearch(value2);
             break;
         case Condition::GreaterEqual:
-            break;
+            offsets = tree.Besearch(value2);
         default:
             break;
         }

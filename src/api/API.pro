@@ -1,10 +1,13 @@
+include(MiniSQL.pri)
 TEMPLATE += lib
 QT       -= gui
 
-TARGET = BufferManager
+TARGET = API
 TEMPLATE = lib
 
 DESTDIR = ../../
+
+LIBS += -L../../ -lBufferManager -lRecordManager -lIndexManager -lCatalogManager
 
 HEADERS += \
     API.h
