@@ -88,7 +88,7 @@ private:
     bool consistent(Condition::Type, int, int);
     bool consistent(Condition::Type, float,float);
     bool consistent(Condition::Type, string,string);
-    inline void flushTable();
+    void flushTable();
 };
 
 inline void API::dropIndex(const Action& action)
@@ -110,15 +110,15 @@ inline void API::createIndex(const Action& action)
 
 inline void API::displayMsg(const string& result)
 {
-    //emit displayLine(result);
-    std::cout << result<<std::endl;
+    emit displayLine(result);
+    //std::cout << result<<std::endl;
 }
 
 inline void API::displayMsg(const list<string>& results)
 {
     for (auto result : results) {
-        //emit displayLine(result);
-        std::cout << result <<std::endl;
+        emit displayLine(result);
+        //std::cout << result <<std::endl;
     }
 }
 
@@ -145,7 +145,7 @@ inline void API::flushTable()
     }
 }
 
-inline bool isChar(const Column::Type &type)
+inline bool isChar(Column::Type type)
 {
     return type < 256U && type > 0U;
 }

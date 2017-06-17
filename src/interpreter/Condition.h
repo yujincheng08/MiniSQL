@@ -6,6 +6,7 @@ class Condition
 {
 public:
     friend class BaseInterpreter;
+    friend class API;
     template<typename T>
     using ptr = std::shared_ptr<T>;
     enum Type
