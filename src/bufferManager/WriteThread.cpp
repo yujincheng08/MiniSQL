@@ -6,7 +6,8 @@ void WriteThread::run()
     {
         Mutex.lock();
         auto i = WriteList.front();
-        BufferManager::bufferManager().writeBuffer(i);
+        if(i->InList)
+            BufferManager::bufferManager().writeBuffer(i);
         WriteList.pop_front();
         Mutex.unlock();
     }

@@ -63,7 +63,15 @@ void File::resize(const size_t &pos)
         {
             auto iter = Buffers.find(i);
             if(iter!=Buffers.end())
-                delete iter->second;
+            {
+                if(iter->second->InList)
+                {
+                    iter->second->InList = false;
+                    iter->second->changeSize(0U);
+                }
+                else
+                    delete iter->second;
+            }
         }
     auto iter = Buffers.find(newBlock);
     if(iter!= Buffers.end())
