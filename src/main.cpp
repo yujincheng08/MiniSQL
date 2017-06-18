@@ -16,8 +16,8 @@ Main::Main(QObject *parent)
 {
     interpreter = new Interpreter(this);
     api = new API(this);
-    connect(interpreter, &Interpreter::parsered, api, &API::execute);
-    connect(api, SIGNAL(displayLine(const std::string&)), interpreter, SLOT(display(const std::string&)));
+    connect(interpreter, SIGNAL(parsered(Action)), api, SLOT(execute(Action)));
+    connect(api, SIGNAL(displayLine(string)), interpreter, SLOT(display(string)));
 }
 
 void Main::run()

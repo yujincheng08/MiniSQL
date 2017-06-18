@@ -60,6 +60,7 @@ private:
 public:
     explicit API(QObject *parent = 0);
     ~API(){flushTable();}
+public slots:
     void execute(const Action& action);
 signals:
     void displayLine(const string& result);
