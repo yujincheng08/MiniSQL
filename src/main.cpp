@@ -16,12 +16,14 @@ Main::Main(QObject *parent)
 {
     interpreter = new Interpreter(this);
     api = new API(this);
+    connect(interpreter, &Interpreter::parsered, api, &API::execute);
+    connect(api, SIGNAL(displayLine(const std::string&)), interpreter, SLOT(display(const std::string&)));
 }
 
 void Main::run()
 {
+
     interpreter->run();
-    connect(interpreter, &Interpreter::parsered, api, &API::execute);
-    connect(api, SIGNAL(displayLine(std::string)), interpreter, SLOT(display(std::string)));
+
     emit finished();
 }

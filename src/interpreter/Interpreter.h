@@ -46,7 +46,7 @@ inline void Interpreter::display(const QString &result)
     std::cout<<result.toStdString()<<std::endl;
 }
 
-inline void Interpreter::display(const Interpreter::string &result)
+inline void Interpreter::display(const string &result)
 {
     std::cout<<result<<std::endl;
 }
