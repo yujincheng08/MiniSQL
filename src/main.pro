@@ -14,7 +14,7 @@ HEADERS += \
     main.h
 
 LIBS += -L.. -lBufferManager -lInterpreter -lCatalogManager \
-        -lRecordManager
+        -lRecordManager -lAPI
 
 CONFIG(test) {
 }

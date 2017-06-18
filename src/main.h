@@ -5,11 +5,13 @@
 #include <QTimer>
 #include "interpreter/Interpreter.h"
 #include "bufferManager/BufferManager.h"
+#include "api/API.h"
 class Main : public QObject
 {
     Q_OBJECT
     Interpreter *interpreter;
     BufferManager *bufferManager;
+    API *api;
 public:
     Main(QObject *parent = nullptr);
 

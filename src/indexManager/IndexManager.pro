@@ -1,6 +1,6 @@
 include(../../MiniSQL.pri)
 
-TARGET = BufferManager
+TARGET = IndexManager
 DESTDIR = ../../
 TEMPLATE = lib
 # The following define makes your compiler emit warnings if you use

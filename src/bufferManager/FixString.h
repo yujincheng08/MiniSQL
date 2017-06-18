@@ -10,7 +10,7 @@ class FixString
     char *String;
     ssize_t cmp(const FixString &b) const;
 public:
-    FixString(const std::size_t &size);
+    FixString(const std::size_t &size = 0U);
     FixString(const char *const &string);
     FixString(const char *const &string, const std::size_t &size);
     FixString(const std::string &string);

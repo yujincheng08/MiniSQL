@@ -7,7 +7,7 @@ TEMPLATE = lib
 
 DESTDIR = ../../
 
-LIBS += -L../../ -lBufferManager -lRecordManager -lIndexManager -lCatalogManager
+LIBS += -L../../ -lBufferManager -lRecordManager -lCatalogManager
 
 HEADERS += \
     API.h
