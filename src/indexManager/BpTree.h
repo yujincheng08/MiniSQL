@@ -80,6 +80,7 @@ public:
 
     void Index(const string &);                   //建立索引文件
     void Buildtree(const string &);               //建立b＋树
+    void DropIndex(const string &);
 #ifdef TEST
     void Show();
 #endif
@@ -1053,6 +1054,13 @@ void bpTree<T>::Buildtree(const string & indexName)           //从索引文件�
 
     }
 }
+
+template<class T>
+void bpTree<T>::DropIndex(const string & indexName)
+{
+    remove(indexName);
+}
+
 
 #ifdef TEST
 template<class T>
