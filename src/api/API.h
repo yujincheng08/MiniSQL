@@ -92,22 +92,7 @@ private:
     void flushTable();
 };
 
-inline void API::dropIndex(const Action& action)
-{
-    //auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
-    //auto type = catalog->GetType(index);
-    catalog->DropIndex(presentName, *action.indexName());
-    //drop tree
-    //@@## call IndexManager
-}
 
-inline void API::createIndex(const Action& action)
-{
-    assert(action.actionType() == Action::CreateIndex && action.columns()->size() == 1);
-    auto column = *action.columns()->begin();
-    catalog->CreateIndex(presentName, *column->name(), *action.indexName());
-    //@@##bpTree->Index(*action.indexName());
-}
 
 inline void API::displayMsg(const string& result)
 {
@@ -123,19 +108,7 @@ inline void API::displayMsg(const list<string>& results)
     }
 }
 
-inline void API::dropTable(const Action& action)
-{
-        assert(action.actionType() == Action::DropTable);
-        auto attrNum = catalog->GetAttrNum();
-        for (size_t i = 0U; i < attrNum; i++) {
-            if (catalog->GetHaveIndex(i)) {
-                auto name = catalog->GetIndexName(i);
-                //bpTree drop tree
-            }
-        }
-        RecordManager::DropTable(presentName);
-        catalog->DropTable();
-}
+
 
 inline void API::flushTable()
 {

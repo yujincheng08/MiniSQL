@@ -462,8 +462,8 @@ API::vector<API::pos_type> API::checkTuples(
         //for each column, select qulified tuples
         if (isChar(operandType)) {
             string value1, value2;
-            if (!isColumn1)	value1 = name1;
-            if (!isColumn2) value2 = name2;
+            if (!isColumn1)	value1 = name1+string(operandType-name1.size(),' ');
+            if (!isColumn2) value2 = name2+string(operandType-name2.size(),' ');
             //Main recursion
             if (isColumn1 || isColumn2) {
                 while (riterator != recordList.end() && piterator != offsetList.end()) {
@@ -830,5 +830,91 @@ RecordManager::Record API::getTemplateRecord()
     return templateRecord;
 }
 
+void API::dropIndex(const Action& action)
+{
+    auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
+    auto type = catalog->GetType(index);
+    catalog->DropIndex(presentName, *action.indexName());
+    if(isChar(type)){
+        bpTree<FixString> tree;
+        tree.DropIndex(*action.indexName());
+    }
+    else if(type == Column::Float){
+        bpTree<float> tree;
+        tree.DropIndex(*action.indexName());
+    }
+    else if(type == Column::Int){
+        bpTree<int> tree;
+        tree.DropIndex(*action.indexName());
+    }
+}
+
+void API::createIndex(const Action& action)
+{
+    assert(action.actionType() == Action::CreateIndex && action.columns()->size() == 1);
+    auto column = *action.columns()->begin();
+    int index = catalog->FindAttributeIndex(*column->name());
+    if(catalog->GetIsUnique(index)){
+        if(catalog->FindIndexAccordingToIndexName(*action.indexName())==-1){
+            Column::Type type = catalog->GetType(index);
+            auto offsets = RecordManager::queryRecordsOffsets(presentName);
+            auto records = RecordManager::queryRecordsByOffsets(presentName,offsets,getTemplateRecord());
+            if(isChar(type)){
+                bpTree<FixString> tree;
+                for(size_t i = 0U;i<offsets.size();i++){
+                    tree.Insert_node(FixString(*records[i][index].name()),offsets[i]);
+                }
+                tree.Index(*action.indexName());
+            }
+            else if(type == Column::Float){
+                bpTree<float> tree;
+                for(size_t i = 0U;i<offsets.size();i++){
+                    tree.Insert_node(std::stof(*records[i][index].name()),offsets[i]);
+                }
+                tree.Index(*action.indexName());
+            }
+            else if(type == Column::Int){
+                bpTree<int> tree;
+                for(size_t i = 0U;i<offsets.size();i++){
+                    tree.Insert_node(std::stoi(*records[i][index].name()),offsets[i]);
+                }
+                tree.Index(*action.indexName());
+            }
+            catalog->CreateIndex(presentName, *column->name(), *action.indexName());
+        }
+        else{
+            displayLine(*action.indexName()+string(" already exists"));
+        }
+    }
+    else{
+        displayLine(string("Unable to create index on non unique column"));
+    }
+}
+
+void API::dropTable(const Action& action)
+{
+        assert(action.actionType() == Action::DropTable);
+        auto attrNum = catalog->GetAttrNum();
+        for (size_t i = 0U; i < attrNum; i++) {
+            if (catalog->GetHaveIndex(i)) {
+                auto name = catalog->GetIndexName(i);
+                auto type = catalog->GetType(i);
+                if(isChar(type)){
+                    bpTree<FixString> tree;
+                    tree.DropIndex(name);
+                }
+                else if(type == Column::Float){
+                    bpTree<float> tree;
+                    tree.DropIndex(name);
+                }
+                else if(type == Column::Int){
+                    bpTree<int> tree;
+                    tree.DropIndex(name);
+                }
+            }
+        }
+        RecordManager::DropTable(presentName);
+        catalog->DropTable();
+}
 
 
