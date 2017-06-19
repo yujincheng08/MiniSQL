@@ -87,8 +87,8 @@ inline void FixString::resize(std::size_t size)
     char *tmp = new char[size];
     memcpy(tmp, String, std::min(Size, size));
     if(size > Size)
-        memset(String + size, 0, size-Size);
-    delete String;
+        memset(tmp + Size, 0, size-Size);
+    delete [] String;
     String = tmp;
     Size = size;
 }

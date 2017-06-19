@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <type_traits>
 #include "../BufferManager/BufferManager.h"
 #include "../BufferManager/File.h"
-
 
 template<class T>
 class bpTree
@@ -15,6 +15,11 @@ class bpTree
     using vector = std::vector<K>;
     using pos_type = File::pos_type;
     constexpr static int N = 7;
+    class pri
+    {
+        friend class bpTree;
+        pri(){}
+    };
 public:
     struct node
     {
@@ -79,7 +84,10 @@ public:
     template <typename It> int compare(const It &, const It &);
 
     void Index(const string &);                   //建立索引文件
-    void Buildtree(const string &);               //建立b＋树
+    template<typename Q=T>
+    void Buildtree(const string &, typename std::enable_if<!std::is_same<Q, FixString>::value, pri>::type = pri());               //建立b＋树
+    template<typename Q=T>
+    void Buildtree(const string &, typename std::enable_if<std::is_same<Q, FixString>::value, size_t>::type size);               //建立b＋树
 #ifdef TEST
     void Show();
 #endif
@@ -1036,7 +1044,8 @@ void bpTree<T>::Index(const string & indexName)               //建立索引文�
 
 //#include <iostream>
 template<class T>
-void bpTree<T>::Buildtree(const string & indexName)           //从索引文件中导出建立b+树
+template<typename Q>
+void bpTree<T>::Buildtree(const string &indexName, typename std::enable_if<!std::is_same<Q, FixString>::value, pri>::type)
 {
     File &file = BufferManager::open(indexName);
 
@@ -1058,6 +1067,57 @@ void bpTree<T>::Buildtree(const string & indexName)           //从索引文件�
 
     }
 }
+
+template<class T>
+template<typename Q>
+void bpTree<T>::Buildtree(const string &indexName, typename std::enable_if<std::is_same<Q, FixString>::value, size_t>::type size)
+{
+    File &file = BufferManager::open(indexName);
+
+    pos_type total;
+    pos_type pos;
+    T key;
+    int i, num;
+    file.seekg(0);
+    file >> total;
+
+    for (i = 0; i < total; i++)
+    {
+        file >> num;
+        for (int j = 0; j < num; j++)
+        {
+            key.resize(size);
+            file >> key; file >> pos;
+            Insert_node(key, pos);
+        }
+
+    }
+}
+
+//template<class T>
+//void bpTree<T>::Buildtree(const string & indexName, size_t x)           //从索引文件中导出建立b+树
+//{
+//    File &file = BufferManager::open(indexName);
+
+//    pos_type total;
+//    pos_type pos;
+//    T key;
+//    int i, num;
+//    file.seekg(0);
+//    file >> total;
+
+//    for (i = 0; i < total; i++)
+//    {
+//        file >> num;
+//        for (int j = 0; j < num; j++)
+//        {
+//            file >> key; file >> pos;
+//            Insert_node(key, pos);
+//        }
+
+//    }
+//}
+
 
 #ifdef TEST
 template<class T>

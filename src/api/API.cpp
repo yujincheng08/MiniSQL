@@ -234,7 +234,7 @@ void API::insertTuple(const Action& action)
                 //Column column;
                 if (isChar((*iter)->type())) {
                     size_t blank = catalog->GetType(i) - (*iter)->type();
-                    column.Name = std::make_shared<string>(*(*iter)->name() + string(blank, ' '));
+                    column.Name = std::make_shared<string>(*(*iter)->name() + string(blank, '\0'));
                 }
                 else {
                     column.Name = (*iter)->Name;
@@ -315,7 +315,7 @@ void API::insertTuple(const Action& action)
                     if (isChar(type)) {
                         displayMsg(string("Insert fixstring in index"));
                         bpTree<FixString> tree;
-                        tree.Buildtree(name);
+                        tree.Buildtree(name, type);
                         tree.Insert_node(FixString(*tuple[i].name()), pos);
                         tree.Index(name);
                     }
@@ -351,7 +351,7 @@ void API::deleteTuples(const Action& action)
                 auto type = catalog->GetType(i);
                 if(isChar(type)){
                     bpTree<FixString> tree;
-                    tree.Buildtree(catalog->GetIndexName(i));
+                    tree.Buildtree(catalog->GetIndexName(i), type);
                     for(auto record:records){
                         tree.Del_data(FixString(*(record[i].name())));
                     }
@@ -598,8 +598,9 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
     int index = catalog->FindAttributeIndex(*operand1->value()->name());
     if (isChar(type)) {
         auto value2 = FixString(*operand2->value()->name());
+        value2.resize(type);
         bpTree<FixString> tree;
-        tree.Buildtree(catalog->GetIndexName(index));
+        tree.Buildtree(catalog->GetIndexName(index),type);
         switch (opType)
         {
         case Condition::NotEqual:
@@ -836,16 +837,16 @@ void API::dropIndex(const Action& action)
     auto type = catalog->GetType(index);
     catalog->DropIndex(presentName, *action.indexName());
     if(isChar(type)){
-        bpTree<FixString> tree;
-        tree.DropIndex(*action.indexName());
+        //bpTree<FixString> tree;
+        //tree.DropIndex(*action.indexName());
     }
     else if(type == Column::Float){
-        bpTree<float> tree;
-        tree.DropIndex(*action.indexName());
+        //bpTree<float> tree;
+        //tree.DropIndex(*action.indexName());
     }
     else if(type == Column::Int){
-        bpTree<int> tree;
-        tree.DropIndex(*action.indexName());
+        //bpTree<int> tree;
+        //tree.DropIndex(*action.indexName());
     }
 }
 
@@ -900,16 +901,16 @@ void API::dropTable(const Action& action)
                 auto name = catalog->GetIndexName(i);
                 auto type = catalog->GetType(i);
                 if(isChar(type)){
-                    bpTree<FixString> tree;
-                    tree.DropIndex(name);
+                    //bpTree<FixString> tree;
+                    //tree.DropIndex(name);
                 }
                 else if(type == Column::Float){
-                    bpTree<float> tree;
-                    tree.DropIndex(name);
+                    //bpTree<float> tree;
+                    //tree.DropIndex(name);
                 }
                 else if(type == Column::Int){
-                    bpTree<int> tree;
-                    tree.DropIndex(name);
+                    //bpTree<int> tree;
+                    //tree.DropIndex(name);
                 }
             }
         }
