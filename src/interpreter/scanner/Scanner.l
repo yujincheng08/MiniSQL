@@ -28,6 +28,8 @@ drop			return DROP;
 delete			return DELETE;
 quit			return BaseInterpreter::QUIT;
 exec			return BaseInterpreter::EXEC;
+\<=                     return LE;
+\>=                     return GE;
 \<			return LT;
 \>			return GT;
 index			return INDEX;

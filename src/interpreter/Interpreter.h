@@ -39,6 +39,8 @@ inline void Interpreter::reset()
     ErrorMsg = "";
     Error = false;
     BaseInterpreter::reset();
+    if(!isFile)
+        std::cout<<"MiniSQL > "<<std::endl;
 }
 
 inline void Interpreter::display(const QString &result)
