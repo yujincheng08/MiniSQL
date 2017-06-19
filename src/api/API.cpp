@@ -462,8 +462,8 @@ API::vector<API::pos_type> API::checkTuples(
         //for each column, select qulified tuples
         if (isChar(operandType)) {
             string value1, value2;
-            if (!isColumn1)	value1 = name1+string(operandType-name1.size(),' ');
-            if (!isColumn2) value2 = name2+string(operandType-name2.size(),' ');
+            if (!isColumn1)	value1 = name1+string(operandType-name1.size(),'\0');
+            if (!isColumn2) value2 = name2+string(operandType-name2.size(),'\0');
             //Main recursion
             if (isColumn1 || isColumn2) {
                 while (riterator != recordList.end() && piterator != offsetList.end()) {

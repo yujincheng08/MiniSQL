@@ -13,8 +13,8 @@ TARGET = MiniSQL
 HEADERS += \
     main.h
 
-LIBS += -L.. -lBufferManager -lInterpreter -lCatalogManager \
-        -lRecordManager -lAPI
+LIBS += -L.. -lAPI -lBufferManager -lInterpreter -lCatalogManager \
+        -lRecordManager
 
 CONFIG(test) {
 }
