@@ -272,4 +272,12 @@ inline bool API::consistent(Condition::Type operand, string leftValue, string ri
     }
 }
 
+inline std::string formalize(const std::string& value, Column::Type type)
+{
+    if(type > value.size())
+        return value+std::string(type-value.size(),'\0');
+    else
+        return value;
+}
+
 #endif  //API_H

@@ -134,24 +134,29 @@ void API::createTable(const Action& action)
             }
             Dict.insert(*(columnp->name()));
             t.push_back(columnp->type());
-            if (priName.size()>0 && *(columnp->name()) == priName) {
-                primaryKey = (int)Attr.size() - 1;//@@##
-                HavInd.push_back(true);
-                IndName.push_back(presentName+string("_")+priName + string("_index"));//@@##
+            if (isuni) {
+                string indTempName = presentName+string("_")+*(columnp->name()) + string("_index");
+                if (priName.size()>0 && *(columnp->name()) == priName) {
+                    primaryKey = (int)Attr.size() - 1;//@@##
+                    HavInd.push_back(true);
+                    IndName.push_back(presentName+string("_")+priName + string("_index"));//@@##
+                    displayMsg(string("Create index file"));
+                }
+                else{
+                    HavInd.push_back(false);
+                    IndName.push_back(string());
+                }
                 if(isChar(columnp->type())){
                     bpTree<FixString> tree;
-                    tree.Index(presentName+string("_")+priName + string("_index"));
-                    displayMsg(string("Create index file"));
+                    tree.Index(indTempName);
                 }
                 else if(columnp->type() == Column::Float){
                     bpTree<float> tree;
-                    tree.Index(presentName+string("_")+priName+string("_index"));
-                    displayMsg(string("Create index file"));
+                    tree.Index(indTempName);
                 }
                 else if(columnp->type() == Column::Int){
                     bpTree<int> tree;
-                    tree.Index(presentName+string("_")+priName+string("_index"));
-                    displayMsg(string("Create index file"));
+                    tree.Index(indTempName);
                 }
             }
             else {
@@ -218,7 +223,6 @@ void API::insertTuple(const Action& action)
     }
     else {
         bool varified = true;
-        bool violate = false;
         vector<Column> tuple;
         tuple.reserve(coNum);
         int i = 0;
@@ -250,51 +254,35 @@ void API::insertTuple(const Action& action)
                 break;
             }
         }
+        bool violate = false;
+         vector<string> attrName = catalog->GetAttrName();
         if (varified) {
-            bool hasUnique = false;
-            vector<ptr<list<Predication>>> testSet;
-            vector<string> attrName = catalog->GetAttrName();
             //Create a testSet
             i = 0;
             for (list<ptr<const Column>>::const_iterator iter = action.columns()->begin();
                  iter != action.columns()->end(); iter++, i++) {
-                if (catalog->GetIsUnique(i)) {
-                    auto test = std::make_shared<list<Predication>>();
-                    Predication predicator;
-                    //New a Condition object
-                    auto condNode = new Condition;
-                    condNode->Op = Condition::Equal;
-                    Column Value1;
-                    Value1.Name = std::make_shared<string>(attrName[i]);
-                    Value1.ColumnType = Column::Undefined;
-                    Condition FirstOperand, SecondOperand;
-                    //The first operand is from catalog
-                    FirstOperand.Op = Condition::Node;
-                    FirstOperand.Value = std::make_shared<Column>(Value1);
-                    //The second operand is from user
-                    SecondOperand.Op = Condition::Node;
-                    SecondOperand.Value = std::make_shared<Column>(tuple[i]);
-                    condNode->FirstOperand = std::make_shared<Condition>(FirstOperand);
-                    condNode->SecondOperand = std::make_shared<Condition>(SecondOperand);
-                    //Set the predicator
-                    predicator.condNode = ptr<Condition>(condNode);
-                    predicator.haveIndex = catalog->GetHaveIndex(i);
-                    test->push_back(predicator);
-                    testSet.push_back(test);
-                    hasUnique = true;
-                }
-            }
-            if (hasUnique) {
-                auto offsets = RecordManager::queryRecordsOffsets(presentName);
-                if(offsets.size() != 0){
-                    auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
-                    for (auto test : testSet) {
-                        auto resOffsets = checkTuples(test, offsets, records);
-                        if (resOffsets.size() != 0) {
-                            violate = true;
-                            break;
-                        }
+                if(catalog->GetIsUnique(i)){
+                    string indTempName = presentName+string("_")+attrName[i]+string("_index");
+                    auto type = catalog->GetType(i);
+                    if (isChar(type)) {
+                        bpTree<FixString> tree;
+                        tree.Buildtree(indTempName,type);
+                        auto set = tree.Eqsearch(FixString(formalize(*(*iter)->name(),type)));
+                        violate = set.size() > 0;
                     }
+                    else if (type == Column::Int) {
+                        bpTree<int> tree;
+                        tree.Buildtree(indTempName);
+                        auto set = tree.Eqsearch(std::stoi(*(*iter)->name()));
+                        violate = set.size() > 0;
+                    }
+                    else if (type == Column::Float) {
+                        bpTree<float> tree;
+                        tree.Buildtree(indTempName);
+                        auto set = tree.Eqsearch(std::stof(*(*iter)->name()));
+                        violate = set.size() > 0;
+                    }
+                    if(violate) break;
                 }
             }
         }
@@ -306,28 +294,32 @@ void API::insertTuple(const Action& action)
         }
         else {
             auto pos = RecordManager::InsertRecord(presentName, tuple);
-            displayMsg(string("Insert one tuple successfully"));
-
+            //displayMsg(string("Insert one tuple successfully"));
             for (size_t i = 0U; i < attrNum; i++) {
-                if (catalog->GetHaveIndex(i)) {
-                    string name = catalog->GetIndexName(i);
+                bool haveInd = catalog->GetHaveIndex(i);
+                bool isuni = catalog->GetIsUnique(i);
+                if (isuni) {
+                    string name = presentName+string("_")+attrName[i]+string("_index");
                     auto type = catalog->GetType(i);
                     if (isChar(type)) {
-                        displayMsg(string("Insert fixstring in index"));
+                        if(haveInd)
+                            displayMsg(string("Insert string in index"));
                         bpTree<FixString> tree;
-                        tree.Buildtree(name, type);
-                        tree.Insert_node(FixString(*tuple[i].name()), pos);
+                        tree.Buildtree(name,type);
+                        tree.Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Int) {
-                        displayMsg(string("Insert int in index"));
+                        if(haveInd)
+                            displayMsg(string("Insert int in index"));
                         bpTree<int> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stoi(*tuple[i].name()), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Float) {
-                        displayMsg(string("Insert float in index"));
+                        if(haveInd)
+                            displayMsg(string("Insert float in index"));
                         bpTree<float> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stof(*tuple[i].name()), pos);
@@ -596,11 +588,13 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
     }
     assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
     int index = catalog->FindAttributeIndex(*operand1->value()->name());
+    auto attrName = catalog->GetAttrName();
+    auto indName = presentName+string("_")+attrName[index]+string("_index");
     if (isChar(type)) {
         auto value2 = FixString(*operand2->value()->name());
         value2.resize(type);
         bpTree<FixString> tree;
-        tree.Buildtree(catalog->GetIndexName(index),type);
+        tree.Buildtree(indName,type);
         switch (opType)
         {
         case Condition::NotEqual:
@@ -628,7 +622,7 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
     else if (type == Column::Float) {
         float value2 = std::stof(*operand2->value()->name());
         bpTree<float> tree;
-        tree.Buildtree(catalog->GetIndexName(index));
+        tree.Buildtree(indName);
         switch (opType)
         {
         case Condition::NotEqual:
@@ -655,7 +649,7 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
     else if (type == Column::Int) {
         int value2 = std::stoi(*operand2->value()->name());
         bpTree<int> tree;
-        tree.Buildtree(catalog->GetIndexName(index));
+        tree.Buildtree(indName);
         switch (opType)
         {
         case Condition::NotEqual:
@@ -857,7 +851,7 @@ void API::createIndex(const Action& action)
     int index = catalog->FindAttributeIndex(*column->name());
     if(catalog->GetIsUnique(index)){
         if(catalog->FindIndexAccordingToIndexName(*action.indexName())==-1){
-            Column::Type type = catalog->GetType(index);
+            /*Column::Type type = catalog->GetType(index);
             auto offsets = RecordManager::queryRecordsOffsets(presentName);
             auto records = RecordManager::queryRecordsByOffsets(presentName,offsets,getTemplateRecord());
             if(isChar(type)){
@@ -880,7 +874,7 @@ void API::createIndex(const Action& action)
                     tree.Insert_node(std::stoi(*records[i][index].name()),offsets[i]);
                 }
                 tree.Index(*action.indexName());
-            }
+            }*/
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
