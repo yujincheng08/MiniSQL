@@ -1058,7 +1058,7 @@ void bpTree<T>::Buildtree(const string & indexName)           //从索引文件�
 template<class T>
 void bpTree<T>::DropIndex(const string & indexName)
 {
-    remove(indexName);
+    //remove(indexName);
 }
 
 

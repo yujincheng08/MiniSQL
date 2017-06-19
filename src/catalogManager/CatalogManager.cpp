@@ -356,7 +356,7 @@ bool catalogManager::AddTableInfo()
 	fin.seekg(0,ios::beg);
 	if(FindTableName() == true)
 	{
-		cout<<"Table Exists!"<<endl;
+        error("Table Exists!");
 		return false;
 	}
 	
