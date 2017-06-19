@@ -1,6 +1,6 @@
 #include "WriteThread.h"
 #include "BufferManager.h"
-#include "iostream"
+
 void WriteThread::run()
 {
     while(!WriteList.empty())

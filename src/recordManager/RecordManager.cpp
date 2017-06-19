@@ -172,14 +172,12 @@ auto RecordManager::queryRecordsOffsets(const string &tableName) -> vector<pos_t
     auto &file = OpenTableFile(tableName);
     file.seekg(firstValid);
     vector<pos_type>  result;
-    size_t i = 0;
     while(firstValid != RecordManager::INVALID_POS) {
         result.emplace_back(firstValid);
         file.seekg(firstValid);
         file.get<bool>();
         file.get<pos_type>();
         file >> firstValid;
-        i++;
     }
     return result;
 }

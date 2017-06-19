@@ -6,6 +6,7 @@
 #include <list>
 #include <mutex>
 #include "Buffer.h"
+
 class Buffer;
 class WriteThread : public QThread
 {
