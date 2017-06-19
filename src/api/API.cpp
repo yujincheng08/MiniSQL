@@ -462,8 +462,8 @@ API::vector<API::pos_type> API::checkTuples(
         //for each column, select qulified tuples
         if (isChar(operandType)) {
             string value1, value2;
-            if (!isColumn1)	value1 = name1;
-            if (!isColumn2) value2 = name2;
+            if (!isColumn1)	value1 = name1+string(operandType-name1.size(),' ');
+            if (!isColumn2) value2 = name2+string(operandType-name2.size(),' ');
             //Main recursion
             if (isColumn1 || isColumn2) {
                 while (riterator != recordList.end() && piterator != offsetList.end()) {
@@ -855,7 +855,7 @@ void API::createIndex(const Action& action)
     auto column = *action.columns()->begin();
     int index = catalog->FindAttributeIndex(*column->name());
     if(catalog->GetIsUnique(index)){
-        if(catalog->FindIndexAccordingToIndexName(*action.indexName())!=-1){
+        if(catalog->FindIndexAccordingToIndexName(*action.indexName())==-1){
             Column::Type type = catalog->GetType(index);
             auto offsets = RecordManager::queryRecordsOffsets(presentName);
             auto records = RecordManager::queryRecordsByOffsets(presentName,offsets,getTemplateRecord());
@@ -883,7 +883,7 @@ void API::createIndex(const Action& action)
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
-            displayLine(*action.indexName()+string("already exists"));
+            displayLine(*action.indexName()+string(" already exists"));
         }
     }
     else{
