@@ -19,15 +19,16 @@ class BufferManager : public QObject
     friend class File;
     friend class ReadThread;
     friend class WriteThread;
+    friend class Main;
 private:
     ReadThread *readThread = nullptr;
     WriteThread *writeThread = nullptr;
+    static BufferManager *bufferManager;
     BufferList *list = Buffer::list();
     HashMap<string, File *> Files;
     File &Open(const string &fileName);
     std::mutex Mutex;
     static size_t MaxBuffer;
-    static BufferManager &bufferManager();
     Buffer *buff(File *file, const Buffer::pos_type &pos, const Buffer::pos_type &size = Buffer::bufferSize());
     void preRead(File *file, const Buffer::pos_type &pos);
     void queueBuff(Buffer * const buffer);

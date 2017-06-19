@@ -2,6 +2,7 @@
 #include "File.h"
 #include <QDir>
 #include <QString>
+
 namespace windows
 {
 #include <windows.h>
@@ -22,7 +23,6 @@ static size_t calBufferSize()
     return static_cast<size_t>(SectorsPerCluster*lpBytesPerSector);
 }
 
-
 const size_t Buffer::BufferSize = calBufferSize();
 
 Buffer::Buffer(File &file,
@@ -32,8 +32,10 @@ Buffer::Buffer(File &file,
 {
     if(position < Stream.size())
     {
+        f.StreamMutex.lock();
         Stream.seek(position);
         Size = Stream.read(Buff,bufferSize());
+        f.StreamMutex.unlock();
     }
     if(empty > Size)
     {
@@ -48,3 +50,12 @@ Buffer::~Buffer()
     delete [] Buff;
 }
 
+void Buffer::write()
+{
+    Mutex.lock();
+    f.StreamMutex.lock();
+    Stream.seek(Position);
+    Stream.write(Buff, Size);
+    f.StreamMutex.unlock();
+    Mutex.unlock();
+}

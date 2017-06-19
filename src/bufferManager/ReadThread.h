@@ -2,7 +2,7 @@
 #define READTHREAD_H
 
 #include <QThread>
-#include <QMutex>
+#include <mutex>
 
 #include "Buffer.h"
 class File;
@@ -11,7 +11,7 @@ class ReadThread : public QThread
     Q_OBJECT
     friend class BufferManager;
 private:
-    QMutex Mutex;
+    std::mutex Mutex;
     File *CurrentFile;
     Buffer::pos_type CurrentPos;
 

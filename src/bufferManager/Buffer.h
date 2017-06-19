@@ -5,6 +5,7 @@
 #include "BufferListItem.h"
 #include <mutex>
 #include <cstring>
+
 //Buffer of a file block
 class QString;
 class File;
@@ -38,14 +39,6 @@ public:
     virtual ~Buffer() override;
     static size_t bufferSize();
 };
-
-inline void Buffer::write()
-{
-    Mutex.lock();
-    Stream.seek(Position);
-    Stream.write(Buff, Size);
-    Mutex.unlock();
-}
 
 inline void Buffer::changeSize(const size_t &size)
 {

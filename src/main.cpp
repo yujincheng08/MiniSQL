@@ -11,19 +11,3 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-Main::Main(QObject *parent)
-    :QObject(parent)
-{
-    interpreter = new Interpreter(this);
-    api = new API(this);
-    connect(interpreter, SIGNAL(parsered(Action)), api, SLOT(execute(Action)));
-    connect(api, SIGNAL(displayLine(string)), interpreter, SLOT(display(string)));
-}
-
-void Main::run()
-{
-
-    interpreter->run();
-
-    emit finished();
-}

@@ -2,28 +2,29 @@
 #include "ReadThread.h"
 #include "WriteThread.h"
 #include "BufferList.h"
+
 using namespace std;
 size_t BufferManager::MaxBuffer = 200000;
-BufferManager &BufferManager::bufferManager()
-{
-    static BufferManager bm;
-    return bm;
-}
+BufferManager *BufferManager::bufferManager = nullptr;
 
 File &BufferManager::open(const string &fileName)
 {
-    return bufferManager().Open(fileName);
+    return bufferManager->Open(fileName);
 }
 
 BufferManager::~BufferManager()
 {
     readThread->terminate();
     readThread->wait();
+    delete readThread;
     for(auto &i : Files)
         i.second->flush();
     writeThread->wait();
     for(auto &i : Files)
         delete i.second;
+    bufferManager = nullptr;
+    delete writeThread;
+
 }
 
 Buffer *BufferManager::buff(File *file, const Buffer::pos_type &pos, const Buffer::pos_type &size)
@@ -58,7 +59,10 @@ void BufferManager::queueBuff(Buffer * const buffer)
 
 BufferManager::BufferManager()
     :readThread(new ReadThread()),writeThread(new WriteThread())
-{}
+{
+    if(!bufferManager)
+        bufferManager = this;
+}
 
 File &BufferManager::Open(const string &fileName)
 {

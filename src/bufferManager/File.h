@@ -28,6 +28,7 @@ public:
     using pos_type = std::streamoff;
 private:
     std::mutex Mutex;
+    std::mutex StreamMutex;
     QFile &Stream;
     pos_type FileSize;
     size_t BlockCount;
@@ -268,7 +269,9 @@ inline bool File::Exist(const pos_type &pos)
 inline bool File::IsEnd(const pos_type &pos)
 {
     Mutex.lock();
+    StreamMutex.lock();
     bool result = pos >= Stream.size();
+    StreamMutex.unlock();
     Mutex.unlock();
     return result;
 }

@@ -8,7 +8,7 @@ void ReadThread::run()
         Buffer::pos_type pos = CurrentPos += Buffer::bufferSize();
         File *file = CurrentFile;
         Mutex.unlock();
-        BufferManager &bm = BufferManager::bufferManager();
+        BufferManager &bm = *BufferManager::bufferManager;
         if(!file->IsEnd(pos) && !file->Exist(pos) && !bm.full())
         {
             Buffer * buff = bm.buff(file, pos);

@@ -1,5 +1,6 @@
 #include "WriteThread.h"
 #include "BufferManager.h"
+#include "iostream"
 void WriteThread::run()
 {
     while(!WriteList.empty())
@@ -7,7 +8,7 @@ void WriteThread::run()
         Mutex.lock();
         auto i = WriteList.front();
         if(i->InList)
-            BufferManager::bufferManager().writeBuffer(i);
+            BufferManager::bufferManager->writeBuffer(i);
         WriteList.pop_front();
         Mutex.unlock();
     }

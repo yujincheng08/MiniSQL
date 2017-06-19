@@ -15,12 +15,12 @@ Buffer *File::GetBuffer(const size_t &block, const size_t &offset)
     if(i==Buffers.end())
     {
         pos_type pos = block * Buffer::bufferSize();
-        buffer = BufferManager::bufferManager()
-                .buff(this, pos, offset);
+        buffer = BufferManager::bufferManager->
+                buff(this, pos, offset);
         Buffers.insert(std::make_pair(block,buffer));
         buffer->top();
-        BufferManager::bufferManager()
-                .preRead(this,pos + Buffer::bufferSize() );
+        BufferManager::bufferManager->
+                preRead(this,pos + Buffer::bufferSize() );
     }
     else
     {
@@ -76,7 +76,9 @@ void File::resize(const size_t &pos)
     auto iter = Buffers.find(newBlock);
     if(iter!= Buffers.end())
         iter->second->changeSize(GetPos(pos) % Buffer::bufferSize());
+    StreamMutex.lock();
     Stream.resize(pos);
+    StreamMutex.unlock();
     Mutex.unlock();
     BlockCount = newBlock;
     FileSize = pos;
@@ -87,7 +89,7 @@ void File::flush()
 {
     Mutex.lock();
     for(auto i : Buffers)
-        if(i.second->Dirty)
-            BufferManager::bufferManager().queueBuff(i.second);
+        if(i.second->Dirty && !i.second->InList)
+            BufferManager::bufferManager->queueBuff(i.second);
     Mutex.unlock();
 }
