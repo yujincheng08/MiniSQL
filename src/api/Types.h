@@ -121,5 +121,29 @@ inline bool isPredication(Condition::Type type)
         type == Condition::GreaterEqual;
 }
 
+inline Condition::Type exchange(Condition::Type type)
+{
+    switch (type) {
+    case Condition::NotEqual:
+        return Condition::NotEqual;
+    case Condition::Equal:
+        return Condition::Equal;
+    case Condition::GreaterThan:
+        return Condition::LessThan;
+    case Condition::LessThan:
+        return Condition::GreaterThan;
+    case Condition::LessEqual:
+        return Condition::GreaterEqual;
+    case Condition::GreaterEqual:
+        return Condition::LessEqual;
+    case Condition::And:
+        return Condition::And;
+    case Condition::Or:
+        return Condition::Or;
+    default:
+        return Condition::Underfined;
+    };
+}
+
 
 #endif // TYPES_H

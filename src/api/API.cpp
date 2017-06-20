@@ -322,6 +322,7 @@ API::vector<API::pos_type> API::checkTuples(
             auto temp = operand1;
             operand1 = operand2;
             operand2 = temp;
+            opType = exchange(opType);
         }
         //assert one node is constant(type is not undefine) and there are two operand
         assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
