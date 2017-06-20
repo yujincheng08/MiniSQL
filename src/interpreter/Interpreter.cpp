@@ -21,7 +21,7 @@ void Interpreter::query()
     if(Error)
     {
         cerr<<"Error occurs";
-        if(isFile)
+        if(File.is_open())
             cerr<<" at line " << LineNo;
         cerr<<" near \""<<Near<<"\" : "<<ErrorMsg<<endl;
     }
@@ -73,25 +73,26 @@ void Interpreter::run()
                 filename.pop_back();
                 if(filename.front()=='"' && filename.back()=='"')
                     filename = filename.substr(1U,filename.length()-2);
-                ifstream file(filename);
-                if(!file.is_open())
+                if(File.is_open())
+                    File.close();
+                File.open(filename,ios_base::in);
+                if(!File.is_open())
                 {
                     error("File \"" + filename + "\" not exists.");
                     query();
                     continue;
                 }
-                file.close();
-                isFile = true;
-                scanner->switchIstream(filename);
+                scanner->switchStreams(File);
                 continue;
             }
         }
         if(token == QUIT)
         {
-            if(isFile)
+            if(File.is_open())
             {
                 scanner->switchStreams(cin);
-                isFile = false;
+                File.close();
+                reset();
                 continue;
             }
             else

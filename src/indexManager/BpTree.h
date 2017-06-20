@@ -88,6 +88,7 @@ public:
     void Buildtree(const string &, typename std::enable_if<!std::is_same<Q, FixString>::value, pri>::type = pri());               //建立b＋树
     template<typename Q=T>
     void Buildtree(const string &, typename std::enable_if<std::is_same<Q, FixString>::value, size_t>::type size);               //建立b＋树
+    static void DropIndex(const string &);
 #ifdef TEST
     void Show();
 #endif
@@ -1039,6 +1040,13 @@ void bpTree<T>::Index(const string & indexName)               //建立索引文�
     file.seekp(0);
     file << total;
     file.flush();
+}
+
+template<class T>
+void bpTree<T>::DropIndex(const bpTree::string &name)
+{
+    File &file = BufferManager::open(name);
+    file.remove();
 }
 
 
