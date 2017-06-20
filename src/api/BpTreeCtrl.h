@@ -20,12 +20,12 @@ public:
     using ptr = std::shared_ptr<T>;
     using Record = vector<Column>;
     BpTreeCtrl(){}
-    BpTreeCtrl(ptr<catalogManager>);
+    BpTreeCtrl(ptr<catalogManager>,const string&);
     ~BpTreeCtrl();
     string getTableName();
     static void index(Column::Type, const string&);
     //void addBpTree(Column::Type, const string&);
-    void dropIndices();    
+    void dropIndices();
     bool checkViolate(const Record&);
     void insData(File::pos_type pos, const Record&);
     void delData(const Record&);
@@ -45,6 +45,5 @@ inline string BpTreeCtrl::getTableName()
 {
     return tableName;
 }
-
 
 #endif // BPTREECTRL_H

@@ -1,7 +1,8 @@
 #include "BpTreeCtrl.h"
 
-BpTreeCtrl::BpTreeCtrl(ptr<catalogManager> inCatalog)
+BpTreeCtrl::BpTreeCtrl(ptr<catalogManager> inCatalog, const string& presentName)
 {
+    tableName = presentName;
     catalog = inCatalog;
     auto attrNum = catalog->GetAttrNum();
     auto attrName = catalog->GetAttrName();
@@ -32,16 +33,17 @@ BpTreeCtrl::BpTreeCtrl(ptr<catalogManager> inCatalog)
 
 BpTreeCtrl::~BpTreeCtrl()
 {
-    for(auto treeMap:strTree){
-        treeMap.second->Index(treeMap.first);
+    for(auto tree:strTree){
+        tree.second->Index(tree.first);
     }
-    for(auto treeMap:intTree){
-        treeMap.second->Index(treeMap.first);
+    for(auto tree:intTree){
+        tree.second->Index(tree.first);
     }
-    for(auto treeMap:floatTree){
-        treeMap.second->Index(treeMap.first);
+    for(auto tree:floatTree){
+        tree.second->Index(tree.first);
     }
 }
+
 
 
 bool BpTreeCtrl::checkViolate(const Record& tuple)
@@ -153,12 +155,12 @@ void BpTreeCtrl::insData(File::pos_type pos, const Record& tuple)
             if (isChar(type)) {
                 strTree[indName]->Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
             }
-            else if (type == Column::Int) {
-                intTree[indName]->Insert_node(std::stoi(*tuple[i].name()), pos);
-            }
             else if (type == Column::Float) {
                 floatTree[indName]->Insert_node(std::stof(*tuple[i].name()), pos);
             }
+            else if (type == Column::Int) {
+                intTree[indName]->Insert_node(std::stoi(*tuple[i].name()), pos);
+            }            
         }
     }
 }

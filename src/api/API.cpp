@@ -48,9 +48,9 @@ void API::execute(const Action& action)
     else {
         if (catalog->GetTableInfo()) {
             if(bpCtrl == nullptr)
-                bpCtrl = std::make_shared<BpTreeCtrl>(catalog);
+                bpCtrl = std::make_shared<BpTreeCtrl>(catalog,presentName);
             else if(presentName != bpCtrl->getTableName())
-                bpCtrl = std::make_shared<BpTreeCtrl>(catalog);
+                bpCtrl = std::make_shared<BpTreeCtrl>(catalog,presentName);
             switch (action.actionType()) {
             case Action::Undefined:
                 //do something
@@ -328,7 +328,7 @@ API::vector<API::pos_type> API::checkTuples(
         int index = catalog->FindAttributeIndex(*operand1->value()->name());
         auto attrName = catalog->GetAttrName();
         auto indName = presentName+string("_")+attrName[index]+string("_index");
-        auto tempV = bpCtrl->queryByIndex(indName,*predicator->condNode->value()->name(),type,opType);
+        auto tempV = bpCtrl->queryByIndex(indName,*operand2->value()->name(),type,opType);
         set<pos_type> tempSet, intersection;
         std::copy(tempV.begin(), tempV.end(), std::inserter(tempSet,tempSet.end()));
         std::set_intersection(indexResult.begin(), indexResult.end(), tempSet.begin(), tempSet.end(), std::inserter(intersection, intersection.end()));
@@ -650,6 +650,7 @@ RecordManager::Record API::getTemplateRecord()
 void API::dropIndex(const Action& action)
 {
     auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
+    //auto type = catalog->GetType(index);    
     if(index>=0)
         catalog->DropIndex(presentName, *action.indexName());
     else
@@ -700,20 +701,20 @@ void API::createIndex(const Action& action)
 
 void API::dropTable(const Action& action)
 {
-        assert(action.actionType() == Action::DropTable);
-        auto attrNum = catalog->GetAttrNum();
-        auto name = catalog->GetAttrName();
-        //bpCtrl->dropIndices();
-        bpCtrl = nullptr;
-        for (size_t i = 0U; i < attrNum; i++) {
-            if (catalog->GetIsUnique(i)) {
-                //auto type = catalog->GetType(i);
-                string indTempName = presentName+string("_")+ name[i] + string("_index");
-                bpTree<bool>::DropIndex(indTempName);
-            }
+    assert(action.actionType() == Action::DropTable);
+    auto attrNum = catalog->GetAttrNum();
+    auto name = catalog->GetAttrName();
+    //bpCtrl->dropIndices();  Cannot drop before deconstruct?
+    bpCtrl = nullptr;
+    for (size_t i = 0U; i < attrNum; i++) {
+        if (catalog->GetIsUnique(i)) {
+            //auto type = catalog->GetType(i);
+            string indTempName = presentName+string("_")+ name[i] + string("_index");
+            bpTree<bool>::DropIndex(indTempName);
         }
-        RecordManager::DropTable(presentName);
-        catalog->DropTable();
+    }
+    RecordManager::DropTable(presentName);
+    catalog->DropTable();
 }
 
 
