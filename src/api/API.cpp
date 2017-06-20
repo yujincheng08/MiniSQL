@@ -23,7 +23,7 @@ void API::execute(const Action& action)
         catalog = std::make_shared<catalogManager>(
                     string("myDB"),
                     presentName
-                    );
+                    );        
     }
     else {
         if (presentName != *(*(action.tableName()->begin()))) {
@@ -47,6 +47,10 @@ void API::execute(const Action& action)
     }
     else {
         if (catalog->GetTableInfo()) {
+            if(bpCtrl == nullptr)
+                bpCtrl = std::make_shared<BpTreeCtrl>(catalog);
+            else if(presentName != bpCtrl->getTableName())
+                bpCtrl = std::make_shared<BpTreeCtrl>(catalog);
             switch (action.actionType()) {
             case Action::Undefined:
                 //do something
@@ -146,18 +150,7 @@ void API::createTable(const Action& action)
                     HavInd.push_back(false);
                     IndName.push_back(string());
                 }
-                if(isChar(columnp->type())){
-                    bpTree<FixString> tree;
-                    tree.Index(indTempName);
-                }
-                else if(columnp->type() == Column::Float){
-                    bpTree<float> tree;
-                    tree.Index(indTempName);
-                }
-                else if(columnp->type() == Column::Int){
-                    bpTree<int> tree;
-                    tree.Index(indTempName);
-                }
+                BpTreeCtrl::index(columnp->type(),indTempName);
             }
             else {
                 HavInd.push_back(false);
@@ -254,37 +247,10 @@ void API::insertTuple(const Action& action)
                 break;
             }
         }
-        bool violate = false;
-         vector<string> attrName = catalog->GetAttrName();
+        bool violate = false;;
         if (varified) {
             //Create a testSet
-            i = 0;
-            for (list<ptr<const Column>>::const_iterator iter = action.columns()->begin();
-                 iter != action.columns()->end(); iter++, i++) {
-                if(catalog->GetIsUnique(i)){
-                    string indTempName = presentName+string("_")+attrName[i]+string("_index");
-                    auto type = catalog->GetType(i);
-                    if (isChar(type)) {
-                        bpTree<FixString> tree;
-                        tree.Buildtree(indTempName,type);
-                        auto set = tree.Eqsearch(FixString(formalize(*(*iter)->name(),type)));
-                        violate = set.size() > 0;
-                    }
-                    else if (type == Column::Int) {
-                        bpTree<int> tree;
-                        tree.Buildtree(indTempName);
-                        auto set = tree.Eqsearch(std::stoi(*(*iter)->name()));
-                        violate = set.size() > 0;
-                    }
-                    else if (type == Column::Float) {
-                        bpTree<float> tree;
-                        tree.Buildtree(indTempName);
-                        auto set = tree.Eqsearch(std::stof(*(*iter)->name()));
-                        violate = set.size() > 0;
-                    }
-                    if(violate) break;
-                }
-            }
+            violate = bpCtrl->checkViolate(tuple);
         }
         if(violate){
             displayMsg(string("Violate unique"));
@@ -295,38 +261,7 @@ void API::insertTuple(const Action& action)
         else {
             auto pos = RecordManager::InsertRecord(presentName, tuple);
             //displayMsg(string("Insert one tuple successfully"));
-            for (size_t i = 0U; i < attrNum; i++) {
-                bool haveInd = catalog->GetHaveIndex(i);
-                bool isuni = catalog->GetIsUnique(i);
-                if (isuni) {
-                    string name = presentName+string("_")+attrName[i]+string("_index");
-                    auto type = catalog->GetType(i);
-                    if (isChar(type)) {
-                        if(haveInd)
-                            displayMsg(string("Insert string in index"));
-                        bpTree<FixString> tree;
-                        tree.Buildtree(name,type);
-                        tree.Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
-                        tree.Index(name);
-                    }
-                    else if (type == Column::Int) {
-                        if(haveInd)
-                            displayMsg(string("Insert int in index"));
-                        bpTree<int> tree;
-                        tree.Buildtree(name);
-                        tree.Insert_node(std::stoi(*tuple[i].name()), pos);
-                        tree.Index(name);
-                    }
-                    else if (type == Column::Float) {
-                        if(haveInd)
-                            displayMsg(string("Insert float in index"));
-                        bpTree<float> tree;
-                        tree.Buildtree(name);
-                        tree.Insert_node(std::stof(*tuple[i].name()), pos);
-                        tree.Index(name);
-                    }
-                }
-            }
+            bpCtrl->insData(pos, tuple);
         }
     }
 }
@@ -337,37 +272,8 @@ void API::deleteTuples(const Action& action)
     auto offsets = queryByCondition(action);
     auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
     if(offsets.size() != 0){
-        auto attrNum = catalog->GetAttrNum();
-        for(size_t i =0U;i<attrNum;i++){
-            if(catalog->GetHaveIndex(i)){
-                auto type = catalog->GetType(i);
-                if(isChar(type)){
-                    bpTree<FixString> tree;
-                    tree.Buildtree(catalog->GetIndexName(i), type);
-                    for(auto record:records){
-                        tree.Del_data(FixString(*(record[i].name())));
-                    }
-                    tree.Index(catalog->GetIndexName(i));
-                }
-                else if(type == Column::Float){
-                    bpTree<float> tree;
-                    tree.Buildtree(catalog->GetIndexName(i));
-                    for(auto record:records){
-                        float value = std::stof(*(record[i].name()));
-                        tree.Del_data(value);
-                    }
-                    tree.Index(catalog->GetIndexName(i));
-                }
-                else if(type == Column::Int){
-                    bpTree<int> tree;
-                    tree.Buildtree(catalog->GetIndexName(i));
-                    for(auto record:records){
-                        float value = std::stoi(*(record[i].name()));
-                        tree.Del_data(value);
-                    }
-                    tree.Index(catalog->GetIndexName(i));
-                }
-            }
+        for(auto record:records){
+            bpCtrl->delData(record);
         }
         RecordManager::DeleteRecords(presentName, offsets);
     }
@@ -405,7 +311,24 @@ API::vector<API::pos_type> API::checkTuples(
     std::copy(inOffsets.begin(), inOffsets.end(), std::inserter(indexResult,indexResult.end()));
     auto predicator = predicators->begin();
     while (predicator != predicators->end() && predicator->haveIndex) {
-        auto tempV = queryByIndex(predicator->condNode);
+        Condition::Type opType = predicator->condNode->op();
+        Column::Type type1 = getColumnType(predicator->condNode->firstOperand()->value());
+        Column::Type type2 = getColumnType(predicator->condNode->secondOperand()->value());
+        Column::Type type = convertible(type1, type2) ? type2 : type1;
+        auto operand1 = predicator->condNode->firstOperand();
+        auto operand2 = predicator->condNode->secondOperand();
+        if (operand2->value()->type() == Column::Undefined) {
+            //Make sure operand 1 is Undefined
+            auto temp = operand1;
+            operand1 = operand2;
+            operand2 = temp;
+        }
+        //assert one node is constant(type is not undefine) and there are two operand
+        assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
+        int index = catalog->FindAttributeIndex(*operand1->value()->name());
+        auto attrName = catalog->GetAttrName();
+        auto indName = presentName+string("_")+attrName[index]+string("_index");
+        auto tempV = bpCtrl->queryByIndex(indName,*predicator->condNode->value()->name(),type,opType);
         set<pos_type> tempSet, intersection;
         std::copy(tempV.begin(), tempV.end(), std::inserter(tempSet,tempSet.end()));
         std::set_intersection(indexResult.begin(), indexResult.end(), tempSet.begin(), tempSet.end(), std::inserter(intersection, intersection.end()));
@@ -430,88 +353,7 @@ API::vector<API::pos_type> API::checkTuples(
         nullFlag = true;
     }
     while (!nullFlag && predicator != predicators->end()) {
-        //Get type
-        Condition::Type opType = predicator->condNode->op();
-        //Get operand
-        auto operand1 = predicator->condNode->firstOperand();
-        auto operand2 = predicator->condNode->secondOperand();
-        //Get operand type
-        Column::Type operandType1 = getColumnType(operand1->value());
-        Column::Type operandType2 = getColumnType(operand2->value());
-        Column::Type operandType = convertible(operandType1, operandType2) ? operandType2 : operandType1;
-        //Get name or value
-        string name1 = *operand1->value()->name();
-        string name2 = *operand2->value()->name();
-        //If it is a column name
-        bool isColumn1 = operand1->value()->type() == Column::Undefined;
-        bool isColumn2 = operand2->value()->type() == Column::Undefined;
-        int index1 = 0, index2 = 0;
-        index1 = catalog->FindAttributeIndex(name1);
-        index2 = catalog->FindAttributeIndex(name2);
-        //Get records
-        auto riterator = recordList.begin();
-        auto piterator = offsetList.begin();
-        //for each column, select qulified tuples
-        if (isChar(operandType)) {
-            string value1, value2;
-            if (!isColumn1)	value1 = name1+string(operandType-name1.size(),'\0');
-            if (!isColumn2) value2 = name2+string(operandType-name2.size(),'\0');
-            //Main recursion
-            if (isColumn1 || isColumn2) {
-                while (riterator != recordList.end() && piterator != offsetList.end()) {
-                    if (isColumn1) value1 = *(riterator->begin() + index1)->name();
-                    if (isColumn2) value2 = *(riterator->begin() + index2)->name();
-                    if (consistent(opType, value1, value2)) {
-                        riterator++;
-                        piterator++;
-                    }
-                    else {
-                        riterator = recordList.erase(riterator);
-                        piterator = offsetList.erase(piterator);
-                    }
-                }
-            }
-        }
-        else if (operandType == Column::Int) {
-            int value1 = 0, value2 = 0;
-            if (!isColumn1) value1 = std::stoi(name1);
-            if (!isColumn2) value2 = std::stoi(name2);
-            //Main recursion
-            if (isColumn1 || isColumn2) {
-                while (riterator != recordList.end() && piterator != offsetList.end()) {
-                    if (isColumn1) value1 = std::stoi(*(riterator->begin() + index1)->name());
-                    if (isColumn2) value2 = std::stoi(*(riterator->begin() + index2)->name());
-                    if (consistent(opType, value1, value2)) {
-                        riterator++;
-                        piterator++;
-                    }
-                    else {
-                        riterator = recordList.erase(riterator);
-                        piterator = offsetList.erase(piterator);
-                    }
-                }
-            }
-        }
-        else if (operandType == Column::Float) {
-            float value1 = 0, value2 = 0;
-            if (!isColumn1) value1 = std::stof(name1);
-            if (!isColumn2) value2 = std::stof(name2);
-            //Main recursion
-            if (isColumn1 || isColumn2) {
-                while (riterator != recordList.end() && piterator != offsetList.end()) {
-                    if (isColumn1) value1 = std::stof(*(riterator->begin() + index1)->name());
-                    if (isColumn2) value2 = std::stof(*(riterator->begin() + index2)->name());
-                    if (consistent(opType, value1, value2)) {
-                        riterator++;
-                        piterator++;
-                    }
-                    else {
-                        riterator = recordList.erase(riterator);
-                        piterator = offsetList.erase(piterator);
-                    }
-                }
-            }
-        }
+        setList(predicator->condNode, recordList, offsetList);
         //Skip when satisfy the condition
         if (offsetList.empty() || recordList.empty()) {
             nullFlag = true;
@@ -526,6 +368,92 @@ API::vector<API::pos_type> API::checkTuples(
         }
     }
     return resOffsets;
+}
+
+void API::setList(ptr<const Condition> condNode, std::list<Record>&recordList, std::list<pos_type>& offsetList)
+{
+    //Get type
+    Condition::Type opType = condNode->op();
+    //Get operand
+    auto operand1 = condNode->firstOperand();
+    auto operand2 = condNode->secondOperand();
+    //Get operand type
+    Column::Type operandType1 = getColumnType(operand1->value());
+    Column::Type operandType2 = getColumnType(operand2->value());
+    Column::Type operandType = convertible(operandType1, operandType2) ? operandType2 : operandType1;
+    //Get name or value
+    string name1 = *operand1->value()->name();
+    string name2 = *operand2->value()->name();
+    //If it is a column name
+    bool isColumn1 = operand1->value()->type() == Column::Undefined;
+    bool isColumn2 = operand2->value()->type() == Column::Undefined;
+    int index1 = 0, index2 = 0;
+    index1 = catalog->FindAttributeIndex(name1);
+    index2 = catalog->FindAttributeIndex(name2);
+    //Get records
+    auto riterator = recordList.begin();
+    auto piterator = offsetList.begin();
+    //for each column, select qulified tuples
+    if (isChar(operandType)) {
+        string value1, value2;
+        if (!isColumn1)	value1 = name1+string(operandType-name1.size(),'\0');
+        if (!isColumn2) value2 = name2+string(operandType-name2.size(),'\0');
+        //Main recursion
+        if (isColumn1 || isColumn2) {
+            while (riterator != recordList.end() && piterator != offsetList.end()) {
+                if (isColumn1) value1 = *(riterator->begin() + index1)->name();
+                if (isColumn2) value2 = *(riterator->begin() + index2)->name();
+                if (consistent(opType, value1, value2)) {
+                    riterator++;
+                    piterator++;
+                }
+                else {
+                    riterator = recordList.erase(riterator);
+                    piterator = offsetList.erase(piterator);
+                }
+            }
+        }
+    }
+    else if (operandType == Column::Int) {
+        int value1 = 0, value2 = 0;
+        if (!isColumn1) value1 = std::stoi(name1);
+        if (!isColumn2) value2 = std::stoi(name2);
+        //Main recursion
+        if (isColumn1 || isColumn2) {
+            while (riterator != recordList.end() && piterator != offsetList.end()) {
+                if (isColumn1) value1 = std::stoi(*(riterator->begin() + index1)->name());
+                if (isColumn2) value2 = std::stoi(*(riterator->begin() + index2)->name());
+                if (consistent(opType, value1, value2)) {
+                    riterator++;
+                    piterator++;
+                }
+                else {
+                    riterator = recordList.erase(riterator);
+                    piterator = offsetList.erase(piterator);
+                }
+            }
+        }
+    }
+    else if (operandType == Column::Float) {
+        float value1 = 0, value2 = 0;
+        if (!isColumn1) value1 = std::stof(name1);
+        if (!isColumn2) value2 = std::stof(name2);
+        //Main recursion
+        if (isColumn1 || isColumn2) {
+            while (riterator != recordList.end() && piterator != offsetList.end()) {
+                if (isColumn1) value1 = std::stof(*(riterator->begin() + index1)->name());
+                if (isColumn2) value2 = std::stof(*(riterator->begin() + index2)->name());
+                if (consistent(opType, value1, value2)) {
+                    riterator++;
+                    piterator++;
+                }
+                else {
+                    riterator = recordList.erase(riterator);
+                    piterator = offsetList.erase(piterator);
+                }
+            }
+        }
+    }
 }
 
 API::ptr<API::list<Predication>> API::optimization(ptr<const Condition> cRoot)
@@ -569,112 +497,6 @@ void API::postOrderTrav(const ptr<const Condition> cNode,
             preOrder->push_back(preNode);
         }
     }
-}
-std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
-{
-    //assert one node is constant(type is not undefine) and there are two operand
-    vector<pos_type> offsets;
-    Condition::Type opType = condition->op();
-    Column::Type type1 = getColumnType(condition->firstOperand()->value());
-    Column::Type type2 = getColumnType(condition->secondOperand()->value());
-    Column::Type type = convertible(type1, type2) ? type2 : type1;
-    auto operand1 = condition->firstOperand();
-    auto operand2 = condition->secondOperand();
-    if (operand2->value()->type() == Column::Undefined) {
-        //Make sure operand 1 is Undefined
-        auto temp = operand1;
-        operand1 = operand2;
-        operand2 = temp;
-    }
-    assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
-    int index = catalog->FindAttributeIndex(*operand1->value()->name());
-    auto attrName = catalog->GetAttrName();
-    auto indName = presentName+string("_")+attrName[index]+string("_index");
-    if (isChar(type)) {
-        auto value2 = FixString(*operand2->value()->name());
-        value2.resize(type);
-        bpTree<FixString> tree;
-        tree.Buildtree(indName,type);
-        switch (opType)
-        {
-        case Condition::NotEqual:
-            offsets = tree.Neqsearch(value2);
-            break;
-        case Condition::Equal:
-            offsets = tree.Eqsearch(value2);
-            break;
-        case Condition::GreaterThan:
-            offsets = tree.Bsearch(value2);
-            break;
-        case Condition::LessThan:
-            offsets = tree.Ssearch(value2);
-            break;
-        case Condition::LessEqual:
-            offsets = tree.Sesearch(value2);
-            break;
-        case Condition::GreaterEqual:
-            offsets = tree.Besearch(value2);
-            break;
-        default:
-            break;
-        }
-    }
-    else if (type == Column::Float) {
-        float value2 = std::stof(*operand2->value()->name());
-        bpTree<float> tree;
-        tree.Buildtree(indName);
-        switch (opType)
-        {
-        case Condition::NotEqual:
-            offsets = tree.Neqsearch(value2);
-            break;
-        case Condition::Equal:
-            offsets = tree.Eqsearch(value2);
-            break;
-        case Condition::GreaterThan:
-            offsets = tree.Bsearch(value2);
-            break;
-        case Condition::LessThan:
-            offsets = tree.Ssearch(value2);
-            break;
-        case Condition::LessEqual:
-            offsets = tree.Sesearch(value2);
-            break;
-        case Condition::GreaterEqual:
-            offsets = tree.Besearch(value2);
-        default:
-            break;
-        }
-    }
-    else if (type == Column::Int) {
-        int value2 = std::stoi(*operand2->value()->name());
-        bpTree<int> tree;
-        tree.Buildtree(indName);
-        switch (opType)
-        {
-        case Condition::NotEqual:
-            offsets = tree.Neqsearch(value2);
-            break;
-        case Condition::Equal:
-            offsets = tree.Eqsearch(value2);
-            break;
-        case Condition::GreaterThan:
-            offsets = tree.Bsearch(value2);
-            break;
-        case Condition::LessThan:
-            offsets = tree.Ssearch(value2);
-            break;
-        case Condition::LessEqual:
-            offsets = tree.Sesearch(value2);
-            break;
-        case Condition::GreaterEqual:
-            offsets = tree.Besearch(value2);
-        default:
-            break;
-        }
-    }
-    displayMsg(string("query by index"));
-    return offsets;
 }
 
 void API::displaySelect(const vector<string>& attrNames,const vector<RecordManager::Record>& tuples)
@@ -827,12 +649,10 @@ RecordManager::Record API::getTemplateRecord()
 
 void API::dropIndex(const Action& action)
 {
-    auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
+    //auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
     //auto type = catalog->GetType(index);
-    if(index>=0)
-        catalog->DropIndex(presentName, *action.indexName());
-    else
-        displayMsg("No such index.");
+    catalog->DropIndex(presentName, *action.indexName());
+    //BpTreeCtrl::DropIndex(indName)
 }
 
 void API::createIndex(const Action& action)
@@ -841,7 +661,7 @@ void API::createIndex(const Action& action)
     auto column = *action.columns()->begin();
     int index = catalog->FindAttributeIndex(*column->name());
     if(catalog->GetIsUnique(index)){
-        if(!catalog->GetHaveIndex(index)){
+        if(catalog->FindIndexAccordingToIndexName(*action.indexName())==-1){
             /*Column::Type type = catalog->GetType(index);
             auto offsets = RecordManager::queryRecordsOffsets(presentName);
             auto records = RecordManager::queryRecordsByOffsets(presentName,offsets,getTemplateRecord());
@@ -869,26 +689,20 @@ void API::createIndex(const Action& action)
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
-            displayLine("Index on "+ *column->name()+ "already exists.");
+            displayLine(*action.indexName()+string(" already exists"));
         }
     }
     else{
-        displayLine("Unable to create index on non unique column");
+        displayLine(string("Unable to create index on non unique column"));
     }
 }
 
 void API::dropTable(const Action& action)
 {
         assert(action.actionType() == Action::DropTable);
-        auto attrNum = catalog->GetAttrNum();
-        auto name = catalog->GetAttrName();
-        for (size_t i = 0U; i < attrNum; i++) {
-            if (catalog->GetIsUnique(i)) {
-                //auto type = catalog->GetType(i);
-                string indTempName = presentName+string("_")+ name[i] + string("_index");
-                bpTree<bool>::DropIndex(indTempName);
-            }
-        }
+        //auto attrNum = catalog->GetAttrNum();
+        bpCtrl->dropIndices();
+        bpCtrl = nullptr;
         RecordManager::DropTable(presentName);
         catalog->DropTable();
 }
