@@ -29,7 +29,10 @@ void API::execute(const Action& action)
         if (presentName != *(*(action.tableName()->begin()))) {
             flushTable();
             presentName = *(*(action.tableName()->begin()));
-            catalog->SetTableName(presentName);
+            catalog = std::make_shared<catalogManager>(
+                        string("myDB"),
+                        presentName
+                        );
         }
     }
     //Check flush table or not
