@@ -115,7 +115,7 @@ inline void API::flushTable()
     if(presentName.size() != 0){
         RecordManager::FlushTableFile(presentName);
         manipulateCount = 0;
-        displayMsg(string("Flush table"));
+        //displayMsg(string("Flush table"));
     }
 }
 

@@ -1088,14 +1088,14 @@ void bpTree<T>::Buildtree(const string &indexName, typename std::enable_if<std::
     int i, num;
     file.seekg(0);
     file >> total;
-
+    key.resize(size);
     for (i = 0; i < total; i++)
     {
         file >> num;
         for (int j = 0; j < num; j++)
         {
-            key.resize(size);
-            file >> key; file >> pos;
+            file >> key;
+            file >> pos;
             Insert_node(key, pos);
         }
 

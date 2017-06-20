@@ -21,7 +21,7 @@ void Interpreter::query()
     if(Error)
     {
         cerr<<"Error occurs";
-        if(File.is_open())
+        if(!File.empty())
             cerr<<" at line " << LineNo;
         cerr<<" near \""<<Near<<"\" : "<<ErrorMsg<<endl;
     }
@@ -61,7 +61,10 @@ void Interpreter::run()
         if(token == EXEC)
         {
             string filename;
-            getline(cin,filename);
+            if(!File.empty())
+                getline(*File.back(),filename);
+            else
+                getline(cin,filename);
             if(filename.back()!=';')
             {
                 error("Syntax error: Expected ';'.");
@@ -73,25 +76,30 @@ void Interpreter::run()
                 filename.pop_back();
                 if(filename.front()=='"' && filename.back()=='"')
                     filename = filename.substr(1U,filename.length()-2);
-                if(File.is_open())
-                    File.close();
-                File.open(filename,ios_base::in);
-                if(!File.is_open())
+                ifstream * file = new ifstream(filename);
+                if(!file->is_open())
                 {
                     error("File \"" + filename + "\" not exists.");
+                    delete file;
                     query();
                     continue;
                 }
-                scanner->switchStreams(File);
+                File.push_back(file);
+                scanner->switchStreams(*file);
                 continue;
             }
         }
         if(token == QUIT)
         {
-            if(File.is_open())
+            if(!File.empty())
             {
-                scanner->switchStreams(cin);
-                File.close();
+                display(string("File execution complete."));
+                delete File.back();
+                File.pop_back();
+                if(File.empty())
+                    scanner->switchStreams(cin);
+                else
+                    scanner->switchStreams(*File.back());
                 reset();
                 continue;
             }
@@ -105,5 +113,5 @@ void Interpreter::run()
             query();
         }
     }
-    cout<<"Good Bye!"<<endl;
+    display(string("Good Bye!"));
 }

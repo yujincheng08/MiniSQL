@@ -21,7 +21,7 @@ void API::execute(const Action& action)
     if (catalog == nullptr) {
         presentName = *(*(action.tableName()->begin()));
         catalog = std::make_shared<catalogManager>(
-                    string("myDB"),
+                    string("catalog.cat"),
                     presentName
                     );
     }
@@ -140,7 +140,7 @@ void API::createTable(const Action& action)
                     primaryKey = (int)Attr.size() - 1;//@@##
                     HavInd.push_back(true);
                     IndName.push_back(presentName+string("_")+priName + string("_index"));//@@##
-                    displayMsg(string("Create index file"));
+                    //displayMsg(string("Create index file"));
                 }
                 else{
                     HavInd.push_back(false);
@@ -296,30 +296,30 @@ void API::insertTuple(const Action& action)
             auto pos = RecordManager::InsertRecord(presentName, tuple);
             //displayMsg(string("Insert one tuple successfully"));
             for (size_t i = 0U; i < attrNum; i++) {
-                bool haveInd = catalog->GetHaveIndex(i);
+                //bool haveInd = catalog->GetHaveIndex(i);
                 bool isuni = catalog->GetIsUnique(i);
                 if (isuni) {
                     string name = presentName+string("_")+attrName[i]+string("_index");
                     auto type = catalog->GetType(i);
                     if (isChar(type)) {
-                        if(haveInd)
-                            displayMsg(string("Insert string in index"));
+                        //if(haveInd)
+                            //displayMsg(string("Insert string in index"));
                         bpTree<FixString> tree;
                         tree.Buildtree(name,type);
                         tree.Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Int) {
-                        if(haveInd)
-                            displayMsg(string("Insert int in index"));
+                        //if(haveInd)
+                            //displayMsg(string("Insert int in index"));
                         bpTree<int> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stoi(*tuple[i].name()), pos);
                         tree.Index(name);
                     }
                     else if (type == Column::Float) {
-                        if(haveInd)
-                            displayMsg(string("Insert float in index"));
+                        //if(haveInd)
+                            //displayMsg(string("Insert float in index"));
                         bpTree<float> tree;
                         tree.Buildtree(name);
                         tree.Insert_node(std::stof(*tuple[i].name()), pos);
@@ -339,7 +339,7 @@ void API::deleteTuples(const Action& action)
     if(offsets.size() != 0){
         auto attrNum = catalog->GetAttrNum();
         for(size_t i =0U;i<attrNum;i++){
-            if(catalog->GetHaveIndex(i)){
+            if(catalog->GetIsUnique(i)){
                 auto type = catalog->GetType(i);
                 if(isChar(type)){
                     bpTree<FixString> tree;
@@ -379,12 +379,12 @@ API::vector<File::pos_type> API::queryByCondition(const Action& action)
     auto offsets = RecordManager::queryRecordsOffsets(presentName);
     if (action.conditions() == nullptr) {
         //select all
-        displayMsg(string("Select all"));
+        //displayMsg(string("Select all"));
         return offsets;
     }
     else if (checkSyn(action.conditions())) {
 
-        displayMsg(string("Select by conditions"));
+        //displayMsg(string("Select by conditions"));
         auto predicators = optimization(action.conditions());
         auto templateRecord = getTemplateRecord();
         auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, templateRecord);
@@ -553,11 +553,11 @@ void API::postOrderTrav(const ptr<const Condition> cNode,
         auto operand2 = cNode->secondOperand();
         if (operand1->value()->type() == Column::Undefined) {
             int index = catalog->FindAttributeIndex(*(operand1->value()->name()));
-            haveIndex1 = catalog->GetHaveIndex(index);
+            haveIndex1 = catalog->GetIsUnique(index);
         }
         if (operand2->value()->type() == Column::Undefined) {
             int index = catalog->FindAttributeIndex(*(operand2->value()->name()));
-            haveIndex2 = catalog->GetHaveIndex(index);
+            haveIndex2 = catalog->GetIsUnique(index);
         }
         bool haveIndex = (haveIndex1 && operand2->value()->type() != Column::Undefined) ||
                 (haveIndex2 && operand1->value()->type() != Column::Undefined);//@@##May change
@@ -673,7 +673,7 @@ std::vector<File::pos_type> API::queryByIndex(ptr<const Condition> condition)
             break;
         }
     }
-    displayMsg(string("query by index"));
+    //displayMsg(string("query by index"));
     return offsets;
 }
 

@@ -125,7 +125,7 @@ auto File::get(const size_t &size) -> const isFixString<T>
 template<typename T>
 auto File::get(const pos_type &pos, const size_t &size) -> const isFixString<T>
 {
-    auto start = GetPos(pos, sizeof(T));
+    auto start = GetPos(pos, size);
     auto offset = start % Buffer::bufferSize();
     Buffer *buff = GetBuffer(Convert(start),offset + sizeof(T));
     return FixString(buff->Buff+offset, size);

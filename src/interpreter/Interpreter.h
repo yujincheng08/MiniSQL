@@ -4,6 +4,7 @@
 #include <QObject>
 #include <iostream>
 #include <fstream>
+#include <list>
 class Scanner;
 class Interpreter : public QObject, protected BaseInterpreter
 {
@@ -14,7 +15,7 @@ private:
     string ErrorMsg;
     string Near;
     bool Error = false;
-    std::ifstream File;
+    std::list<std::ifstream*> File;
     void *parser = nullptr;
     Scanner *scanner = nullptr;
 private:
@@ -40,7 +41,7 @@ inline void Interpreter::reset()
     ErrorMsg = "";
     Error = false;
     BaseInterpreter::reset();
-    if(!File.is_open())
+    if(File.empty())
         std::cout<<"MiniSQL > "<<std::endl;
 }
 
