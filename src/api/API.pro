@@ -10,10 +10,13 @@ DESTDIR = ../../
 LIBS += -L../../ -lBufferManager -lRecordManager -lCatalogManager
 
 HEADERS += \
-    API.h
+    API.h \
+    Types.h \
+    BpTreeCtrl.h
 
 SOURCES += \
-    API.cpp
+    API.cpp \
+    BpTreeCtrl.cpp
 
 OTHER_FILES += \
     README.md
