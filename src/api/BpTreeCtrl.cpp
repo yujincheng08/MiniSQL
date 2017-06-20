@@ -57,6 +57,8 @@ bool BpTreeCtrl::checkViolate(const Record& tuple)
             auto type = catalog->GetType(i);
             auto set = queryByIndex(indTempName,*(tuple[i].name()),type, Condition::Equal);
             violate = set.size() > 0;
+            if(violate)
+                break;
         }
     }
     return violate;
