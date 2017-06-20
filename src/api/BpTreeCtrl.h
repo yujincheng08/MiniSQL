@@ -11,7 +11,7 @@
 #include "../interpreter/Column.h"
 #include "../recordManager/RecordManager.h"
 
-using std::map; using std::vector;
+using std::unordered_map; using std::vector;
 using std::string;
 
 class BpTreeCtrl{
@@ -33,9 +33,9 @@ public:
 private:
     string tableName;
     ptr<catalogManager> catalog;
-    map<string,ptr<bpTree<FixString>>> strTree;
-    map<string,ptr<bpTree<int>>> intTree;
-    map<string,ptr<bpTree<float>>> floatTree;
+    unordered_map<string,ptr<bpTree<FixString>>> strTree;
+    unordered_map<string,ptr<bpTree<int>>> intTree;
+    unordered_map<string,ptr<bpTree<float>>> floatTree;
     //vector<File::pos_type> query(const Column&);
     template <typename T>
     static vector<File::pos_type> query(ptr<bpTree<T>>,T,Condition::Type);

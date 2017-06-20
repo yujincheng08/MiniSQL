@@ -50,7 +50,7 @@ bool BpTreeCtrl::checkViolate(const Record& tuple)
 {
     auto attrNum = catalog->GetAttrNum();
     auto attrName = catalog->GetAttrName();
-    bool violate;
+    bool violate = false;
     for (size_t i = 0U; i < attrNum;i++){
         if(catalog->GetIsUnique(i)){
             string indTempName = tableName+string("_")+attrName[i]+string("_index");
