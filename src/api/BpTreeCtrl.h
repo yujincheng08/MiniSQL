@@ -38,7 +38,7 @@ private:
     map<string,ptr<bpTree<float>>> floatTree;
     //vector<File::pos_type> query(const Column&);
     template <typename T>
-    static vector<File::pos_type> query(bpTree<T>&,T,Condition::Type);
+    static vector<File::pos_type> query(ptr<bpTree<T>>,T,Condition::Type);
 };
 
 inline string BpTreeCtrl::getTableName()

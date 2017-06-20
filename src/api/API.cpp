@@ -649,10 +649,11 @@ RecordManager::Record API::getTemplateRecord()
 
 void API::dropIndex(const Action& action)
 {
-    //auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
-    //auto type = catalog->GetType(index);
-    catalog->DropIndex(presentName, *action.indexName());
-    //BpTreeCtrl::DropIndex(indName)
+    auto index = catalog->FindIndexAccordingToIndexName(*action.indexName());
+    if(index>=0)
+        catalog->DropIndex(presentName, *action.indexName());
+    else
+        displayMsg("No such index.");
 }
 
 void API::createIndex(const Action& action)
@@ -661,7 +662,7 @@ void API::createIndex(const Action& action)
     auto column = *action.columns()->begin();
     int index = catalog->FindAttributeIndex(*column->name());
     if(catalog->GetIsUnique(index)){
-        if(catalog->FindIndexAccordingToIndexName(*action.indexName())==-1){
+        if(!catalog->GetHaveIndex(index)){
             /*Column::Type type = catalog->GetType(index);
             auto offsets = RecordManager::queryRecordsOffsets(presentName);
             auto records = RecordManager::queryRecordsByOffsets(presentName,offsets,getTemplateRecord());
@@ -689,20 +690,28 @@ void API::createIndex(const Action& action)
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
-            displayLine(*action.indexName()+string(" already exists"));
+            displayLine("Index on "+ *column->name()+ "already exists.");
         }
     }
     else{
-        displayLine(string("Unable to create index on non unique column"));
+        displayLine("Unable to create index on non unique column");
     }
 }
 
 void API::dropTable(const Action& action)
 {
         assert(action.actionType() == Action::DropTable);
-        //auto attrNum = catalog->GetAttrNum();
-        bpCtrl->dropIndices();
+        auto attrNum = catalog->GetAttrNum();
+        auto name = catalog->GetAttrName();
+        //bpCtrl->dropIndices();
         bpCtrl = nullptr;
+        for (size_t i = 0U; i < attrNum; i++) {
+            if (catalog->GetIsUnique(i)) {
+                //auto type = catalog->GetType(i);
+                string indTempName = presentName+string("_")+ name[i] + string("_index");
+                bpTree<bool>::DropIndex(indTempName);
+            }
+        }
         RecordManager::DropTable(presentName);
         catalog->DropTable();
 }

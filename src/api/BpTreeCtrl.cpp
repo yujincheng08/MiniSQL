@@ -63,11 +63,11 @@ bool BpTreeCtrl::checkViolate(const Record& tuple)
 void BpTreeCtrl::dropIndices()
 {//Call when drop table
     for(auto tree:strTree)
-        bpTree<FixString>::DropIndex(tree->first);
+        bpTree<FixString>::DropIndex(tree.first);
     for(auto tree:intTree)
-        bpTree<int>::DropIndex(tree->first);
+        bpTree<int>::DropIndex(tree.first);
     for(auto tree:floatTree)
-        bpTree<float>::DropIndex(tree->first);
+        bpTree<float>::DropIndex(tree.first);
 }
 
 std::vector<File::pos_type> BpTreeCtrl::queryByIndex(const string& indName, const string& value, Column::Type type, Condition::Type opType)
@@ -126,15 +126,15 @@ void BpTreeCtrl::delData(const Record& record)
             string indName = tableName+string("_")+attrName[i]+string("_index");
             auto type = catalog->GetType(i);
             if(isChar(type)){
-                strTree[indName].Del_data(FixString(formalize(*record[i].name(),type)));
+                strTree[indName]->Del_data(FixString(formalize(*record[i].name(),type)));
             }
             else if(type == Column::Float){
                 float value = std::stof(*record[i].name());
-                floatTree[indName].Del_data(value);
+                floatTree[indName]->Del_data(value);
             }
             else if(type == Column::Int){
                 int value = std::stoi(*record[i].name());
-                intTree[indName].Del_data(value);
+                intTree[indName]->Del_data(value);
             }
         }
     }
@@ -151,13 +151,13 @@ void BpTreeCtrl::insData(File::pos_type pos, const Record& tuple)
             string indName = tableName+string("_")+attrName[i]+string("_index");
             auto type = catalog->GetType(i);
             if (isChar(type)) {
-                strTree[indName].Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
+                strTree[indName]->Insert_node(FixString(formalize(*tuple[i].name(),type)), pos);
             }
             else if (type == Column::Int) {
-                floatTree[indName].Insert_node(std::stoi(*tuple[i].name()), pos);
+                intTree[indName]->Insert_node(std::stoi(*tuple[i].name()), pos);
             }
             else if (type == Column::Float) {
-                intTree[indName].Insert_node(std::stof(*tuple[i].name()), pos);
+                floatTree[indName]->Insert_node(std::stof(*tuple[i].name()), pos);
             }
         }
     }
@@ -167,14 +167,14 @@ void BpTreeCtrl::index(Column::Type type, const string& indTempName)
 {
     if(isChar(type)){
         bpTree<FixString> tree;
-        tree->Index(indTempName);
+        tree.Index(indTempName);
     }
     else if(type == Column::Float){
         bpTree<float> tree;
-        tree->Index(indTempName);
+        tree.Index(indTempName);
     }
     else if(type == Column::Int){
         bpTree<int> tree;
-        tree->Index(indTempName);
+        tree.Index(indTempName);
     }
 }
