@@ -39,6 +39,7 @@ private:
     //vector<File::pos_type> query(const Column&);
     template <typename T>
     static vector<File::pos_type> query(ptr<bpTree<T>>,T,Condition::Type);
+
 };
 
 inline string BpTreeCtrl::getTableName()

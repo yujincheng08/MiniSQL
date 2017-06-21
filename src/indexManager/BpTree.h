@@ -43,7 +43,6 @@ public:
             {
                 childNode[i] = nullptr;
                 dataPos[i] = 0;
-                //key[i] = 0;
             }
             childNode[N] = nullptr;
         }
@@ -84,11 +83,15 @@ public:
     template <typename It> int compare(const It &, const It &);
 
     void Index(const string &);                   //建立索引文件
+
+    static void DropIndex (const string &);         //删除索引文件
+
     template<typename Q=T>
     void Buildtree(const string &, typename std::enable_if<!std::is_same<Q, FixString>::value, pri>::type = pri());               //建立b＋树
+
     template<typename Q=T>
     void Buildtree(const string &, typename std::enable_if<std::is_same<Q, FixString>::value, size_t>::type size);               //建立b＋树
-    static void DropIndex(const string &);
+
 #ifdef TEST
     void Show();
 #endif
@@ -480,7 +483,7 @@ void bpTree<T>::Resize_leaf()
                 break;
         }
         // 后面的索引键值和孩子指针都后移，为新节点腾出位置
-        for (int j = po->no; j > i + 1; j--)
+        for (int j = po->no; j > i; j--)
             po->key[j] = po->key[j - 1];
 
         for (int j = po->no + 1; j > i + 1; j--)
@@ -581,7 +584,7 @@ void bpTree<T>::Resize_nleaf()
                 break;
         }
         // 后面的索引键值和孩子指针都后移，为新节点腾出位置
-        for (int j = po->no; j > i + 1; j--)
+        for (int j = po->no; j > i; j--)/////////////////////////////////////////
             po->key[j] = po->key[j - 1];
 
         for (int j = po->no + 1; j > i + 1; j--)
@@ -1048,7 +1051,6 @@ void bpTree<T>::DropIndex(const bpTree::string &name)
     File &file = BufferManager::open(name);
     file.remove();
 }
-
 
 //#include <iostream>
 template<class T>
