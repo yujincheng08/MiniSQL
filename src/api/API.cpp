@@ -30,7 +30,7 @@ void API::execute(const Action& action)
             flushTable();
             presentName = *(*(action.tableName()->begin()));
             catalog = std::make_shared<catalogManager>(
-                        string("myDB"),
+                        string("catalog.cat"),
                         presentName
                         );
         }
