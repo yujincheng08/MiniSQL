@@ -891,7 +891,8 @@ void bpTree<T>::Merge()
             i = 0;
             while(i < tp->no && compare(tp->key[i], brother->key[0]) < 0)
                 i++;
-            i--;
+            if(i != 0)
+                i--;
             if(posNode->fatherNode == brother->fatherNode)
             {
                 for (; i < tp->no - 1; i++)
