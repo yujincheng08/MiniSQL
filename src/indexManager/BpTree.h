@@ -719,9 +719,28 @@ void bpTree<T>::MergeLeaf()
             node* tp = brother->fatherNode;
 
             i = 0;
-            while(i < tp->no && compare(tp->key[i], brother->key[0]) < 0)
+            while(i < tp->no && compare(tp->key[i], brother->key[0]) <= 0)
                 i++;
+            if(i == 0)
+            {
+                for(; i < tp->no - 1; i++)
+                {
+                    tp->key[i] = tp->key[i + 1];
+                    tp->childNode[i] = tp->childNode[i + 1];
+                }
+                tp->childNode[i] = tp->childNode[i + 1];
+            }
+            else
+            {
+                i--;
+                for(; i < tp->no - 1; i++)
+                {
+                    tp->key[i] = tp->key[i + 1];
+                    tp->childNode[i + 1] = tp->childNode[i + 2];
+                }
+            }
 
+            /*
             if(tp->key[i] == brother->key[0])
             {
                 for (; i < tp->no - 1; i++)
@@ -743,7 +762,7 @@ void bpTree<T>::MergeLeaf()
                 tp->childNode[i] = nullptr;
 
             }
-
+            */
             delete brother;
             brother = nullptr;
 
@@ -845,6 +864,7 @@ void bpTree<T>::Merge()
             posNode = posNode->childNode[0];
             delete tp;
             posNode->fatherNode = nullptr;
+            treeRoot = posNode;
         }
     }
     else if (brother->no < N - 1 - posNode->no)   //两节点可以合并
@@ -891,27 +911,23 @@ void bpTree<T>::Merge()
             i = 0;
             while(i < tp->no && compare(tp->key[i], brother->key[0]) < 0)
                 i++;
-            i--;
-            if(posNode->fatherNode == brother->fatherNode)
+            if(i == 0)
             {
-                for (; i < tp->no - 1; i++)
-                {
-                    tp->key[i] = tp->key[i + 1];
-                    tp->childNode[i + 1] = tp->childNode[i + 2];
-                }
-                //tp->key[i] = 0;
-                tp->childNode[i + 1] = nullptr;
-            }
-            else    // fatherNodes are different
-            {
-                for (; i < tp->no; i++)
+                for(; i < tp->no - 1; i++)
                 {
                     tp->key[i] = tp->key[i + 1];
                     tp->childNode[i] = tp->childNode[i + 1];
                 }
-                //tp->key[i - 1] = 0;
-                tp->childNode[i] = nullptr;
-
+                tp->childNode[i] = tp->childNode[i + 1];
+            }
+            else
+            {
+                i--;
+                for(; i < tp->no - 1; i++)
+                {
+                    tp->key[i] = tp->key[i + 1];
+                    tp->childNode[i + 1] = tp->childNode[i + 2];
+                }
             }
 
             delete brother;
