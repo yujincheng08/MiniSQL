@@ -127,7 +127,7 @@ auto File::get(const pos_type &pos, const size_t &size) -> const isFixString<T>
 {
     auto start = GetPos(pos, size);
     auto offset = start % Buffer::bufferSize();
-    Buffer *buff = GetBuffer(Convert(start),offset + sizeof(T));
+    Buffer *buff = GetBuffer(Convert(start),offset + size);
     return FixString(buff->Buff+offset, size);
 }
 
