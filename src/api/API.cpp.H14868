@@ -172,7 +172,7 @@ void API::createTable(const Action& action)
         }
     }
     else {
-        emit displayError(string("Table already exists"));//@@##
+        displayMsg(string("Table already exists"));//@@##
     }
 }
 
@@ -189,7 +189,7 @@ void API::select(const Action& action)
             if (catalog->FindAttributeIndex(name) != -1)
                 attrNames.push_back(name);
             else {
-                emit displayError(string("Attribute") + name + string(" does not exist"));
+                displayMsg(string("Attribute") + name + string(" does not exist"));
                 return;
             }
         }
@@ -215,10 +215,10 @@ void API::insertTuple(const Action& action)
     size_t attrNum = catalog->GetAttrNum();
     size_t coNum = action.columns()->size();
     if (coNum < attrNum) {
-        emit displayError(string("Too few values"));
+        displayMsg(string("Too few values"));
     }
     else if (coNum > attrNum) {
-        emit displayError(string("Too many values"));
+        displayMsg(string("Too many values"));
     }
     else {
         bool varified = true;
@@ -246,7 +246,7 @@ void API::insertTuple(const Action& action)
                 tuple.push_back(column);
             }
             else {
-                emit displayError(getTypeName((*iter)->type()) +
+                displayMsg(getTypeName((*iter)->type()) +
                            string(" cannot be converted to ") +
                            getTypeName(catalog->GetType(i)));
                 varified = false;
@@ -259,10 +259,10 @@ void API::insertTuple(const Action& action)
             violate = bpCtrl->checkViolate(tuple);
         }
         if(violate){
-            emit displayError(string("Violate unique"));
+            displayMsg(string("Violate unique"));
         }
         else if(!varified){
-            emit displayError(string("Insert failed"));
+            displayMsg(string("Insert failed"));
         }
         else {
             auto pos = RecordManager::InsertRecord(presentName, tuple);

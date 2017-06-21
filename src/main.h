@@ -31,6 +31,7 @@ inline Main::Main(QObject *parent)
     bufferManager = new BufferManager;
     connect(interpreter, SIGNAL(parsered(Action)), api, SLOT(execute(Action)));
     connect(api, SIGNAL(displayLine(string)), interpreter, SLOT(display(string)));
+    connect(api, SIGNAL(displayError(string)), interpreter, SLOT(displayError(string)));
 }
 
 inline Main::~Main()
@@ -42,9 +43,7 @@ inline Main::~Main()
 
 inline void Main::run()
 {
-
     interpreter->run();
-
     emit finished();
 }
 

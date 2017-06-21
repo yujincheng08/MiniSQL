@@ -31,8 +31,9 @@ signals:
     void parsered(Action);
 public slots:
     void run();
-    void display(const QString &result);
+    //void display(const QString &result);
     void display(const string &result);
+    void displayError(const string &result);
 
 };
 
@@ -45,14 +46,19 @@ inline void Interpreter::reset()
         std::cout<<"MiniSQL > "<<std::endl;
 }
 
-inline void Interpreter::display(const QString &result)
-{
-    std::cout<<result.toStdString()<<std::endl;
-}
+//inline void Interpreter::display(const QString &result)
+//{
+//    std::cout<<result.toStdString()<<std::endl;
+//}
 
 inline void Interpreter::display(const string &result)
 {
     std::cout<<result<<std::endl;
+}
+
+inline void Interpreter::displayError(const string &result)
+{
+    std::cerr<<"Error occurs: "<<result<<std::endl;
 }
 
 #endif // INTERPRETER_H
