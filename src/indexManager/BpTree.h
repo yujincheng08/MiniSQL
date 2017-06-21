@@ -930,6 +930,7 @@ void bpTree<T>::Merge()
                 }
             }
 
+
             delete brother;
             brother = nullptr;
 
