@@ -92,6 +92,8 @@ public:
     template<typename Q=T>
     void Buildtree(const string &, typename std::enable_if<std::is_same<Q, FixString>::value, size_t>::type size);               //建立b＋树
 
+    void resetKey(const node *);
+
 #ifdef TEST
     void Show();
 #endif
@@ -710,7 +712,12 @@ void bpTree<T>::MergeLeaf()
                 }
             }
             else
-                posNode->brother = posNode->fatherNode->childNode[posNode->fatherNode->no - 2];
+            {
+                if (posNode->fatherNode->no < 2)
+                    posNode->brother = nullptr;
+                else
+                    posNode->brother = posNode->fatherNode->childNode[posNode->fatherNode->no - 2];
+            }
 
             posNode->nextNode = brother->nextNode;
 
@@ -772,6 +779,7 @@ void bpTree<T>::MergeLeaf()
             {
                 Merge();
             }
+            resetKey(posNode);
         }
         else                                     //最右边的节点
         {
@@ -788,7 +796,7 @@ void bpTree<T>::MergeLeaf()
             brother->brother = brother->fatherNode->childNode[brother->fatherNode->no - 2];
 
             //替换上级节点中的数据
-            node* tp = brother->fatherNode;
+            node* tp = posNode->fatherNode;
             //tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
 
@@ -800,6 +808,7 @@ void bpTree<T>::MergeLeaf()
             {
                 Merge();
             }
+            resetKey(posNode);
         }
     }
     else                                          //两节点不可以合并
@@ -825,6 +834,7 @@ void bpTree<T>::MergeLeaf()
 
             //数据转移后空位零
             brother->dataPos[i] = 0;
+            resetKey(brother);
             //brother->key[i] = 0;
         }
         else             //最右边的节点
@@ -843,6 +853,7 @@ void bpTree<T>::MergeLeaf()
 
             //数据转移后空位付零
             brother->dataPos[brother->no] = 0;
+            resetKey(posNode);
             //brother->key[brother->no] = 0;
         }
     }
@@ -900,7 +911,12 @@ void bpTree<T>::Merge()
                 }
             }
             else
-                posNode->brother = posNode->fatherNode->childNode[posNode->fatherNode->no - 2];
+            {
+                if (posNode->fatherNode->no < 2)
+                    posNode->brother = nullptr;
+                else
+                    posNode->brother = posNode->fatherNode->childNode[posNode->fatherNode->no - 2];
+            }
 
             posNode->nextNode = brother->nextNode;
 
@@ -929,7 +945,7 @@ void bpTree<T>::Merge()
                     tp->childNode[i + 1] = tp->childNode[i + 2];
                 }
             }
-
+            resetKey(brother);
 
             delete brother;
             brother = nullptr;
@@ -964,7 +980,7 @@ void bpTree<T>::Merge()
             brother->brother = brother->fatherNode->childNode[brother->fatherNode->no - 2];
 
             //替换上级节点中的数据
-            node* tp = brother->fatherNode;
+            node* tp = posNode->fatherNode;
             //tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
 
@@ -976,6 +992,7 @@ void bpTree<T>::Merge()
             {
                 Merge();
             }
+            resetKey(posNode);
         }
     }
     else                                          //两节点不可以合并
@@ -997,13 +1014,15 @@ void bpTree<T>::Merge()
             brother->no--;
 
             //数据前移
-            for (i = 0; i < brother->no + 1; i++)
+            for (i = 0; i < brother->no; i++)
             {
                 brother->key[i] = brother->key[i + 1];
                 brother->childNode[i] = brother->childNode[i + 1];
             }
             //数据转移后空位付零
-            brother->childNode[i] = nullptr;
+            brother->childNode[i] = brother->childNode[i + 1];
+            brother->childNode[i + 1] = nullptr;
+            resetKey(brother);
             //brother->key[i - 1] = 0;
         }
         else           //最右边的节点
@@ -1030,8 +1049,26 @@ void bpTree<T>::Merge()
 
             //数据转移后空位付零
             brother->childNode[brother->no + 1] = nullptr;
+            resetKey(posNode);
             //brother->key[brother->no] = 0;
         }
+    }
+}
+
+template<class T>
+void bpTree<T>::resetKey(const node *n)
+{
+    node *curPos = n->fatherNode;
+    while(curPos)
+    {
+        for(int i = 0; i < curPos->no; i++)
+        {
+            node *temp = curPos->childNode[i + 1];
+            while(Isleaf(temp) != 1)
+                temp = temp->childNode[0];
+            curPos->key[i] = temp->key[0];
+        }
+        curPos = curPos->fatherNode;
     }
 }
 
