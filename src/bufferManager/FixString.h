@@ -41,13 +41,9 @@ public:
 };
 
 inline FixString::FixString(const std::size_t &size)
-    :Size(size),String(nullptr)
+    :Size(size),String(new char[Size])
 {
-    if(size>0U)
-    {
-        String = new char[size];
-        memset(String,0,size);
-    }
+    memset(String,0,size);
 }
 
 inline FixString::FixString(const char * const &string, const std::size_t &size)
@@ -88,16 +84,11 @@ inline void FixString::resize(std::size_t size)
 {
     if(size>255)
         size = 255;
-    char *tmp = nullptr;
-    if(size!=0)
-    {
-        tmp = new char[size];
-        memcpy(tmp, String, std::min(Size, size));
-        if(size > Size)
-            memset(tmp + Size, 0, size-Size);
-    }
-    if(String)
-        delete [] String;
+    char *tmp = new char[size];
+    memcpy(tmp, String, std::min(Size, size));
+    if(size > Size)
+        memset(tmp + Size, 0, size-Size);
+    delete [] String;
     String = tmp;
     Size = size;
 }
@@ -136,16 +127,10 @@ inline FixString &FixString::operator =(const FixString &string)
     }
     else
     {
-        if(String)
-            delete [] String;
         Size = string.Size;
-        if(Size>0U)
-        {
-            String = new char[Size];
-            memcpy(String, string.String, Size);
-        }
-        else
-            String = nullptr;
+        delete String;
+        String = new char[Size];
+        memcpy(String, string.String, Size);
         return *this;
     }
 }
@@ -208,10 +193,7 @@ inline std::string FixString::toString() const
 inline FixString::~FixString()
 {
     if(String)
-    {
         delete [] String;
-        String = nullptr;
-    }
 }
 
 inline std::ostream &operator <<(std::ostream &out, const FixString &string)
