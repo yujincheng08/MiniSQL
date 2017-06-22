@@ -770,16 +770,17 @@ void bpTree<T>::MergeLeaf()
 
             }
             */
+            tp->no--;
+            resetKey(brother);
+            resetKey(posNode);
             delete brother;
             brother = nullptr;
-
             posNode = tp;
-            posNode->no--;
+
             if (posNode->no < (N + 1) / 2 - 1)   //需要调整的
             {
                 Merge();
             }
-            resetKey(posNode);
         }
         else                                     //最右边的节点
         {
@@ -799,16 +800,16 @@ void bpTree<T>::MergeLeaf()
             node* tp = posNode->fatherNode;
             //tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
-
+            tp->no--;
+            resetKey(posNode);
+            resetKey(brother);
             delete posNode;
             posNode = tp;
 
-            posNode->no--;
             if (posNode->no < (N + 1) / 2 - 1)   //需要调整的
             {
                 Merge();
             }
-            resetKey(posNode);
         }
     }
     else                                          //两节点不可以合并
@@ -945,13 +946,13 @@ void bpTree<T>::Merge()
                     tp->childNode[i + 1] = tp->childNode[i + 2];
                 }
             }
+            tp->no--;
             resetKey(brother);
-
+            resetKey(posNode);
             delete brother;
             brother = nullptr;
-
             posNode = tp;
-            posNode->no--;
+
             if (posNode->no < (N + 1) / 2 - 1)   //需要调整的
             {
                 Merge();
@@ -983,16 +984,16 @@ void bpTree<T>::Merge()
             node* tp = posNode->fatherNode;
             //tp->key[tp->no - 1] = 0;
             tp->childNode[tp->no] = nullptr;
-
+            tp->no--;
+            resetKey(brother);
+            resetKey(posNode);
             delete posNode;
-            posNode = tp;
 
-            posNode->no--;
+            posNode = tp;
             if (posNode->no < (N + 1) / 2 - 1)   //需要调整的
             {
                 Merge();
             }
-            resetKey(posNode);
         }
     }
     else                                          //两节点不可以合并
