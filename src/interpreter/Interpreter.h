@@ -43,7 +43,11 @@ inline void Interpreter::reset()
     Error = false;
     BaseInterpreter::reset();
     if(File.empty())
+    {
+        setConsoleColor(0xE);
         std::cout<<"MiniSQL > "<<std::endl;
+        setConsoleColor(0xF);
+    }
 }
 
 //inline void Interpreter::display(const QString &result)
