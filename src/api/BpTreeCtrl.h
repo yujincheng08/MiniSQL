@@ -33,7 +33,7 @@ public:
     std::vector<File::pos_type> queryByIndex(const string& , const string& , Column::Type , Condition::Type op);
 private:
     string tableName;
-    ptr<catalogManager> catalog;
+    ptr<catalogManager> catalog = nullptr;
     unordered_map<string,ptr<bpTree<FixString>>> strTree;
     unordered_map<string,ptr<bpTree<int>>> intTree;
     unordered_map<string,ptr<bpTree<float>>> floatTree;
@@ -50,7 +50,8 @@ inline string BpTreeCtrl::getTableName()
 
 inline void BpTreeCtrl::resetCatalog(ptr<catalogManager> c)
 {
-    catalog = c;
+    if(catalog && c)
+        catalog = c;
 }
 
 #endif // BPTREECTRL_H

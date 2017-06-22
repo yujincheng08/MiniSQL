@@ -18,12 +18,22 @@ API::API(QObject *parent) : QObject(parent)
 void API::execute(const Action& action)
 {
     //Change presentName
+    if(!bpCtrl)
+    {
+        presentName = *(*(action.tableName()->begin()));
+        catalog = std::make_shared<catalogManager>(
+                    string("catalog.cat"),
+                    presentName
+                    );
+        bpCtrl = std::make_shared<BpTreeCtrl>(catalog,presentName);
+    }
     if (catalog == nullptr) {
         presentName = *(*(action.tableName()->begin()));
         catalog = std::make_shared<catalogManager>(
                     string("catalog.cat"),
                     presentName
                     );
+        bpCtrl->resetCatalog(catalog);
     }
     else {
         if (presentName != *(*(action.tableName()->begin()))) {
@@ -722,7 +732,7 @@ void API::dropTable(const Action& action)
     auto attrNum = catalog->GetAttrNum();
     auto name = catalog->GetAttrName();
     //bpCtrl->dropIndices();  Cannot drop before deconstruct?
-    bpCtrl = nullptr;
+    //bpCtrl = nullptr;
     for (size_t i = 0U; i < attrNum; i++) {
         if (catalog->GetIsUnique(i)) {
             //auto type = catalog->GetType(i);
