@@ -63,7 +63,10 @@ inline void Interpreter::display(const string &result)
 inline void Interpreter::displayError(const string &result)
 {
     setConsoleColor(0xC);
-    std::cerr<<"Error occurs: "<<result<<std::endl;
+    std::cerr<<"Error occurs";
+    if(!File.empty())
+        std::cerr<<" at line " << LineNo;
+    std::cerr<<": "<<result<<std::endl;
     setConsoleColor(0xF);
 }
 

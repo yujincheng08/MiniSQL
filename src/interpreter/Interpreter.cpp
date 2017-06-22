@@ -113,6 +113,7 @@ void Interpreter::run()
         if(token == SEMICOLON)
         {
             Parser(parser, 0, nullptr,this);
+            LineNo = scanner->lineNr();
             query();
         }
     }

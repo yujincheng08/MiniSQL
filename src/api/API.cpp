@@ -707,7 +707,7 @@ void API::createIndex(const Action& action)
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
-            emit displayError("Index on "+ *column->name()+ "already exists.");
+            emit displayError("Index on "+ *column->name()+ " already exists.");
         }
     }
     else{
