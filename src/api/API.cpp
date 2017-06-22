@@ -23,7 +23,7 @@ void API::execute(const Action& action)
         catalog = std::make_shared<catalogManager>(
                     string("catalog.cat"),
                     presentName
-                    );        
+                    );
     }
     else {
         if (presentName != *(*(action.tableName()->begin()))) {
@@ -33,7 +33,9 @@ void API::execute(const Action& action)
                         string("catalog.cat"),
                         presentName
                         );
+            bpCtrl->resetCatalog(catalog);
         }
+        //catalog->GetTableInfo(presentName = *(*(action.tableName()->begin())));
     }
     //Check flush table or not
     if(manipulateCount > 0){
@@ -85,7 +87,7 @@ void API::execute(const Action& action)
             }
         }
         else {
-            displayMsg(string("No such table!"));
+            emit displayError(string("No such table!"));
         }
     }
 }

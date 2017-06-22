@@ -424,7 +424,7 @@ bool catalogManager::DropTable(const string &Name)
     remove(Database.c_str());
     rename("tmp.cat",Database.c_str());
     fin.open(Database);
-    error("Query OK!\n");
+    //error("Query OK!\n");
 	return true;
 }
 

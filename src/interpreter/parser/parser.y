@@ -222,7 +222,10 @@ into ::= .
 into ::= INTO.
 
 stringvalue(X) ::= STRING(A).{
-    X = new string(A->substr(1,A->length()-2));
+    if(A->length()==2)
+        X = new string(1,'\0');
+    else
+        X = new string(A->substr(1,A->length()-2));
     delete A;
 }
 

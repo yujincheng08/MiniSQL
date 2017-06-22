@@ -29,6 +29,7 @@ public:
     bool checkViolate(const Record&);
     void insData(File::pos_type pos, const Record&);
     void delData(const Record&);
+    void resetCatalog(ptr<catalogManager>);
     std::vector<File::pos_type> queryByIndex(const string& , const string& , Column::Type , Condition::Type op);
 private:
     string tableName;
@@ -45,6 +46,11 @@ private:
 inline string BpTreeCtrl::getTableName()
 {
     return tableName;
+}
+
+inline void BpTreeCtrl::resetCatalog(ptr<catalogManager> c)
+{
+    catalog = c;
 }
 
 #endif // BPTREECTRL_H
