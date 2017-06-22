@@ -58,7 +58,9 @@ inline void Interpreter::display(const string &result)
 
 inline void Interpreter::displayError(const string &result)
 {
+    setConsoleColor(0xC);
     std::cerr<<"Error occurs: "<<result<<std::endl;
+    setConsoleColor(0xF);
 }
 
 #endif // INTERPRETER_H

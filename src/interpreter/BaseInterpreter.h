@@ -24,6 +24,7 @@ protected:
     virtual void reset();
     BaseInterpreter();
     virtual ~BaseInterpreter();
+    void setConsoleColor(unsigned short colorIndex);
 public:
     void setActionType(const Action::Type type);
     void addTableName(const string &tableName);
