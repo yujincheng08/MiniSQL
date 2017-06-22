@@ -14,7 +14,6 @@
 #include <memory>
 #include <QObject>
 #include <string>
-#include <assert.h>
 #include <set>
 
 //#define assert(x) if(!(x)) displayMsg(string("Assert wrong"))
@@ -67,6 +66,7 @@ public slots:
     void execute(const Action& action);
 signals:
     void displayLine(const string& result);
+    void displayError(const string &msg);
 private:
     void insertTuple(std::size_t length);
     void insertTuple(const Action&);
@@ -89,6 +89,8 @@ private:
     ptr<list<Predication>> optimization(ptr<const Condition>);
     void postOrderTrav(ptr<const Condition> cNode, ptr<list<Predication>>);
     void flushTable();
+    bool assert(bool statement);
+    bool assert(bool statement, const string &msg);
 };
 
 
@@ -116,6 +118,18 @@ inline void API::flushTable()
         manipulateCount = 0;
         //displayMsg(string("Flush table"));
     }
+}
+
+inline bool API::assert(bool statement)
+{
+    return assert(statement, "Inner Error");
+}
+
+inline bool API::assert(bool statement, const API::string &msg)
+{
+    if(!statement)
+        emit displayError(msg);
+    return !statement;
 }
 
 inline Column::Type API::getColumnType(const ptr<const Column> column)

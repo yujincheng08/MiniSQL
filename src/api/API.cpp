@@ -92,7 +92,8 @@ void API::execute(const Action& action)
 /*************************DDL**********************/
 void API::createTable(const Action& action)
 {
-    assert(action.actionType() == Action::CreateTable);
+    if(assert(action.actionType() == Action::CreateTable))
+        return;
     if (!catalog->FindTableName()) {
         size_t AttrNum = (action.columns()->size());
         std::vector<string> Attr;
@@ -133,7 +134,7 @@ void API::createTable(const Action& action)
             Isuni.push_back(isuni);
             Attr.push_back(*(columnp->name()));
             if (Dict.find(*(columnp->name())) != Dict.end()) {
-                displayMsg(string("Two columns' name repeat!"));
+                emit displayError(string("Two columns' name repeat!"));
                 return;
             }
             else {
@@ -171,14 +172,15 @@ void API::createTable(const Action& action)
         }
     }
     else {
-        displayMsg(string("Table already exists"));//@@##
+        emit displayError(string("Table already exists"));//@@##
     }
 }
 
 /************************DML************************/
 void API::select(const Action& action)
 {
-    assert(action.actionType() == Action::Select);
+    if(assert(action.actionType() == Action::Select))
+        return;
     vector<string> attrNames;
     vector<Record> records;
     if (action.columns() != nullptr) {
@@ -187,7 +189,7 @@ void API::select(const Action& action)
             if (catalog->FindAttributeIndex(name) != -1)
                 attrNames.push_back(name);
             else {
-                displayMsg(string("Attribute") + name + string(" does not exist"));
+                emit displayError(string("Attribute") + name + string(" does not exist"));
                 return;
             }
         }
@@ -208,14 +210,15 @@ void API::select(const Action& action)
 
 void API::insertTuple(const Action& action)
 {
-    assert(action.actionType() == Action::Insert);
+    if(assert(action.actionType() == Action::Insert))
+        return;
     size_t attrNum = catalog->GetAttrNum();
     size_t coNum = action.columns()->size();
     if (coNum < attrNum) {
-        displayMsg(string("Too few values"));
+        emit displayError(string("Too few values"));
     }
     else if (coNum > attrNum) {
-        displayMsg(string("Too many values"));
+        emit displayError(string("Too many values"));
     }
     else {
         bool varified = true;
@@ -243,7 +246,7 @@ void API::insertTuple(const Action& action)
                 tuple.push_back(column);
             }
             else {
-                displayMsg(getTypeName((*iter)->type()) +
+                emit displayError(getTypeName((*iter)->type()) +
                            string(" cannot be converted to ") +
                            getTypeName(catalog->GetType(i)));
                 varified = false;
@@ -256,10 +259,10 @@ void API::insertTuple(const Action& action)
             violate = bpCtrl->checkViolate(tuple);
         }
         if(violate){
-            displayMsg(string("Violate unique"));
+            emit displayError(string("Violate unique"));
         }
         else if(!varified){
-            displayMsg(string("Insert failed"));
+            emit displayError(string("Insert failed"));
         }
         else {
             auto pos = RecordManager::InsertRecord(presentName, tuple);
@@ -271,7 +274,8 @@ void API::insertTuple(const Action& action)
 
 void API::deleteTuples(const Action& action)
 {
-    assert(action.actionType() == Action::Delete);
+    if(assert(action.actionType() == Action::Delete))
+        return;
     auto offsets = queryByCondition(action);
     auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, getTemplateRecord());
     if(offsets.size() != 0){
@@ -284,7 +288,8 @@ void API::deleteTuples(const Action& action)
 
 API::vector<File::pos_type> API::queryByCondition(const Action& action)
 {
-    assert(action.tableName()->size() == 1);
+    if(assert(action.tableName()->size() == 1, "Multitable query is not supported."))
+        return vector<pos_type>();
     auto offsets = RecordManager::queryRecordsOffsets(presentName);
     if (action.conditions() == nullptr) {
         //select all
@@ -328,7 +333,8 @@ API::vector<API::pos_type> API::checkTuples(
             opType = exchange(opType);
         }
         //assert one node is constant(type is not undefine) and there are two operand
-        assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined);//@@##
+        if(assert(isPredication(opType) && operand1->value()->type() == Column::Undefined && operand2->value()->type() != Column::Undefined))//@@##
+            return vector<pos_type>();
         int index = catalog->FindAttributeIndex(*operand1->value()->name());
         auto attrName = catalog->GetAttrName();
         auto indName = presentName+string("_")+attrName[index]+string("_index");
@@ -462,8 +468,9 @@ void API::setList(ptr<const Condition> condNode, std::list<Record>&recordList, s
 
 API::ptr<API::list<Predication>> API::optimization(ptr<const Condition> cRoot)
 {
-    assert(cRoot != nullptr);
     auto preOrder = std::make_shared< list<Predication> >();//New an object
+    if(assert(cRoot != nullptr))
+        return preOrder;
     //Traverse the grammar tree
     postOrderTrav(cRoot, preOrder);
     return preOrder;
@@ -559,9 +566,10 @@ void API::displaySelect(const vector<string>& attrNames,const vector<RecordManag
 
 bool API::checkSyn(ptr <const Condition> c_root)
 {
-    assert(c_root != nullptr);
+    if(assert(c_root != nullptr))
+        return false;
     if (c_root->op() == Condition::Node) {
-        displayMsg(*(c_root->value()->name()) + string(" is not boolean type"));
+        emit displayError(*(c_root->value()->name()) + string(" is not boolean type"));
         return false;
     }
     bool ret = true;
@@ -581,49 +589,49 @@ bool API::checkSyn(ptr <const Condition> c_root)
                 if (catalog->FindAttributeIndex(*(c->value()->name())) == -1) {
                     ret = false;
                     string missColumn = *(c->value()->name());
-                    displayMsg(missColumn + string(" is not in this table"));
+                    emit displayError(missColumn + string(" is not in this table"));
                     break;
                 }
             }
             else if (isConjunction(c->op())) {
                 if (c->op() == Condition::Not || c->op() == Condition::Or) {
                     ret = false;
-                    displayMsg(string("No ") + opName(c->op()) + string(" allowed"));
+                    emit displayError(string("No ") + opName(c->op()) + string(" allowed"));
                     break;
                 }
                 else if (!(c->secondOperand() && c->firstOperand())) {
                     ret = false;
-                    displayMsg(string("Near ") + opName(c->op()) + string(" systax error"));
+                    emit displayError(string("Near ") + opName(c->op()) + string(" systax error"));
                     break;
                 }
                 else if (c->firstOperand()->op() == Condition::Node) {
                     ret = false;
                     string missColumn = *(c->firstOperand()->value()->name());
-                    displayMsg(missColumn + string(" is not boolean type"));
+                    emit displayError(missColumn + string(" is not boolean type"));
                     break;
                 }
                 else if (c->secondOperand()->op() == Condition::Node) {
                     ret = false;
                     string missColumn = *(c->secondOperand()->value()->name());
-                    displayMsg(missColumn + string(" is not boolean type"));
+                    emit displayError(missColumn + string(" is not boolean type"));
                     break;
                 }
             }
             else if (isPredication(c->op())) {
                 if (!(c->secondOperand() && c->firstOperand())) {
                     ret = false;
-                    displayMsg(string("Near ") + opName(c->op()) + string(" systax error"));
+                    emit displayError(string("Near ") + opName(c->op()) + string(" systax error"));
                     break;
                 }
                 else if (!(c->firstOperand()->op() == Condition::Node && c->secondOperand()->op() == Condition::Node)) {
-                    displayMsg(string("Near ") + opName(c->op()) + string(" systax error"));
+                    emit displayError(string("Near ") + opName(c->op()) + string(" systax error"));
                 }
                 else {
                     Column::Type type1 = getColumnType(c->firstOperand()->value());
                     Column::Type type2 = getColumnType(c->secondOperand()->value());
                     if (!convertible(type1, type2) && !convertible(type2, type1)) {
                         ret = false;
-                        displayMsg(getTypeName(type1) + string(" is not comparable with ") + getTypeName(type2));
+                        emit displayError(getTypeName(type1) + string(" is not comparable with ") + getTypeName(type2));
                         break;
                     }
                 }
@@ -639,8 +647,9 @@ bool API::checkSyn(ptr <const Condition> c_root)
 }
 RecordManager::Record API::getTemplateRecord()
 {
-    assert(catalog != nullptr);
     RecordManager::Record templateRecord;
+    if(assert(catalog != nullptr))
+        return templateRecord;
     int attrNum = catalog->GetAttrNum();
     templateRecord.reserve(attrNum);
     for (int i = 0; i < attrNum; i++) {
@@ -658,12 +667,13 @@ void API::dropIndex(const Action& action)
     if(index>=0)
         catalog->DropIndex(presentName, *action.indexName());
     else
-        displayMsg("No such index.");
+        emit displayError("No such index.");
 }
 
 void API::createIndex(const Action& action)
 {
-    assert(action.actionType() == Action::CreateIndex && action.columns()->size() == 1);
+    if(assert(action.actionType() == Action::CreateIndex && action.columns()->size() == 1))
+        return;
     auto column = *action.columns()->begin();
     int index = catalog->FindAttributeIndex(*column->name());
     if(catalog->GetIsUnique(index)){
@@ -695,17 +705,18 @@ void API::createIndex(const Action& action)
             catalog->CreateIndex(presentName, *column->name(), *action.indexName());
         }
         else{
-            displayLine("Index on "+ *column->name()+ "already exists.");
+            emit displayError("Index on "+ *column->name()+ "already exists.");
         }
     }
     else{
-        displayLine("Unable to create index on non unique column");
+        emit displayError("Unable to create index on non unique column");
     }
 }
 
 void API::dropTable(const Action& action)
 {
-    assert(action.actionType() == Action::DropTable);
+    if(assert(action.actionType() == Action::DropTable))
+        return;
     auto attrNum = catalog->GetAttrNum();
     auto name = catalog->GetAttrName();
     //bpCtrl->dropIndices();  Cannot drop before deconstruct?

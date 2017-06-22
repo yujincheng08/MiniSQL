@@ -1,6 +1,14 @@
 #include "BaseInterpreter.h"
+#include <windows.h>
 
 using namespace std;
+
+
+void BaseInterpreter::setConsoleColor(unsigned short colorIndex)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorIndex);
+}
+
 
 void BaseInterpreter::newConstraint(const string &columnName, const Constraint::Type type)
 {

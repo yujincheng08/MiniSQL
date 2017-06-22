@@ -20,10 +20,12 @@ void Interpreter::query()
 {
     if(Error)
     {
+        setConsoleColor(0xC);
         cerr<<"Error occurs";
         if(!File.empty())
             cerr<<" at line " << LineNo;
         cerr<<" near \""<<Near<<"\" : "<<ErrorMsg<<endl;
+        setConsoleColor(0xF);
     }
     else
     {
@@ -54,6 +56,7 @@ void Interpreter::error(const string &msg)
 
 void Interpreter::run()
 {
+    setConsoleColor(0xF);
     reset();
     while(int token = scanner->lex())
     {
