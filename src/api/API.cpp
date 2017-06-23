@@ -368,7 +368,8 @@ API::vector<API::pos_type> API::checkTuples(
     else{
         nullFlag = true;
     }
-    while (!nullFlag && predicator != predicators->end()) {
+    predicator = predicators->begin();
+    while (!nullFlag && predicator != predicators->end() && !predicator->haveIndex) {
         setList(predicator->condNode, recordList, offsetList);
         //Skip when satisfy the condition
         if (offsetList.empty() || recordList.empty()) {
