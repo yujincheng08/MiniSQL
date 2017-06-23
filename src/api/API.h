@@ -83,7 +83,7 @@ private:
     Column::Type getColumnType(const ptr<const Column> column);
     RecordManager::Record getTemplateRecord();
     vector<pos_type> queryByCondition(const Action& action);
-    vector<pos_type> checkTuples(const ptr<list<Predication>>,const vector<pos_type>&,const vector<Record>&);
+    vector<pos_type> checkTuples(const ptr<list<Predication>>, const vector<pos_type>&);
     void setList(ptr<const Condition> , std::list<Record>&, std::list<pos_type>& );
     vector<File::pos_type> queryByIndex(ptr<const Condition> condition);
     ptr<list<Predication>> optimization(ptr<const Condition>);

@@ -305,9 +305,9 @@ API::vector<File::pos_type> API::queryByCondition(const Action& action)
 
         //displayMsg(string("Select by conditions"));
         auto predicators = optimization(action.conditions());
-        auto templateRecord = getTemplateRecord();
-        auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, templateRecord);
-        return checkTuples(predicators, offsets, records);
+        //auto templateRecord = getTemplateRecord();
+        //auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, templateRecord);
+        return checkTuples(predicators, offsets);
     }
     else{
         return vector<pos_type>();
@@ -316,8 +316,7 @@ API::vector<File::pos_type> API::queryByCondition(const Action& action)
 
 API::vector<API::pos_type> API::checkTuples(
         const ptr<list<Predication>> predicators,
-        const vector<pos_type>& inOffsets,
-        const vector<Record>& records
+        const vector<pos_type>& inOffsets
         )
 {
     set<pos_type> indexResult;
@@ -355,6 +354,8 @@ API::vector<API::pos_type> API::checkTuples(
     list<Record> recordList;
     list<pos_type> offsetList;
     std::copy(indexResult.begin(), indexResult.end(), std::back_inserter(offsets));
+    auto templateRecord = getTemplateRecord();
+    auto records = RecordManager::queryRecordsByOffsets(presentName, offsets, templateRecord);
     if(!offsets.empty()){
         //Copy to list
         for (auto pos : offsets) {
@@ -408,6 +409,7 @@ void API::setList(ptr<const Condition> condNode, std::list<Record>&recordList, s
     //Get records
     auto riterator = recordList.begin();
     auto piterator = offsetList.begin();
+
     //for each column, select qulified tuples
     if (isChar(operandType)) {
         string value1, value2;
